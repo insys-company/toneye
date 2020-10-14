@@ -1,0 +1,15 @@
+@import './abstracts/colors.scss';
+
+::-webkit-scrollbar-track {
+  opacity: 0;
+}
+  
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  background-color: none;
+}
+  
+// ::-webkit-scrollbar-thumb {
+//   background-color: #CCD0D4;
+// }

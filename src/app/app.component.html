@@ -1,0 +1,53 @@
+<div class="explorer explorer__wrapper">
+  <div class="explorer__content">
+    <!-- Header -->
+    <header class="explorer__header header" [class.header--mobile-menu-opened]="isMenuOpened">
+      <!-- Logo icon -->
+      <div class="header__logo"></div>
+
+      <!-- Icon for mobile version -->
+      <div class="header__mobile-menu-icon mobile-menu-icon" [class.mobile-menu-icon--opened]="isMenuOpened" (click)="isMenuOpened = !isMenuOpened;">
+        <span class="mobile-menu-icon__line mobile-menu-icon__line-top"></span>
+        <span class="mobile-menu-icon__line mobile-menu-icon__line-middle"></span>
+        <span class="mobile-menu-icon__line mobile-menu-icon__line-bottom"></span>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="header__toolbar">
+        <div *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="header__toolbar-link">
+          <span>{{item}}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Search block -->
+    <div class="explorer__search search">
+      <span>Search input</span>
+    </div>
+
+    <!-- Breadcrumbs block -->
+    <div *ngIf="breadcrumbs?.length" class="explorer__breadcrumbs breadcrumbs">
+      <div *ngFor="let item of breadcrumbs;let index = index;trackBy:identifyBreadcrumbs;" class="breadcrumbs__content">
+          <!-- Name -->
+          <span class="breadcrumbs__name" [class.breadcrumbs__name--last]="(index === (breadcrumbs?.length - 1))"
+            (click)="onRedirect(index, item)">{{ item?.name }}</span>
+          <!-- Slash -->
+          <div class="breadcrumbs__icon" [class.breadcrumbs__icon--hide]="(index === (breadcrumbs?.length - 1))"></div>
+      </div>
+    </div>
+
+    <!-- Children container -->
+    <div [@routeAnimation]="prepareRouteForAnimation(routerOutlet)" class="explorer__router-outlet router-outlet router-outlet__wrapper">
+      <router-outlet #routerOutlet="outlet"></router-outlet>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile menu -->
+<div class="mobile-menu mobile-menu__wrapper" [class.mobile-menu--opened]="isMenuOpened">
+  <div class="mobile-menu__content">
+    <div *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="mobile-menu__link" (click)="isMenuOpened=false;">
+      <span>{{item}}</span>
+    </div>
+  </div>
+</div>

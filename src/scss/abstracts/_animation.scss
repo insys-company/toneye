@@ -1,0 +1,143 @@
+@keyframes toggleTopOpen {
+	0% {
+    top: 50%;
+    -webkit-transform: rotate(-45deg);
+		transform: rotate(-45deg);
+	}
+	50% {
+    top: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	100% {
+    top: 30%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+}
+
+@keyframes toggleMiddleOpen {
+	0% {
+    top: 50%;
+    -webkit-transform: rotate(-45deg);
+		transform: rotate(-45deg);
+		opacity: 0;
+	}
+	50% {
+    top: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+		opacity: 1;
+	}
+	100% {
+    top: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+		opacity: 1;
+	}
+}
+
+@keyframes toggleBottomOpen {
+	0% {
+    bottom: 50%;
+    -webkit-transform: rotate(45deg);
+		transform: rotate(45deg);
+	}
+	50% {
+		bottom: 50%;
+		transform: rotate(0);
+	}
+	100% {
+		bottom: 30%;
+		transform: rotate(0);
+	}
+}
+
+@keyframes toggleTopClose {
+	0% {
+    top: 30%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	50% {
+    top: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	100% {
+    top: 50%;
+    -webkit-transform: rotate(-45deg);
+		transform: rotate(-45deg);
+	}
+}
+
+@keyframes toggleMiddleClose {
+	0% {
+    top: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	50% {
+    top: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	100% {
+    top: 50%;
+    -webkit-transform: rotate(-45deg);
+		transform: rotate(-45deg);
+		opacity: 0;
+	}
+}
+
+@keyframes toggleBottomClose {
+	0% {
+    bottom: 30%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	50% {
+    bottom: 50%;
+    -webkit-transform: rotate(0);
+		transform: rotate(0);
+	}
+	100% {
+    bottom: 50%;
+    -webkit-transform: rotate(45deg);
+		transform: rotate(45deg);
+	}
+}
+
+@keyframes loadContent {
+	0% {
+		opacity: 0;
+		-webkit-transform: translateY(30px);
+		transform: translateY(30px);
+	}
+	100% {
+		opacity: 1;
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+}
+
+@keyframes logoAnimate {
+	0% {
+		transform: translateY(-90px);
+	}
+	20% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-15px);
+	}
+	80% {
+		transform: translateY(0);
+	}
+	90% {
+		transform: translateY(-2px);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
