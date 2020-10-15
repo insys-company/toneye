@@ -21,7 +21,6 @@ pipeline {
     agent {
         label 'windows-azure-agent'
     }
-    triggers { cron ('H H * * *') }
     stages {
         stage ('slack notification about start') {
             steps {
