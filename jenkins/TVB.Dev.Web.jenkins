@@ -30,7 +30,7 @@ pipeline {
         stage ('slack notification about start') {
             steps {
                 script {
-                    SendBuildStatusToSlack(slack_domain, slack_channel, slack_token_credentail_id)
+                    SendBuildStatusToSlack('int-sys', '#tvb-jenkins', 'a956f792-91da-40e2-a0dc-86a632dcb74d')
                 }
             }
         }
