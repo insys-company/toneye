@@ -1,7 +1,5 @@
 @Library('insys-global-pipeline-libraries@1.1')_
 
-String cronSettings = "H H * * *"
-
 properties([parameters([
         string(name: 'agent_label', defaultValue: 'windows-azure-agent'),
         string(name: 'slack_domain', defaultValue: 'int-sys'),
@@ -25,7 +23,7 @@ pipeline {
     agent {
         label agent_label
     }
-    triggers { cron (cronSettings) }
+    triggers { cron ('H H * * *') }
     stages {
         stage ('slack notification about start') {
             steps {
@@ -72,7 +70,7 @@ pipeline {
     post {
         always {
             script {
-                SendBuildStatusToSlack(slack_domain, slack_channel, slack_token_credentail_id, currentBuild.currentResult)
+                SendBuildStatusToSlack('int-sys', '#tvb-jenkins', 'a956f792-91da-40e2-a0dc-86a632dcb74d', currentBuild.currentResult)
             }
         }
     }
