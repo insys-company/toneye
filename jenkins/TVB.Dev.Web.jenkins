@@ -17,8 +17,6 @@ properties([parameters([
         string(name: 'seven_zip_remote_directory', defaultValue: '\"C:\\Program Files\\7-Zip\"') 
     ]),disableConcurrentBuilds()])
 
-properties([disableConcurrentBuilds()])
-
 pipeline {
     agent {
         label 'windows-azure-agent'
