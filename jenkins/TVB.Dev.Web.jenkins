@@ -21,7 +21,7 @@ properties([disableConcurrentBuilds()])
 
 pipeline {
     agent {
-        label agent_label
+        label 'windows-azure-agent'
     }
     triggers { cron ('H H * * *') }
     stages {
