@@ -142,7 +142,7 @@ p {
 }
 
 .page-list-content__tabs {
-  animation: loadContent .5s ease 1 alternate .8s forwards;
+  animation: loadContent .7s ease 1 alternate .8s forwards;
 }
 
 
@@ -220,7 +220,8 @@ p {
   }
 
   &__tabs {
-    flex: 1 1 70%;
+    flex: 1 1 68%;
+    max-width: 68%;
 
     .page-list-content__component-wrapper:not(:last-child) {
       // margin-bottom: 20px;
@@ -317,6 +318,7 @@ app-home {
 
     &__tabs {
       flex: 0 1 100% !important;
+      max-width: 100% !important;
     }
   }
 

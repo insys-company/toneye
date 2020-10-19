@@ -113,6 +113,10 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param index Index of selected tab
    */
   onSeeMore(index: number): void {
+
+    // Scroll to top
+    window.scrollTo({top: 0, behavior: 'smooth'});
+
     this.router.navigate([`${index == 0 ? appRouteMap.blocks : index == 1 ? appRouteMap.transactions : appRouteMap.messages}`]);
   }
 
