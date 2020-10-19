@@ -346,7 +346,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return new TabViewerData({
         titleLeft: m.id,
         subtitleLeft: new DataConfig({
-          text: `${(!m.src || m.src == '') ? 'ext' : m.src.substring(0, 6)} -> ${m.dst ? m.dst.substring(0, 6) :''}`,
+          text: `${(!m.src || m.src == '') ? 'ext' : m.src.substring(0, 6)} -> ${(!m.dst || m.dst == '') ? 'ext' : m.dst.substring(0, 6)}`,
           type: 'string'
         }),
         titleRight: new DataConfig({text: m.value, icon: true, iconClass: 'icon-gem', type: 'number'}),

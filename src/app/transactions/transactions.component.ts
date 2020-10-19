@@ -82,9 +82,9 @@ export class TransactionsComponent implements OnInit, OnDestroy {
    */
   onSeeMore(index: number): void {
 
-    this.tableViewerLoading = true;
+    // this.tableViewerLoading = true;
 
-    this.detectChanges();
+    // this.detectChanges();
 
     let date = this.data[this.data.length - 1].now;
 
@@ -105,7 +105,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
         let newData = this.mapData(res);
         this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-        this.tableViewerLoading = false;
+        // this.tableViewerLoading = false;
 
         this.detectChanges();
 
