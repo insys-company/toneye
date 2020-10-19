@@ -1,0 +1,188 @@
+@import './../../../../../scss/abstracts/colors';
+@import './../../../../../scss/icon.scss';
+
+app-multiselect-overlay {
+  width: 100%;
+}
+
+.app-multiselect-panel {
+  min-width: 150px;
+  // padding: 20px 0;
+  border-radius: 3px;
+  background-color: #FFF;
+  // box-shadow: 1px 1px 10px 1px rgba(96, 106, 118, 0.12);
+  box-shadow: 1px 1px 10px 1px rgba(165, 180, 217, 0.3);
+
+  &__search,
+  &__select-all,
+  &__option {
+    padding-left: 24px;
+    padding-right: 24px; 
+  }
+
+  &__search {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    .mat-form-field-wrapper {
+      padding: 0 !important;
+    }
+    .mat-form-field-underline {
+      display: none !important;
+    }
+
+  }
+  &__icon-search {
+
+    background-image: url($ico-search);
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+    bottom: 0;
+    position: absolute;
+
+    &--focused {
+
+    }
+  }
+  &__icon-clear {
+
+    min-height: 20px;
+    min-width: 20px;
+    position: relative;
+    display: none;
+    cursor: pointer;
+
+    &::before,
+    &::after {
+      content: '';
+            position: absolute;
+            border-radius: 5px;
+            transition: all .1s linear;
+        top: 50%;
+        right: 0;
+        height: 1px;
+        width: 100%;
+        background-color: #87A2B7;
+    }
+    &::before {
+      -moz-transform: rotate(-45deg);
+      -o-transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      transform: rotate(-45deg);
+    }
+    &::after {
+      -moz-transform: rotate(45deg);
+      -o-transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+    &--show {
+      display: block !important;
+    }
+  }
+  &__select-all {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-top: 1px solid #DBE1E7;
+  }
+  &__options {
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #DBE1E7;
+    outline: none !important;
+
+    &--multiple {
+
+    }
+    &--single {
+      
+    }
+  }
+  &__option-single {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__not-found {
+    height: 45px;
+    font-family: Lato, sans-serif;
+    font-size: fontSize(13px);
+    font-weight: 400;
+    padding: 0 16px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 48px;
+    text-decoration: none;
+    position: relative;
+    cursor: default;
+    pointer-events: none !important;
+    outline: 0;
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  &__option {
+    height: 45px;
+    font-family: Lato, sans-serif;
+    font-size: fontSize(13px);
+    font-weight: 500;
+    // padding: 0 16px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 48px;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    outline: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+
+    &:not(.app-multiselect-panel__option--disabled):not(.app-multiselect-panel__option--selected).app-multiselect-panel__option--focused,
+    &:not(.app-multiselect-panel__option--disabled):not(.app-multiselect-panel__option--selected):hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &.app-multiselect-panel__option--disabled.app-multiselect-panel__option--selected {
+      background-color: #E4E4E4 !important;
+    }
+
+    &:not(.app-multiselect-panel__option--disabled).app-multiselect-panel__option--selected {
+      background-color: #F0F6FF !important;
+    }
+
+    &.app-multiselect-panel__option--disabled {
+      pointer-events: none !important;
+      opacity: .4;
+    }
+  }
+}
+
+// option для фильтра чуть уменьшены
+.app-multiselect-panel.app-filters__multiselect-panel {
+  box-shadow: 1px 5px 10px 1px rgba(165, 180, 217, 0.3);
+  .app-multiselect-panel__options {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  .app-multiselect-panel__option {
+    height: 36px;
+  }
+  .app-multiselect-panel__search {
+    .mat-form-field-flex {
+      padding: .5em 0 !important;
+    }
+  }
+}

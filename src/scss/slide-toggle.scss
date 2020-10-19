@@ -1,0 +1,62 @@
+@import './abstracts/colors.scss';
+
+.mat-slide-toggle .mat-slide-toggle-thumb,
+.mat-slide-toggle .mat-slide-toggle-thumb-container {
+  height: 14px;
+  width: 14px;
+  box-shadow: none;
+}
+
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar .mat-slide-toggle-thumb-container,
+.mat-slide-toggle.mat-disabled .mat-slide-toggle-bar .mat-slide-toggle-thumb-container {
+  top: 2px;
+  left: -2.5px;
+}
+
+.mat-slide-toggle .mat-slide-toggle-bar {
+  height: 18px;
+  width: 30px;
+  border-radius: 50px;
+}
+
+.mat-slide-toggle .mat-slide-toggle-thumb-container,
+.mat-slide-toggle.mat-disabled:not(.mat-checked) .mat-slide-toggle-bar .mat-slide-toggle-thumb-container {
+  top: 2px;
+  left: 2.9px;
+}
+
+.mat-slide-toggle .mat-slide-toggle-ripple {
+  display: none;
+}
+
+.mat-slide-toggle-content {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+// Default state
+// unchecked
+.mat-slide-toggle:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-thumb {
+  background-color: $explorer--base__white;
+}
+
+.mat-slide-toggle:not(.mat-checked):not(.mat-disabled) .mat-slide-toggle-bar {
+  background-color: $explorer--base__gray-light;
+}
+
+// checked
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+  background-color: $explorer--base__white;
+}
+
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+  background-color: $explorer--base__blue;
+}
+
+// Disabled state
+.mat-slide-toggle.mat-disabled .mat-slide-toggle-thumb  {
+  background-color: $explorer--base__white;
+}
+
+.mat-slide-toggle.mat-disabled .mat-slide-toggle-bar {
+  // background-color: $m--color_btn-accent-disabled;
+}

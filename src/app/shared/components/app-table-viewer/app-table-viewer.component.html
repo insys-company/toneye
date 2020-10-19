@@ -1,0 +1,76 @@
+<div class="app-viewer border-light table-viewer app-viewer--opened">
+
+  <div *ngIf="isHeaderVisible && !isTabsHeaderMode" class="app-viewer__header-wrapper">
+    <div class="app-viewer__header">
+      <span>{{header}}</span>
+    </div>
+    <div class="app-viewer__btn" (click)="onExport()">
+      <span class="color-blue">
+        {{btnPlaceholder}}
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="isHeaderVisible && isTabsHeaderMode" class="app-viewer__tabs-header-wrapper">
+    <div *ngFor="let item of tabsTitles;let index = index;trackBy:identifyTabs;"
+      class="app-viewer__tab-header" [class.app-viewer__tab-header--active]="index === selectedTabIndex"
+      (click)="onChangeTab(index)">
+
+      <span class="color-gray" [class.color-blue]="index === selectedTabIndex">List {{item}}</span>
+    </div>
+  </div>
+
+
+  <!-- Skeleton -->
+  <div *ngIf="skeletalAnimation" class="app-viewer__body-wrapper">
+    <div *ngFor="let item of skeletonArray;trackBy:identifySkeleton;" class="app-viewer__body-item border-bottom-light app-viewer__body-item--skeleton">
+      <div class="app-viewer__body-item-row">
+        <div class="app-viewer__body-item-header skeleton skeleton--normal-text w-25"></div>
+        <div class="app-viewer__body-item-subheader skeleton skeleton--small-text w-25"></div>
+      </div>
+      <div class="app-viewer__body-item-row">
+        <div class="app-viewer__body-item-subheader skeleton skeleton--small-text w-10"></div>
+        <div class="app-viewer__body-item-subheader skeleton skeleton--small-text w-25"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
+    <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item border-bottom-light">
+      <div class="app-viewer__body-item-row">
+        <span class="color-blue link no-pointer">{{item.titleLeft}}</span>
+
+        <!-- With icon -->
+        <div class="app-viewer__body-item-icon-wrapper app-viewer__body-item-icon-wrapper--right">
+          <p *ngIf="item.titleRight?.type === 'number'">{{item.titleRight?.text ? (item.titleRight?.text | thousandspipe) : ''}}</p>
+          <p *ngIf="item.titleRight?.type !== 'number'" class="{{item.titleRight?.textColorClass}}">{{item.titleRight?.text ? item.titleRight?.text : ''}}</p>
+          <!-- Icon -->
+          <div *ngIf="item.titleRight?.text && item.titleRight?.icon" class="icon {{item.titleRight?.iconClass}}"></div>
+        </div>
+
+      </div>
+
+      <div class="app-viewer__body-item-row">
+        <p *ngIf="item.subtitleLeft?.type === 'date'">Last Tx: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
+        <p *ngIf="item.subtitleLeft?.type !== 'date'">{{item.subtitleLeft?.text ? item.subtitleLeft?.text : ''}}</p>
+
+        <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>
+        <p *ngIf="item.subtitleRight?.type === 'percent'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | thousandspipe) : '' }}%</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="app-viewer__table-footer-wrapper">
+    <!-- Skeleton -->
+    <div *ngIf="skeletalAnimation" class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-25"></div>
+    <!-- Button -->
+    <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-item-subheader" (click)="onSeeMore()">
+      <span class="color-blue link">
+        {{footerBtnPlaceholder}}
+      </span>
+    </div>
+  </div>
+
+</div>

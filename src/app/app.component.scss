@@ -67,6 +67,7 @@
 .header {
   z-index: 99999;
   transition: all .3s ease;
+  border-bottom: 1px solid $explorer--base__white;
 }
 
 .explorer__search {
@@ -75,11 +76,11 @@
 }
 
 .explorer__breadcrumbs {
-  animation: loadContent .5s ease 1 alternate .7s forwards;
+  animation: loadContent .5s ease 1 alternate .55s forwards;
 }
 
 .explorer__router-outlet {
-  animation: loadContent .5s ease 1 alternate .9s forwards;
+  animation: loadContent .5s ease 1 alternate .6s forwards;
 }
 
 .header__toolbar {
@@ -91,8 +92,15 @@
   }
 
   &-link {
-    font-weight: 600;
     transition: all .3s ease;
+    text-transform: capitalize;
+    min-height: 20px;
+    padding: 10px 5px;
+    outline: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover,
     &.active {
@@ -100,7 +108,7 @@
     }
 
     &:hover {
-      transform: translateY(-5px);
+      transform: translateY(-4px);
     }
 
     &:not(.active) {
@@ -110,6 +118,7 @@
     &.active {
       cursor: default;
       pointer-events: none;
+      font-weight: 600;
     }
   }
 }
@@ -118,6 +127,8 @@
   margin: 20px 0;
   flex: 1 1;
   // background-color: bisque;
+  display: flex;
+  flex-direction: column;
 }
 
 .mobile-menu-icon {
@@ -213,11 +224,12 @@
       margin: 10px 0;
       color: $explorer--base__black;
       font-weight: 600;
+      text-transform: capitalize;
 
       &:hover {
         transition: all .3s ease;
         color: $explorer--base__blue;
-        transform: translateY(-5px);
+        transform: translateY(-4px);
       }
     }
   }
@@ -235,7 +247,7 @@
 }
 
 .breadcrumbs {
-  margin: 20px 22px;
+  margin: 20px 22px 0 22px;
   .breadcrumbs__content {
 
     .breadcrumbs__name:not(:last-child),
@@ -246,10 +258,11 @@
 
     .breadcrumbs__name:not(.breadcrumbs__name--last) {
       color: $explorer--base__blue;
+      font-weight: 600;
       cursor: pointer;
 
       &:hover {
-        transform: translateY(-2px);
+        transform: translateY(-4px);
 
         &::after {
           background-color: $explorer--base__blue;
@@ -265,14 +278,20 @@
       }
     }
 
+    .breadcrumbs__name:not(.breadcrumbs__name--last) {
+      // font-weight: 600;
+    }
+
     .breadcrumbs__name {
       display: flex;
       align-items: center;
-      font-weight: 600;
+      // font-weight: 600;
       transition: all .3s ease;
       position: relative;
       min-height: 30px;
       padding: 10px 5px;
+      transition: all .3s ease;
+      text-transform: capitalize;
 
       &::after {
         content: '';

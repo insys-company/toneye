@@ -7,9 +7,10 @@
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
-  background-color: none;
+  background-color: $explorer--base__blue-light;
 }
   
-// ::-webkit-scrollbar-thumb {
-//   background-color: #CCD0D4;
-// }
+::-webkit-scrollbar-thumb {
+  background-color: $explorer--base__blue;
+  border-radius: 5px;
+}

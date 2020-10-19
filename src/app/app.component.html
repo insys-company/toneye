@@ -22,7 +22,18 @@
 
     <!-- Search block -->
     <div class="explorer__search search">
-      <span>Search input</span>
+
+      <!-- <app-search
+        [blocks]="foundBlocks"
+        [messages]="foundMessages"
+        [transactions]="foundTransactions"
+        (searchChange)="onSearch($event)">
+      </app-search> -->
+
+      <mat-form-field appearance="outline" floatLabel="never" style="width: 100%;">
+        <input matInput type="text" disabled placeholder="Type id of block, transaction, message, account or validator for search them" autocomplete="off">
+      </mat-form-field>
+
     </div>
 
     <!-- Breadcrumbs block -->

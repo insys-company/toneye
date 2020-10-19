@@ -141,3 +141,13 @@
 		transform: translateY(0);
 	}
 }
+
+@keyframes skeleton {
+	0% {
+		background-position: -236px 0;
+	}
+	
+	100% {
+		background-position: 236px 0;
+	}
+}

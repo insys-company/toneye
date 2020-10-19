@@ -1,0 +1,29 @@
+<div class="app-viewer bg-light" [class.app-viewer--opened]="isFilterOpen">
+  <!-- Header -->
+  <div class="app-viewer__header-wrapper">
+    <div class="app-viewer__header">
+      <span>Filters</span>
+    </div>
+    <div class="app-viewer__btn" (click)="onShowOrHide()">
+      <span class="color-blue link">
+        {{btnPlaceholder}}
+      </span>
+    </div>
+  </div>
+  <!-- Skeleton -->
+  <div *ngIf="skeletalAnimation" class="app-viewer__body-wrapper">
+    <div *ngFor="let item of skeletonArray;trackBy:identifySkeleton;" class="app-viewer__body-item app-viewer__body-item--skeleton">
+      <div class="app-viewer__body-item-field skeleton skeleton-filter-bg skeleton--field w-100"></div>
+      <!-- <div class="app-viewer__body-item-subheader skeleton skeleton-filter-bg skeleton--normal-text w-75"></div> -->
+    </div>
+  </div>
+  <!-- Data -->
+
+  <!-- Footer line -->
+  <div class="app-viewer__footer-line"></div>
+
+  <!-- Footer -->
+  <div class="app-viewer__footer-wrapper">
+    <div class="app-viewer__body-item-block skeleton skeleton-filter-bg skeleton--block w-40"></div>
+  </div>
+</div>

@@ -1,7 +1,7 @@
 import { trigger, animateChild, group, transition, animate, style, query} from '@angular/animations';
 
 // Routable animations
-export const appRouteAnimation =
+export const routeAnimation =
     trigger('routeAnimation', [
         transition('* => home', [
             style({ position: 'relative' }),
@@ -125,9 +125,15 @@ export const appRouteAnimation =
         ])
     ]);
 
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at http://angular.io/license
-*/
+// after skeleton elements
+export const smoothDisplayAfterSkeletonAnimation = 
+    trigger('smoothDisplayAnimation', [
+        transition(':enter', [
+            style({ opacity: '0' }),
+            animate('.3s linear', style({ opacity: '1' }))
+        ]),
+        // transition(':leave', [
+        //     style({ opacity: '1' }),
+        //     animate('0s ease', style({ opacity: '0' }))
+        // ])
+    ]);

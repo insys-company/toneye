@@ -33,7 +33,63 @@
             "scripts": []
           },
           "configurations": {
-            "production": {
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            },
+            "stage": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.stage.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            },
+            "prod": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -69,8 +125,14 @@
             "browserTarget": "tonexplorer:build"
           },
           "configurations": {
-            "production": {
-              "browserTarget": "tonexplorer:build:production"
+            "test": {
+              "browserTarget": "tonexplorer:build:test"
+            },
+            "stage": {
+              "browserTarget": "tonexplorer:build:stage"
+            },
+            "prod": {
+              "browserTarget": "tonexplorer:build:prod"
             }
           }
         },
@@ -117,8 +179,14 @@
             "devServerTarget": "tonexplorer:serve"
           },
           "configurations": {
-            "production": {
-              "devServerTarget": "tonexplorer:serve:production"
+            "test": {
+              "devServerTarget": "tonexplorer:serve:test"
+            },
+            "stage": {
+              "devServerTarget": "tonexplorer:serve:stage"
+            },
+            "prod": {
+              "devServerTarget": "tonexplorer:serve:prod"
             }
           }
         }

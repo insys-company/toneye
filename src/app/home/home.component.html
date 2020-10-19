@@ -1,1 +1,72 @@
-<p>home works!</p>
+<div class="home-page page">
+  <!-- Info -->
+  <div class="home-page__network-info network-info" [class.network-info--opened]="isInfoOpen">
+    <div class="network-info__header-wrapper">
+      <div class="network-info__header">
+        <h1>TON Labs Dev Network</h1>
+      </div>
+      <div class="network-info__btn" (click)="onShowInfo()">
+        <span class="color-blue link">
+          {{infoBtnPlaceholder}}
+        </span>
+      </div>
+    </div>
+    <div class="network-info__body-wrapper">
+      <div class="network-info__body-item">
+        <span>TON Labs Developer Network runs the latest stable version of TON Blockchain.</span>
+      </div>
+      <div class="network-info__body-item">
+        <span>The goal of TON Labs Dev Net is to provide stable development environment for application developers. It is optimized to connect with TON Labs’ SDK. Read more here:</span><br>
+        <span class="color-blue link">https://docs.ton.dev</span>
+      </div>
+      <div class="network-info__body-item">
+        <span>You can receive  currency using our giver or by installing one of our wallets.</span>
+      </div>
+      <div class="network-info__body-item">
+        <span>If you are interested in running a validator Node, please contact us at</span>
+      </div>
+      <div class="network-info__body-item">
+        <span class="color-blue link">support@tonlabs.io</span>
+      </div>
+    </div>
+  </div>
+  <!-- Page header -->
+  <div class="home-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Network Status</h1>
+    </div>
+    <div class="page-header__slide-toggle">
+      <mat-slide-toggle>Autoupdate</mat-slide-toggle>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="home-page__content home-content page-list-content">
+
+    <div class="page-list-content__filters">
+      <div class="page-list-content__component-wrapper">
+        <app-general-viewer #generalViewer class="page-list-content__component"
+          [data]="generalViewerData"
+          [skeletonArray]="skeletonArray"
+          [skeletalAnimation]="generalViewerLoading">
+        </app-general-viewer>
+      </div>
+      <div class="page-list-content__component-wrapper">
+        <app-filter #filter class="page-list-content__component"></app-filter>
+      </div>
+    </div>
+
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          [skeletalAnimation]="tableViewerLoading"
+          [isTabsHeaderMode]="true"
+          [tabsTitles]="tabsTitles"
+          (exportEvent)="onExport()"
+          (moreEvent)="onSeeMore($event)"
+          (tabChange)="onSelectTab($event)">
+        </app-table-viewer>
+      </div>
+    </div>
+  </div>
+</div>

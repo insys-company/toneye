@@ -1,1 +1,38 @@
-<p>messages works!</p>
+<div class="messages-page page">
+  <!-- Page header -->
+  <div class="messages-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Messages</h1>
+    </div>
+    <div class="page-header__slide-toggle">
+      <mat-slide-toggle>Autoupdate</mat-slide-toggle>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="messages-page__content messages-content page-list-content">
+    <div class="page-list-content__filters">
+      <div class="page-list-content__component-wrapper">
+        <app-general-viewer #generalViewer class="page-list-content__component"
+          [data]="generalViewerData"
+          [skeletonArray]="skeletonArray"
+          [skeletalAnimation]="generalViewerLoading">
+        </app-general-viewer>
+      </div>
+      <div class="page-list-content__component-wrapper">
+        <app-filter #filter class="page-list-content__component"></app-filter>
+      </div>
+    </div>
+
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          footerPlaceholder="Load 25 more"
+          [skeletalAnimation]="tableViewerLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onSeeMore($event)">
+        </app-table-viewer>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,53 +1,36 @@
-import { Component, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { appRouteMap } from './app-route-map';
-import { RouterOutlet, Router } from '@angular/router';
-import { appRouteAnimation } from './app-route-animations';
-import { Breadcrumbs } from './api';
+import { RouterOutlet, Router, NavigationStart } from '@angular/router';
+import { routeAnimation } from './app-animations';
+import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy } from './api';
+import { takeUntil, map } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
+import { Apollo } from 'apollo-angular';
+import { BlockQueries } from './api/queries';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  animations: [ appRouteAnimation ],
+  animations: [ routeAnimation ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnDestroy {
   /**
-   * Account's link
+   * for router
    */
-  private accounts: string = appRouteMap.accounts;
-  /**
-   * Blocks's link
-   */
-  private blocks: string = appRouteMap.blocks;
-  /**
-   * Messages's link
-   */
-  private messages: string = appRouteMap.messages;
-  /**
-   * Transactions's link
-   */
-  private transactions: string = appRouteMap.transactions;
-  /**
-   * Validators's link
-   */
-  private validators: string = appRouteMap.validators;
-  /**
-   * Home's link
-   */
-  private home: string = appRouteMap.home;
+  public _unsubscribe: Subject<void> = new Subject();
   /**
    * Array of links
    */
   public links: Array<string> = [
-    this.home,
-    this.blocks,
-    this.transactions,
-    this.messages,
-    this.accounts,
+    appRouteMap.home,
+    appRouteMap.blocks,
+    appRouteMap.transactions,
+    appRouteMap.messages,
+    appRouteMap.accounts,
     // this.validators
   ];
-
   /**
    * Flag for mobile menu and mobile menu icon
    */
@@ -57,33 +40,70 @@ export class AppComponent implements OnDestroy {
    */
   public breadcrumbs: Breadcrumbs[];
 
+  /** Array of ... */
+  public foundBlocks: Block[] = [];
+  public foundMessages: Message[] = [];
+  public foundTransactions: Transaction[] = [];
+
   constructor(
+    private changeDetection: ChangeDetectorRef,
     private router: Router,
+    private apollo: Apollo,
+    private blockQueries: BlockQueries,
+    // private commonQueries: CommonQueries,
+    // private messageQueries: MessageQueries,
+    // private transactionQueries: TransactionQueries,
   ) {
+
+    /** Disable change detection for application optimization */
+    // this.changeDetection.detach();
+
     this.isMenuOpened = false;
     this.breadcrumbs = [];
-    this.breadcrumbs = [
-      new Breadcrumbs({ name: appRouteMap.home, url: appRouteMap.home }),
-      new Breadcrumbs({ name: appRouteMap.blocks, url: appRouteMap.blocks }),
-      new Breadcrumbs({ name: appRouteMap.transactions, url: appRouteMap.transactions }),
-      new Breadcrumbs({ name: appRouteMap.messages, url: appRouteMap.messages }),
-      new Breadcrumbs({ name: appRouteMap.accounts, url: appRouteMap.accounts })
-    ];
+    this.breadcrumbs = [new Breadcrumbs({ name: appRouteMap.home, url: appRouteMap.home })];
+  }
+
+  /** Search input */
+  @ViewChild('searchInput', { static: false }) searchInput?: ElementRef;
+
+  /**
+   * Initialization of the component
+   */
+  ngOnInit(): void {
+    this.routerSubscribe();
+    // this.detectChanges();
   }
 
   /**
    * Destruction of the component
    */
   ngOnDestroy(): void {
-    this.accounts = null;
-    this.blocks = null;
-    this.messages = null;
-    this.transactions = null;
-    this.validators = null;
-    this.home = null;
+    this._unsubscribe.next();
+    this._unsubscribe.complete();
+    this._unsubscribe = null;
     this.links = null;
     this.isMenuOpened = null;
     this.breadcrumbs = null;
+    this.foundBlocks = null;
+    this.foundMessages = null;
+    this.foundTransactions = null;
+  }
+
+  /**
+   * Search method
+   * @param search String from search input
+   * @returns {void}
+   */
+  onSearch(search: string): void {
+    const _search = search ? search.trim() : search;
+
+    if (!_search || _search == '') {
+      this.foundBlocks = [];
+      this.detectChanges();
+      return;
+    }
+
+    this.searchBlocks(_search);
   }
 
   /**
@@ -98,7 +118,7 @@ export class AppComponent implements OnDestroy {
    * @param index Item index in ngFor
    * @param item Item in ngFor
    */
-  identifyBreadcrumbs(index: number, item: any): string { return item.name; }
+  identifyBreadcrumbs(index: number, item: Breadcrumbs): string { return item.name; }
 
   /**
    * Method for route animation
@@ -117,5 +137,72 @@ export class AppComponent implements OnDestroy {
     if (item.url != null && indexOfItem !== (this.breadcrumbs.length - 1)) {
       this.router.navigate([`/${item.url}`]);
     }
+  }
+
+  /**
+   * Check url and change breadcrumbs object
+   */
+  private routerSubscribe(): void {
+    this.router.events
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe(event => {
+        if (event instanceof NavigationStart) {
+
+          const _url = event.url != null ? event.url.replace('/', '').toLowerCase() : '';
+          this.breadcrumbs = this.breadcrumbs.slice(0, 1);
+
+          if (_url == appRouteMap.home) { return; }
+
+          this.breadcrumbs.push(new Breadcrumbs({ name: _url, url: _url }));
+        }
+      });
+  }
+
+  /**
+   * Detect Changes
+   */
+  private detectChanges(): void {
+    this.changeDetection.detectChanges();
+  }
+
+  /**
+   * Get block list
+   * @param search String for searching
+   */
+  private searchBlocks(search: string): void {
+    // Get blocks
+    this.getBlocks()
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Block[]) => {
+
+        this.foundBlocks = res ? res : [];
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Get block list query
+   * @param _search String for searching
+   */
+  private getBlocks(_search?: string): Observable<Block[]> {
+
+    const _variables = {
+      filter: {seq_no: {eq: _search}},
+      orderBy: [
+        new QueryOrderBy({path: 'gen_utime', direction: 'DESC'}),
+        new QueryOrderBy({path: 'seq_no', direction: 'DESC'},)
+      ]
+    }
+
+    return this.apollo.watchQuery<Block[]>({
+      query: this.blockQueries.getBlocks,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
   }
 }

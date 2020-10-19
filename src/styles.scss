@@ -1,11 +1,43 @@
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$tonexplorer-primary: mat-palette($mat-indigo);
+$tonexplorer-accent: mat-palette($mat-pink, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$tonexplorer-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$tonexplorer-theme: mat-light-theme($tonexplorer-primary, $tonexplorer-accent, $tonexplorer-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($tonexplorer-theme);
+
 /* You can add global styles to this file, and also import other style files */
+// @import './scss/abstracts/animation';
 @import './scss/abstracts/colors';
 @import './scss/abstracts/variables';
 @import './scss/abstracts/mixins';
 @import './scss/fonts.scss';
 
 @import './scss/scrollbar.scss';
+@import './scss/smooth-viewers.scss';
+@import './scss/skeleton.scss';
 @import './scss/spinner.scss';
+@import './scss/slide-toggle.scss';
 
 * {
   margin: 0;
@@ -31,13 +63,89 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 8px 0;
+  margin: 0;
 }
 
 p,
 span {
   margin: 0;
 }
+
+h1 {
+  font-size: 24px;
+}
+
+span {
+  font-size: 14px;
+}
+
+p {
+  font-size: 12px;
+}
+
+.color-gray {
+  color: $explorer--base__gray;
+}
+
+.color-green_dark {
+  color: $explorer--base__green-dark;
+}
+
+.color-blue {
+  color: $explorer--base__blue;
+}
+
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.no-pointer {
+  cursor: default;
+}
+
+.border-light {
+  border: 1px solid $explorer--base__gray-light;
+}
+
+.border-bottom-light {
+  border-bottom: 1px solid $explorer--base__gray-light;
+}
+
+.bg-light {
+  background-color: $explorer--base__blue-light;
+}
+
+.network-info,
+.page-header,
+.page-list-content,
+.page-details-content,
+.page-list-content__filters,
+.page-list-content__tabs {
+  opacity: 0;
+  -webkit-transform: translateY(10px);
+  transform: translateY(10px);
+}
+
+.network-info,
+.page-header {
+  animation: loadContent .5s ease 1 alternate .6s forwards;
+}
+
+.page-list-content,
+.page-details-content {
+  animation: loadContent .5s ease 1 alternate .7s forwards;
+}
+
+.page-list-content__filters {
+  animation: loadContent .5s ease 1 alternate .75s forwards;
+}
+
+.page-list-content__tabs {
+  animation: loadContent .5s ease 1 alternate .8s forwards;
+}
+
+
 
 // .fx-flex {
 //   display: flex;
@@ -55,40 +163,109 @@ span {
 //   align-items: center;
 // }
 
-
 .explorer {
-  max-width: 100%;
+  max-width: 960px;
 }
 
 .explorer__wrapper {
-  padding: 0 10px;
+  padding: 0 30px;
   margin: 0 auto;
 }
 
-.mobile-menu-icon {
-  display: none;
-}
-
-.header {
-  border-bottom: 1px solid $explorer--base__white;
+.mobile-menu-icon,
+.mobile-menu {
+  display: none !important;
 }
 
 
-@media screen and (max-width: 1919px) {
-  .explorer {
-    max-width: 960px;
+// PAGE HEADER
+.page-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+
+  &__header {
+    text-transform: capitalize;
+    transition: all .3s ease;
   }
 
-  .explorer__wrapper {
-    padding: 0 30px;
-    margin: 0 auto;
-  }
+  &__slide-toggle {
 
-  .mobile-menu-icon,
-  .mobile-menu {
-    display: none !important;
   }
 }
+
+.page-list-content,
+.page-details-content,
+.list-content__item,
+.page-list-content__filters,
+.page-list-content__tabs {
+  transition: all .3s ease;
+}
+
+// LIST PAGE
+.page-list-content {
+  display: flex;
+
+  &__filters {
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 30%;
+    min-width: 30%;
+
+    .page-list-content__component-wrapper:not(:last-child) {
+      margin-bottom: 20px;
+      // min-height: 45%;
+    }
+  }
+
+  &__tabs {
+    flex: 1 1 70%;
+
+    .page-list-content__component-wrapper:not(:last-child) {
+      // margin-bottom: 20px;
+      // min-height: 45%;
+    }
+  }
+}
+
+
+// @media screen and (max-width: 1919px) {
+//   .explorer {
+//     max-width: 960px;
+//   }
+
+//   .explorer__wrapper {
+//     padding: 0 30px;
+//     margin: 0 auto;
+//   }
+
+//   .mobile-menu-icon,
+//   .mobile-menu {
+//     display: none !important;
+//   }
+
+//   .network-info__body-wrapper {
+//     width: 100%;
+//   }
+// }
+
+app-home {
+  flex: 1 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.page {
+  flex: 1 1;
+  display: flex;
+  flex-direction: column;
+  .page-list-content,
+  .page-details-content {
+    flex: 1 1;
+  }
+}
+
 
 @media screen and (max-width: 1279px) {
   .explorer {
@@ -110,6 +287,39 @@ span {
     padding: 0 20px;
     margin: 0 20px;
   }
+
+  .network-info__body-wrapper {
+    width: 100% !important;
+  }
+}
+
+@media screen and (max-width: 789px) {
+  // LIST PAGE
+  .page-list-content {
+    display: flex;
+    display: flex;
+    flex-direction: column;
+
+    &__filters {
+      margin-right: 0 !important;
+      margin-bottom: 20px !important;
+      display: flex;
+      flex-direction: column-reverse;
+      flex: 0 1 100% !important;
+
+      .page-list-content__component-wrapper:not(:last-child) {
+        margin-bottom: 0 !important;
+      }
+      .page-list-content__component-wrapper:last-child {
+        margin-bottom: 20px;
+      }
+    }
+
+    &__tabs {
+      flex: 0 1 100% !important;
+    }
+  }
+
 }
 
 @media screen and (max-width: 599px) {
@@ -129,9 +339,50 @@ span {
 
   .header {
     &--mobile-menu-opened {
-      border-bottom: 1px solid $explorer--base__gray-light;
+      border-bottom: 1px solid $explorer--base__gray-light !important;
+    }
+  }
+
+  .network-info__header-wrapper {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: unset !important;
+    .network-info__header {
+      margin-bottom: 10px !important;
+    }
+    .network-info__btn {
+      padding: 0 20px 0 0 !important;
+    }
+  }
+
+  // PAGE HEADER
+  .page-header:not(.not-adapt) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start!important;
+    justify-content: unset !important;
+    .page-header__header {
+      margin-bottom: 20px;
     }
   }
 }
 
+@media screen and (max-width: 250px) {
+  .app-viewer {
+    &__header-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start!important;
+      justify-content: unset !important;
+    }
+
+    &__header {
+      margin-bottom: 20px;
+    }
+
+    &__btn {
+      padding: 0 20px 0 0 !important;
+    }
+  }
+}
 

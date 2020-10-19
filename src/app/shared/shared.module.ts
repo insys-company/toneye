@@ -3,22 +3,56 @@ import { CommonModule } from '@angular/common';
 
 import { RouterModule } from '@angular/router';
 
-// import { PageUnderDevelopmentComponent } from './components/page-under-development/page-under-development.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { MaterialModule } from '../material/material.module';
+
+import {
+  AppGeneralViewerComponent,
+  AppFilterComponent,
+  AppTableViewerComponent,
+  AppMultiselectComponent,
+  AppMultiselectOverlayComponent,
+} from './components';
+
+import {
+  ThousandsPipe,
+  UnixDatePipe,
+} from './pipes';
 
 @NgModule({
   declarations: [
-    // PageUnderDevelopmentComponent,
+    AppFilterComponent,
+    AppGeneralViewerComponent,
+    AppTableViewerComponent,
+    AppMultiselectComponent,
+    AppMultiselectOverlayComponent,
+
+    // pipes
+    ThousandsPipe,
+    UnixDatePipe,
   ],
   imports: [
     CommonModule,
-    // FormsModule,
-    // ReactiveFormsModule,
+    FormsModule,
+    ReactiveFormsModule,
     RouterModule,
+    MaterialModule,
   ],
   providers: [],
   exports: [
-    // PageUnderDevelopmentComponent,
+    AppFilterComponent,
+    AppGeneralViewerComponent,
+    AppTableViewerComponent,
+    AppMultiselectComponent,
+    AppMultiselectOverlayComponent,
+
+    // pipes
+    ThousandsPipe,
+    UnixDatePipe,
   ],
-  entryComponents: [],
+  entryComponents: [
+    AppMultiselectOverlayComponent
+  ],
 })
 export class SharedModule {}
