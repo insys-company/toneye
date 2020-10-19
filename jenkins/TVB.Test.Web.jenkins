@@ -9,7 +9,7 @@ properties([parameters([
         string(name: 'ng_config', defaultValue: 'test'),
         string(name: 'archive_path', defaultValue: 'archive'),
         string(name: 'archive_name', defaultValue: 'web_test.7z'),
-        string(name: 'artifacts_folder', defaultValue: 'dist/insys-cdk'),
+        string(name: 'artifacts_folder', defaultValue: 'dist/tonexplorer'),
         string(name: 'ip_remote_server', defaultValue: '92.124.128.60'),
         string(name: 'remote_archive_directory', defaultValue: 'E:\\wwwroot\\test.tvb.insys.io\\temp'),
         string(name: 'wwwpath', defaultValue: 'E:\\wwwroot\\test.tvb.insys.io'),
