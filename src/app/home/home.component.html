@@ -41,18 +41,22 @@
   </div>
   <!-- Page content -->
   <div class="home-page__content home-content page-list-content">
-
     <div class="page-list-content__filters">
-      <div class="page-list-content__component-wrapper">
-        <app-general-viewer #generalViewer class="page-list-content__component"
-          [data]="generalViewerData"
-          [skeletonArray]="skeletonArray"
-          [skeletalAnimation]="generalViewerLoading">
-        </app-general-viewer>
+
+      <!-- Sticky block for desctop -->
+      <div class="page-list-content__filters-sticky-position">
+        <div class="page-list-content__component-wrapper">
+          <app-general-viewer #generalViewer class="page-list-content__component"
+            [data]="generalViewerData"
+            [skeletonArray]="skeletonArray"
+            [skeletalAnimation]="generalViewerLoading">
+          </app-general-viewer>
+        </div>
+        <div class="page-list-content__component-wrapper">
+          <app-filter #filter class="page-list-content__component"></app-filter>
+        </div>
       </div>
-      <div class="page-list-content__component-wrapper">
-        <app-filter #filter class="page-list-content__component"></app-filter>
-      </div>
+
     </div>
 
     <div class="page-list-content__tabs">
