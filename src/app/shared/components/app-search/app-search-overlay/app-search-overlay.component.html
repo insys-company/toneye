@@ -1,0 +1,46 @@
+<div class="app-search-panel" #searchPanel>
+
+  <!-- Элементы -->
+  <!-- tabindex="0" для фокусировки -->
+  <div tabindex="0" class="app-search-panel__options" @searchPanelAnimation id="optionsPanelId" #optionsPanel>
+
+    <!-- Пустой список -->
+    <div *ngIf="notFound" class="app-search-panel__not-found">
+      <span class="color-gray">{{ notFoundTitle }}</span>
+    </div>
+
+    <!-- Списки -->
+    <div *ngIf="!notFound" calss="app-search-panel__options-wrapper">
+
+      <div *ngIf="blocks?.length" class="app-search-panel__option">
+        <div class="app-search-panel__option-header">
+          <span class="strong">Blocks</span> <span class="color-gray">that contain that message</span> <span class="color-gray">that contain that transaction</span>
+        </div>
+        <div *ngFor="let option of blocks;" class="app-search-panel__option-body">
+          <span class="color-blue link">{{option?.id}}</span>
+        </div>
+      </div>
+
+      <div *ngIf="transactions?.length" class="app-search-panel__option">
+        <div class="app-search-panel__option-header">
+          <span class="strong">Transactions</span> <span class="color-gray">that contain that message</span>
+        </div>
+        <div *ngFor="let option of transactions;" class="app-search-panel__option-body">
+          <span class="color-blue link">{{option?.id}}</span>
+        </div>
+      </div>
+
+      <div *ngIf="messages?.length" class="app-search-panel__option">
+        <div class="app-search-panel__option-header">
+          <span class="strong">Messages</span> <span class="color-gray">that contain that transaction</span>
+        </div>
+        <div *ngFor="let option of messages;" class="app-search-panel__option-body">
+          <span class="color-blue link">{{option?.id}}</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

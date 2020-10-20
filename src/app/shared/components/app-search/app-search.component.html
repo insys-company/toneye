@@ -1,0 +1,23 @@
+<div class="app-search" [class.app-search--focused]="focused">
+  <div class="app-search__wrapper" #searchElement>
+    <!-- Поле ввода -->
+    <mat-form-field appearance="outline" class="app-search__search"
+      [class.ng-dirty]="isDirty"
+      [class.app-search__search--selected]="isDirty"
+      [class.mat-focused]="focused"
+      floatLabel="never" (click)="onOpenPanel()">
+  
+      <input matInput type="text" class="app-search__input"
+        placeholder="Type id of block, transaction, message, account or validator for search them" [(ngModel)]="search"
+        tabindex="0" (keyup.enter)="onOpenPanel()" (keyup.space)="onOpenPanel()" #searchInput
+        (focus)="focused=true;isResetClick = false;" (blur)="focused=false;closePanel();" (ngModelChange)="onSearch(search)" autocomplete="off">
+  
+      <!-- Иконка удаления -->
+      <div matSuffix class="app-search__icon-clear icon" [class.app-search__icon-clear--show]="isDirty && !isLoading" (click)="onResetSearch($event)"></div>
+      <!-- Иконка стрелочка -->
+      <div matSuffix class="app-search__icon-search icon" [class.app-search__icon-search--hide]="isDirty || isLoading"></div>
+      <!-- Загрузка -->
+      <div matSuffix class="app-search__icon-load icon" [class.app-search__icon-load--show]="isLoading"></div>
+    </mat-form-field>
+  </div>
+</div>

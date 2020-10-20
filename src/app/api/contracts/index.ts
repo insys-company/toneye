@@ -15,3 +15,4 @@ export { QueryOrderBy } from './query-orderby';
 export { SimpleDataFilter } from './simple-data-filter';
 export { TabViewerData, DataConfig } from './tab-viewer-data';
 export { Transaction } from './transaction';
+export { Validator } from './validator';

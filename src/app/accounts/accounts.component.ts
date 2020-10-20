@@ -108,7 +108,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
         this.detectChanges();
 
         // Scroll to bottom
-        window.scrollTo(0, document.body.scrollHeight);
+        // window.scrollTo(0, document.body.scrollHeight);
       
       }, (error: any) => {
         console.log(error);

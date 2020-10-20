@@ -2,11 +2,12 @@ import { Component, ChangeDetectionStrategy, OnDestroy, ViewChild, ElementRef, C
 import { appRouteMap } from './app-route-map';
 import { RouterOutlet, Router, NavigationStart } from '@angular/router';
 import { routeAnimation } from './app-animations';
-import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy } from './api';
+import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, Validator } from './api';
 import { takeUntil, map } from 'rxjs/operators';
 import { Subject, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { BlockQueries } from './api/queries';
+import _ from 'underscore';
 
 @Component({
   selector: 'app-root',
@@ -44,6 +45,9 @@ export class AppComponent implements OnDestroy {
   public foundBlocks: Block[] = [];
   public foundMessages: Message[] = [];
   public foundTransactions: Transaction[] = [];
+
+  public foundAccounts: Account[] = [];
+  public foundValidators: Validator[] = [];
 
   constructor(
     private changeDetection: ChangeDetectorRef,
@@ -87,23 +91,31 @@ export class AppComponent implements OnDestroy {
     this.foundBlocks = null;
     this.foundMessages = null;
     this.foundTransactions = null;
+    this.foundAccounts = null;
+    this.foundValidators = null;
   }
 
   /**
    * Search method
    * @param search String from search input
-   * @returns {void}
    */
   onSearch(search: string): void {
     const _search = search ? search.trim() : search;
 
     if (!_search || _search == '') {
-      this.foundBlocks = [];
+
+      // Для вызова в child ngOnChanges
+      this.foundBlocks = JSON.parse(JSON.stringify([]));
+      this.foundMessages = JSON.parse(JSON.stringify([]));
+      this.foundTransactions = JSON.parse(JSON.stringify([]));
+      this.foundAccounts = JSON.parse(JSON.stringify([]));
+      this.foundValidators = JSON.parse(JSON.stringify([]));
+
       this.detectChanges();
       return;
     }
 
-    this.searchBlocks(_search);
+    this.searchDara(_search);
   }
 
   /**
@@ -169,13 +181,14 @@ export class AppComponent implements OnDestroy {
    * Get block list
    * @param search String for searching
    */
-  private searchBlocks(search: string): void {
+  private searchDara(search: string): void {
     // Get blocks
-    this.getBlocks()
+    this.getBlocks(search)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
-        this.foundBlocks = res ? res : [];
+        // Для вызова в child ngOnChanges
+        this.foundBlocks = JSON.parse(JSON.stringify(res)) ? JSON.parse(JSON.stringify(res)) : JSON.parse(JSON.stringify([]));
         this.detectChanges();
 
       }, (error: any) => {
@@ -189,13 +202,18 @@ export class AppComponent implements OnDestroy {
    */
   private getBlocks(_search?: string): Observable<Block[]> {
 
+    const regexp = /([0-9]*)/;
+
     const _variables = {
-      filter: {seq_no: {eq: _search}},
+      // filter: {seq_no: {eq: _search}},
+      filter: _search.match(regexp) === null ? {id: {in: _search}} : {seq_no: {eq: Number(_search)}},
       orderBy: [
         new QueryOrderBy({path: 'gen_utime', direction: 'DESC'}),
         new QueryOrderBy({path: 'seq_no', direction: 'DESC'},)
       ]
     }
+
+    console.log('e');
 
     return this.apollo.watchQuery<Block[]>({
       query: this.blockQueries.getBlocks,

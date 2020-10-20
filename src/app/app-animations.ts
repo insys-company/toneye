@@ -137,3 +137,42 @@ export const smoothDisplayAfterSkeletonAnimation =
         //     animate('0s ease', style({ opacity: '0' }))
         // ])
     ]);
+
+// Search panel
+export const smoothSearchPanelAnimation = 
+    trigger('searchPanelAnimation', [
+        transition(':enter', [
+            style({ 'opacity': '0', 'max-height': '0' }),
+            animate('.3s ease', style({ 'opacity': '1', 'max-height': '500px' }))
+        ]),
+        transition(':leave', [
+            style({ 'opacity': '1', 'max-height': '500px' }),
+            animate('.3s ease', style({ 'opacity': '0', 'max-height': '0' }))
+        ])
+    ]);
+
+// // Search panel
+// export const smoothSearchPanelContentAnimation = 
+//     trigger('searchPanelContentAnimation', [
+//         transition(':enter', [
+//             style({ 'opacity': '0', 'max-height': '0' }),
+//             animate('.5s linear', style({ 'opacity': '1', 'max-height': '500px' }))
+//         ]),
+//         transition(':leave', [
+//             style({ 'opacity': '1', 'max-height': '500px' }),
+//             animate('.3s linear', style({ 'opacity': '0', 'max-height': '0' }))
+//         ])
+//     ]);
+
+// export const smoothSearchPanelNotFoundAnimation = 
+//     trigger('searchPanelNotFoundAnimation', [
+//         transition(':enter', [
+//             style({ opacity: '0', 'max-height': '0' }),
+//             animate('.5s linear', style({ opacity: '1', 'max-height': '20px' }))
+//         ]),
+//         transition(':leave', [
+//             style({ opacity: '1', 'max-height': '20px' }),
+//             animate('.3s linear', style({ opacity: '0',  'max-height': '0' }))
+//         ])
+//     ]);
+    

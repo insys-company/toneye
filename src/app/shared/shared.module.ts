@@ -13,6 +13,8 @@ import {
   AppTableViewerComponent,
   AppMultiselectComponent,
   AppMultiselectOverlayComponent,
+  AppSearchComponent,
+  AppSearchOverlayComponent,
 } from './components';
 
 import {
@@ -27,6 +29,8 @@ import {
     AppTableViewerComponent,
     AppMultiselectComponent,
     AppMultiselectOverlayComponent,
+    AppSearchComponent,
+    AppSearchOverlayComponent,
 
     // pipes
     ThousandsPipe,
@@ -46,13 +50,16 @@ import {
     AppTableViewerComponent,
     AppMultiselectComponent,
     AppMultiselectOverlayComponent,
+    AppSearchComponent,
+    AppSearchOverlayComponent,
 
     // pipes
     ThousandsPipe,
     UnixDatePipe,
   ],
   entryComponents: [
-    AppMultiselectOverlayComponent
+    AppMultiselectOverlayComponent,
+    AppSearchOverlayComponent,
   ],
 })
 export class SharedModule {}

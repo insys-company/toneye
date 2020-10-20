@@ -1,459 +1,341 @@
-// import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit } from '@angular/core';
-// import { AppMultiselectService } from './app-multiselect.service';
-// import { AppMultiselectOverlayService } from './app-multiselect-overlay/app-multiselect-overlay.service';
-// import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
-// import { Subscription } from 'rxjs';
-// import 'rxjs/add/operator/debounceTime';
-// import _ from 'underscore';
-// import { Block, Message, Transaction } from 'src/app/api';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit, SimpleChange } from '@angular/core';
+import { AppSearchService } from './app-search.service';
+import { AppSearchOverlayService } from './app-search-overlay/app-search-overlay.service';
+import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
+import { Subscription, Subject } from 'rxjs';
+import 'rxjs/add/operator/debounceTime';
+import { Block, Message, Transaction, Validator } from 'src/app/api';
+import { NOT_FOUND } from './app-search-overlay/app-search-overlay.component';
+import { distinctUntilChanged } from 'rxjs/operators';
 
-// export type MaterialType = 'legacy' | 'standard' | 'fill' | 'outline';
+@Component({
+  selector: 'app-search',
+  templateUrl: './app-search.component.html',
+  styleUrls: ['./app-search.component.scss'],
+  providers: [ AppSearchService ],
+//   animations: [ smoothDisplayAfterSkeletonAnimation ],
+})
+export class AppSearchComponent implements OnInit, OnDestroy {
+  /**
+   * Подписка на изменение строки поиска
+   * @type {Subject<string>}
+   */
+  private debouncer: Subject<string>;
+  /**
+   * Для подписок
+   */
+  private overlaySubs: Subscription[];
+  /**
+   * Для подписок
+   */
+  private searchSub: Subscription;
+  /**
+   * Список элементов для выбора
+   */
+  @Input() blocks: Block[];
+  /**
+   * Список элементов для выбора
+   */
+  @Input() messages: Message[];
+  /**
+   * Список элементов для выбора
+   */
+  @Input() transactions: Transaction[];
+  /**
+   * Список элементов для выбора
+   */
+  @Input() accounts: Account[];
+  /**
+   * Список элементов для выбора
+   */
+  @Input() validators: Validator[];
 
-// const DEFAULT_LABEL = 'label';
-// const DEFAULT_INPUTNAME = 'multiselect';
-// const DEFAULT_PLACEHOLDER = 'placeholder';
-// const DEFAULT_MATERIAL_THEME = 'outline';
-// @Component({
-//   selector: 'app-search',
-//   templateUrl: './app-search.component.html',
-//   styleUrls: ['./app-search.component.scss'],
-//   providers: [ AppMultiselectService ]
-// })
-// export class AppSearchComponent implements OnInit, OnDestroy {
-//   /**
-//    * Элемента для расчета позиции overlay
-//    */
-//   @ViewChild('multiselectElement') multiselectElement?: ElementRef;
+  /**
+   * Текст для случая когда не найдено ничего по поиску
+   */
+  @Input() notFoundTitle: string;
 
-//   /** ДЛЯ ОТКРЫВАЮЩЕЙСЯ ПАНЕЛИ СЕЛЕКТА */
-//   /**
-//    * Список элементов для выбора
-//    */
-//   @Input() blocks: Block[];
-//   /**
-//    * Список элементов для выбора
-//    */
-//   @Input() messages: Message[];
-//   /**
-//    * Список элементов для выбора
-//    */
-//   @Input() transactions: Transaction[];
-//   /**
-//    * Текст для случая когда не найдено ничего по поиску
-//    */
-//   @Input() notFoundTitle: string;
+  /**
+   * Search event
+   */
+  @Output() searchChange: EventEmitter<string>;
 
-//   /**
-//    * Search
-//    */
-//   @Output() searchChange: EventEmitter<string>;
+  /**
+   * фокус на поле
+   */
+  public focused: boolean;
+  /**
+   * строка поиска
+   */
+  public search: string;
+  /**
+   * Загрузка
+   */
+  public isLoading: boolean;
+  /**
+   * Клик по кномпке сброса
+   */
+  public isResetClick: boolean;
 
-//   /**
-//    * Для подписок
-//    */
-//   private overlaySubs: Subscription[];
-//   /**
-//    * фокус на селекте
-//    */
-//   public multiselectFocused: boolean;
-//   /**
-//    * фокус на селекте
-//    */
-//   public search: string;
+  /**
+   * Для overlay
+   */
+  private get overlayRef(): OverlayRef {
+    return this.service.overlayRef;
+  }
 
-//   /**
-//    * Для overlay
-//    */
-//   private get overlayRef(): OverlayRef {
-//     return this.service.overlayRef;
-//   }
-//   /**
-//    * Устанавливает класс для стилизации селекта
-//    * в состоянии, когда элементы выбраны
-//    */
-//   public get isDirty(): boolean {
-//     return this.checkString(this.search);
-//   }
+  /**
+   * Устанавливает класс для стилизации селекта
+   * в состоянии, когда элементы выбраны
+   */
+  public get isDirty(): boolean {
+    return this.checkString(this.search);
+  }
 
-//   /**
-//    * Устанавливает класс для стилизации кнопки стрелочки селекта
-//    * Поворачивает ее вверх если панель открыта
-//    */
-//   get setUpClassForArrowIcon() {
-//     return this.overlayRef && this.overlayRef.hasAttached();
-//   }
-//   /**
-//    * Устанавливает класс для стилизации кнопки стрелочки селекта
-//    * Скрывает ее
-//    */
-//   get setHideClassForArrowIcon() {
-//     return this.setShowClassForClearIcon;
-//   }
-//   /**
-//    * Устанавливает класс для стилизации кнопки крестика
-//    * @type {boolean}
-//    */
-//   get setShowClassForClearIcon(): boolean {
-//     return this.checkString(this.search);
-//   }
+  constructor(
+    private service: AppSearchService,
+    private overlayService: AppSearchOverlayService,
+  ) {
+    
+    this.overlaySubs = [];
 
-//   constructor(
-//     private service: AppMultiselectService,
-//     private overlayService: AppMultiselectOverlayService,
-//   ) {
-//     this.overlaySubs = [];
+    /** Основные поля по дефолту */
+    this.notFoundTitle = NOT_FOUND;
+    this.blocks = [];
+    this.messages = [];
+    this.transactions = [];
 
-//     /** Основные поля по дефолту */
-//     this.required = false;
-//     this.disabled = false;
-//     this.simpleFilter = false;
-//     /** Метка над полем */
-//     this.label = DEFAULT_LABEL;
-//     /** Наименование инпута для формы */
-//     this.inputName = DEFAULT_INPUTNAME;
-//     this.placeholder = DEFAULT_PLACEHOLDER;
-//     this.materialTheme = DEFAULT_MATERIAL_THEME;
+    /** События */
+    this.searchChange = new EventEmitter<string>();
 
-//     this.options = [];
-//     this.selectedOptions = [];
-//     this.displayName = 'name';
-//     this.sortField = this.displayName;
-//     this.searchParamNameForServerSideSearching = 'search';
-//     this.selectAllPlaceholder = 'Select All';
-//     this.inputTextColorClass = 'default';
+    this.debouncer = new Subject<string>();
 
-//     /** Список по дефолту */
-//     this.options = this.service.setDefaultOptions();
+    /** Подписка на изменение строки поиска */
+    this.searchSub = this.debouncer
+      .debounceTime(1000)
+      .pipe(distinctUntilChanged())
+      .subscribe((value: string) => {
 
-//     /** События */
-//     this.optionSelected = new EventEmitter<any>();
-//     this.selectedOptionsChange = new EventEmitter<any[]>();
-//     this.panelClose = new EventEmitter<void>();
-//   }
+        if (value !== undefined) {
+          this.closePanel();
 
-//   /**
-//    * Поле поиска в панели
-//    * @type {MatFormField}
-//    */
-//   @ViewChild('multiselectInput', { static: false }) multiselectInput?: ElementRef;
+          if (!this.isResetClick) {
+            // Для иконки загрузки
+            this.isLoading = true;
+          }
 
+          this.searchChange.emit(value);
+        }
 
-//   /** Обновление длинны overlay отнительно элемента */
-//   @HostListener('window:resize')
-//   handleWindowResizeEvent(): void {
-//     if (this.overlayRef) {
-//       this.overlayRef.updateSize({
-//         width: this.multiselectElement.nativeElement.getBoundingClientRect().width
-//       });
-//       this.overlayRef.updatePosition();
-//     }
-//   }
+      });
+  }
 
-//   /**
-//    * Отписываться не нужно, умирает с компонентом
-//    * Слушает нажатие esc и закрывает окно
-//    * @param {KeyboardEvent} event Событие
-//    *
-//    * @returns {void}
-//    */
-//   @HostListener('document:keyup.escape', ['$event'])
-//   handleKeyboardEvent(event: KeyboardEvent): void {
-//     this.closePanel();
+  /** Элемента для расчета позиции overlay */
+  @ViewChild('searchElement') searchElement?: ElementRef;
+  /** Поле поиска */
+  @ViewChild('searchInput', { static: false }) searchInput?: ElementRef;
 
-//     event.stopPropagation();
-//   }
+  /** Обновление длинны overlay отнительно элемента */
+  @HostListener('window:resize')
+  handleWindowResizeEvent(): void {
+    if (this.overlayRef) {
+      this.overlayRef.updateSize({
+        width: this.searchElement.nativeElement.getBoundingClientRect().width
+      });
+      this.overlayRef.updatePosition();
+    }
+  }
 
-//   /**
-//    * Инициализация
-//    * @returns {void}
-//    */
-//   ngOnInit(): void {
-//     this.disabled = this.disabled != null ? this.disabled : false;
-//     this.required = this.required != null ? this.required : false;
-//     this.simpleFilter = this.simpleFilter != null ? this.simpleFilter : false;
-//     this.labelVisible = this.labelVisible != null ? this.labelVisible : false;
-//     this.label = this.label != null ? this.label : DEFAULT_LABEL;
-//     this.inputName = this.inputName != null ? this.inputName : DEFAULT_INPUTNAME;
-//     this.placeholder = this.placeholder != null ? this.placeholder : DEFAULT_PLACEHOLDER;
-//     this.materialTheme = this.materialTheme != null ? this.materialTheme : DEFAULT_MATERIAL_THEME;
-//     this.styleClass = this.styleClass != null ? this.styleClass : 'app-default__multiselect';
-//     this.shadowStyleClass = this.shadowStyleClass != null ? this.shadowStyleClass : 'app-multiselect__multiselect--shadow';
-//     this.singleSelectClearingEnable = this.singleSelectClearingEnable != null ? this.singleSelectClearingEnable : false;
-//     this.inputTextColorClass = this.inputTextColorClass != null ? this.inputTextColorClass : 'default';
-//     /** Панель */
-//     this.overlaySize = this.overlaySize != null ? this.overlaySize : 20;
-//     this.options = this.options != null ? this.options : this.service.setDefaultOptions();
-//     this.selectedOptions = this.selectedOptions != null ? this.selectedOptions : [];
-//     this.displayName = this.displayName != null ? this.displayName : 'name';
-//     this.sortField = this.sortField != null ? this.sortField : this.displayName;
-//     this.searchParamNameForServerSideSearching =
-//       this.searchParamNameForServerSideSearching != null ? this.searchParamNameForServerSideSearching : 'search';
-//     this.searchEnable = this.searchEnable != null ? this.searchEnable : false;
-//     this.searchPlaceholder = this.searchPlaceholder != null ? this.searchPlaceholder : null;
-//     this.multiple = this.multiple != null ? this.multiple : false;
-//     this.notFoundTitle = this.notFoundTitle != null ? this.notFoundTitle : null;
-//     this.optionsLimitEnable = this.optionsLimitEnable != null ? this.optionsLimitEnable : false;
-//     this.optionsLimit = this.optionsLimit != null ? this.optionsLimit : 10;
-//     this.serverSideSearchEnable = this.serverSideSearchEnable != null ? this.serverSideSearchEnable : false;
-//     this.searchEndpoint = this.searchEndpoint != null ? this.searchEndpoint : null;
-//     this.tooltipVisible = this.tooltipVisible != null ? this.tooltipVisible : false;
+  /**
+   * Отписываться не нужно, умирает с компонентом
+   * Слушает нажатие esc и закрывает окно
+   * @param {KeyboardEvent} event Событие
+   */
+  @HostListener('document:keyup.escape', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    this.closePanel();
 
-//     this.selectAll = this.selectAll != null ? this.selectAll : false;
-//     this.selectAllPlaceholder = this.selectAllPlaceholder != null ? this.selectAllPlaceholder : 'Select All';
+    event.stopPropagation();
+  }
 
-//     this.panelClass = this.panelClass != null ? this.panelClass : null;
-//   }
+  /**
+   * Change data and update
+   * @param changes Input data from parent
+   */
+  ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
 
-//   /**
-//    * Уничтожение компонента
-//    * @returns {void}
-//    */
-//   ngOnDestroy(): void {
-//     this.overlayUnsubscribe();
+    if (this.isDirty && this.focused) {
+      this.isLoading = false;
 
-//     this.disabled = null;
-//     this.required = null;
-//     this.simpleFilter = null;
-//     this.labelVisible = null;
-//     this.label = null;
-//     this.inputName = null;
-//     this.placeholder = null;
-//     this.materialTheme = null;
-//     this.styleClass = null;
-//     this.shadowStyleClass = null;
-//     this.singleSelectClearingEnable = null;
-//     this.inputTextColorClass = null;
-//     /** Панель */
-//     this.overlaySize = null;
-//     this.options = null;
-//     this.selectedOptions = null;
-//     this.searchEnable = null;
-//     this.searchPlaceholder = null;
-//     this.multiple = null;
-//     this.notFoundTitle = null;
-//     this.displayName = null;
-//     this.sortField = null;
-//     this.optionsLimitEnable = null;
-//     this.optionsLimit = null;
-//     this.serverSideSearchEnable = null;
-//     this.searchEndpoint = null;
-//     this.tooltipVisible = null;
+      !this.isResetClick
+        ? this.onOpenPanel()
+        : this.isResetClick = false;
 
-//     this.selectAll = null;
-//     this.selectAllPlaceholder = null;
+    }
+    else if (!this.isDirty) {
+      this.isResetClick = false;
+      this.isLoading = false;
+    }
+  }
 
-//     this.panelClass = null;
-//   }
+  /**
+   * Инициализация
+   */
+  ngOnInit(): void {
+    this.blocks = this.blocks != null ? this.blocks : [];
+    this.messages = this.messages != null ? this.messages : [];
+    this.transactions = this.transactions != null ? this.transactions : [];
+    this.accounts = this.accounts != null ? this.accounts : [];
+    this.validators = this.validators != null ? this.validators : [];
+    this.notFoundTitle = this.notFoundTitle != null ? this.notFoundTitle : null;
+  }
 
-//   /**
-//    * Метод открытия overlay
-//    * @returns {void}
-//    */
-//   onOpenPanel(): void {
+  /**
+   * Уничтожение компонента
+   */
+  ngOnDestroy(): void {
+    if (this.searchSub) {
+      this.searchSub.unsubscribe();
+    }
+    this.searchSub = null;
+    this.overlayUnsubscribe();
+    this.notFoundTitle = null;
 
-//     if (this.disabled || this.overlayRef && this.overlayRef.hasAttached()) {
-//       this.closePanel();
-//       return;
-//     }
+    this.blocks = null;
+    this.messages = null;
+    this.transactions = null;
+    this.accounts = null;
+    this.validators = null;
+  }
 
-//     if (!this.multiselectElement) {
-//       return;
-//     }
+  /**
+   * Метод открытия overlay
+   */
+  onOpenPanel(): void {
 
-//     // Сортировка списков
-//     if (this.multiple) {
-//       this.options = this.moveSelectedItemsToTopList(this.options, this.selectedOptions);
-//     }
+    if (this.overlayRef && this.overlayRef.hasAttached()) {
+      // this.closePanel();
+      return;
+    }
 
-//     // Цепляемся к элементу, указываем
-//     // стратегию выбора позиции относительно элемента
-//     let positionStrategy = this.service.getPositionStrategy(this.multiselectElement);
+    if (!this.isDirty) { return; }
 
-//     // стратегия скроллинга
-//     let scrollStrategy = this.service.getScrollStrategy();
+    if (!this.searchElement) { return; }
 
-//     this.service.createOverlay(
-//       {
-//         disabled: this.disabled,
-//         simpleFilter: this.simpleFilter,
-//         overlaySize: this.overlaySize,
-//         options: this.options,
-//         selectedOptions: this.selectedOptions,
-//         displayName: this.displayName,
-//         sortField: this.sortField,
-//         searchEnable: this.searchEnable,
-//         searchPlaceholder: this.searchPlaceholder,
-//         multiple: this.multiple,
-//         notFoundTitle: this.notFoundTitle,
-//         optionsLimitEnable: this.optionsLimitEnable,
-//         optionsLimit: this.optionsLimit,
-//         serverSideSearchEnable: this.serverSideSearchEnable,
-//         searchEndpoint: this.searchEndpoint,
-//         searchParamNameForServerSideSearching: this.searchParamNameForServerSideSearching,
-//         tooltipVisible: this.tooltipVisible,
-//         selectAll: this.selectAll,
-//         selectAllPlaceholder: this.selectAllPlaceholder,
-//         panelClass: this.panelClass
-//       },
-//       new OverlayConfig({
-//         positionStrategy: positionStrategy,
-//         scrollStrategy: scrollStrategy,
-//         hasBackdrop: true,
-//         backdropClass: 'app-multiselect-backdrop',
-//         width: this.multiselectElement.nativeElement.getBoundingClientRect().width
-//       })
-//     );
+    // Цепляемся к элементу, указываем
+    // стратегию выбора позиции относительно элемента
+    let positionStrategy = this.service.getPositionStrategy(this.searchElement);
 
-//     this.openPanel();
-//   }
+    // стратегия скроллинга
+    let scrollStrategy = this.service.getScrollStrategy();
 
-//   /**
-//    * Метод удаления всех выбранных элементов
-//    * @param {Event} clickEvent Событие для прекращения
-//    * дальнейшей передачи текущего события
-//    *
-//    * @returns {void}
-//    */
-//   onDeleteOptions(clickEvent?: Event): void {
-//     /** Прекращение дальнейшей передачи текущего события */
-//     if (clickEvent) { clickEvent.stopPropagation(); }
+    this.service.createOverlay(
+      {
+        blocks: this.blocks,
+        messages: this.messages,
+        transactions: this.transactions,
+        accounts: this.accounts,
+        validators: this.validators,
+        notFoundTitle: this.notFoundTitle,
+      },
+      new OverlayConfig({
+        positionStrategy: positionStrategy,
+        scrollStrategy: scrollStrategy,
+        // hasBackdrop: true,
+        backdropClass: 'app-search__backdrop',
+        width: this.searchElement.nativeElement.getBoundingClientRect().width
+      })
+    );
 
-//     if (this.disabled) { return; }
+    this.openPanel();
+  }
 
-//     this.deleteSelectedOption();
-//   }
+  /**
+   * Search method
+   * @param search String from search input
+   */
+  onSearch(search: string): void {
+    const _search = search ? search.trim() : search;
 
-//   /**
-//    * Метод проверки массива на его наличие и длину
-//    * @param {any[]} array Массив для проверки длины
-//    *
-//    * @returns {boolean} результат - удовлетворяет ли массив условию
-//    */
-//   checkArrayLength(array: any[]): boolean {
-//     return (array && array.length) ? true : false;
-//   }
+    if (!_search || _search == '') {
+      this.onResetSearch(null, true);
+      return;
+    }
 
-//   /**
-//    * Метод проверяет строку
-//    * @param {string} str Строка для проверки
-//    *
-//    * @returns {boolean} результат - удовлетворяет ли строка условию
-//    */
-//   checkString(str: string): boolean {
-//     return (str && str.length) ? true : false;
-//   }
+    this.debouncer.next(_search);
+  }
 
-//   /**
-//    * Метод очищает поле фильтра и закрывает панель
-//    * @returns {void}
-//    */
-//   private deleteSelectedOption(): void {
-//     this.selectedOptions = [];
+  /**
+   * Метод очищает поле поиска и все списки
+   * @param {Event} clickEvent Событие для прекращения дальнейшей передачи текущего события
+   */
+  onResetSearch(clickEvent?: Event, isNotReset: boolean = false): void {
+    /** Прекращение дальнейшей передачи текущего события */
+    if (clickEvent) { clickEvent.stopPropagation(); }
 
-//     // Сортировка списков
-//     if (this.multiple) {
-//       this.options = this.moveSelectedItemsToTopList(this.options, this.selectedOptions);
-//     }
+    this.search = null;
+    this.blocks = [];
+    this.messages = [];
+    this.transactions = [];
+    this.accounts = [];
+    this.validators = [];
 
-//     this.selectedOptionsChange.emit(this.selectedOptions);
-//     this.optionSelected.emit(null);
-//   }
+    this.closePanel();
 
-//   /**
-//    * Отписки
-//    * @returns {void}
-//    */
-//   private overlayUnsubscribe(): void {
-//     if (this.overlaySubs) {
-//       this.overlaySubs.forEach((s: Subscription) => s.unsubscribe());
-//       this.overlaySubs = [];
-//     }
-//   }
+    if (!isNotReset) { this.isResetClick = true; }
 
-//   /**
-//    * Открытие overlay
-//    * @returns {void}
-//    */
-//   private openPanel(): void {
+    this.debouncer.next(this.search);
+  }
 
-//     this.service.openPanel();
+  /**
+   * Закрытие overlay
+   */
+  closePanel(): void {
+    this.service.closePanel();
+    this.overlayUnsubscribe();
+  }
 
-//     /** Событие передает выбранный элемент */
-//     const optionSub = this.overlayService.selectOption
-//       .subscribe((option: any) => {
+  /**
+   * Метод проверяет строку
+   * @param {string} str Строка для проверки
+   */
+  private checkString(str: string): boolean {
+    return (str && str.length) ? true : false;
+  }
 
-//         this.optionSelected.emit(option);
+  /**
+   * Отписки
+   */
+  private overlayUnsubscribe(): void {
+    if (this.overlaySubs) {
+      this.overlaySubs.forEach((s: Subscription) => s.unsubscribe());
+      this.overlaySubs = [];
+    }
+  }
 
-//         if (!this.multiple) {
-//           this.closePanel();
-//         }
+  /**
+   * Открытие overlay
+   */
+  private openPanel(): void {
 
-//       });
+    this.service.openPanel();
 
-//     /** Событие передает все выбранные элементы (для мультиселекта) */
-//     const optionsSub = this.overlayService.selectedOptions
-//       .subscribe((selectedOptions: any[]) => {
+    /** Событие передает выбранный элемент */
+    const optionSub = this.overlayService.selectOption
+      .subscribe((option: any) => {
 
-//         this.selectedOptions = selectedOptions;
-//         this.selectedOptionsChange.emit(selectedOptions);
+        this.searchChange.emit(option);
 
-//       });
+        this.closePanel();
 
-//     const panelCloseSub = this.overlayRef.backdropClick()
-//       .subscribe(() => {
-//         this.closePanel();
-//       });
+      });
 
-//     this.overlaySubs.push(optionSub);
-//     this.overlaySubs.push(optionsSub);
-//     this.overlaySubs.push(panelCloseSub);
-//   }
+    const panelCloseSub = this.overlayRef.backdropClick()
+      .subscribe(() => {
+        this.closePanel();
+      });
 
-//   /**
-//    * Закрытие overlay
-//    * @returns {void}
-//    */
-//   private closePanel(): void {
-//     this.panelClose.emit();
-//     this.service.closePanel();
-//     this.overlayUnsubscribe();
-
-//     setTimeout(() => {
-//       if (this.multiselectInput) { this.multiselectInput.nativeElement.focus(); }
-//     }, 0); 
-//   }
-
-//   /**
-//    * Метод перемещения выбранных элементов в начало списка
-//    * или возвращение отменённых элементов на их место в общем списке
-//    * @param {any[]} list Общий список элементов
-//    * @param {any[]} selectedList Список выбранных элементов
-//    * @param {string} sortField Поле для сортировки
-//    *
-//    * @returns {void}
-//    */
-//   private moveSelectedItemsToTopList(list: any[], selectedList: any[], sortField: string = this.sortField): any[] {
-
-//     if (!this.checkArrayLength(list)) {
-//       return [];
-//     }
-
-//     if (!this.checkArrayLength(selectedList)) {
-//       list = _.sortBy(list, (item: any) => item[sortField] != null ? item[sortField].toString().toLowerCase() : '');
-//       return list;
-//     }
-
-//     // Сортировка списков
-//     list = _.sortBy(list, (item: any) => item[sortField] != null ? item[sortField].toString().toLowerCase() : '');
-//     selectedList = _.sortBy(selectedList, (item: any) => item[sortField] != null ? item[sortField].toString().toLowerCase() : '');
-
-//     // Удаление из общего списка выбранных элементов
-//     list = _.difference(list, selectedList);
-
-//     // Объединение списков.
-//     // В первую очередь выбранные элементы
-//     list = selectedList.concat(list);
-
-//     return list;
-//   }
-// }
+    this.overlaySubs.push(optionSub);
+    this.overlaySubs.push(panelCloseSub);
+  }
+}

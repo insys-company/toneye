@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiModule } from './api/api.module';
 import { MaterialModule } from './material/material.module';
+import { SharedModule } from './shared/shared.module';
 import 'hammerjs';
 
 @NgModule({
@@ -22,6 +23,7 @@ import 'hammerjs';
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

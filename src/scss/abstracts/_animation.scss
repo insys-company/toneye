@@ -151,3 +151,25 @@
 		background-position: 236px 0;
 	}
 }
+
+@keyframes rotation {
+	from {
+		transform: rotate(0);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes paddingPanel {
+	from {
+		padding-top: 0;
+		padding-bottom: 0;
+		// max-height: 0;
+	}
+	to {
+		padding-top: 20px;
+		padding-bottom: 20px;
+		// max-height: 500px;
+	}
+}
