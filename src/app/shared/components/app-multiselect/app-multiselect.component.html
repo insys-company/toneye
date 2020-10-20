@@ -4,7 +4,7 @@
 
   <div class="app-multiselect__wrapper" #multiselectElement>
       <!-- Поле ввода -->
-      <mat-form-field appearance="{{ materialTheme ? materialTheme : 'outline' }}" class="app-multiselect__multiselect {{ shadowStyleClass }}"
+      <mat-form-field appearance="outline" class="app-multiselect__multiselect {{ shadowStyleClass }}"
         [class.ng-dirty]="isDirty"
         [class.app-multiselect__multiselect--selected]="isDirty"
         [class.app-multiselect__multiselect--focused]="setUpClassForArrowIcon"

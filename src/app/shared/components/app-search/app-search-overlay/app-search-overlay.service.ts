@@ -7,11 +7,10 @@ import { Subject } from 'rxjs';
 export class AppSearchOverlayService {
   /**
    * Событие выбора элемента в overlay
-   * @type {Subject<any>}
    */
-  selectOption: Subject<any>;
+  selectOption: Subject<{type: string, option: any}>;
 
   constructor() {
-    this.selectOption = new Subject<any>();
+    this.selectOption = new Subject<{type: string, option: any}>();
   }
 }

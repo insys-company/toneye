@@ -7,7 +7,7 @@ export class SimpleDataFilter {
   dateTo: number;
   timeFrom: number;
   timeTo: number;
-  search: string; // Может не пригодится
+  shard: string;
 
   constructor(data?: any) {
     if (data) {

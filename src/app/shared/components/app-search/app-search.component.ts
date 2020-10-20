@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit, SimpleChange } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { AppSearchService } from './app-search.service';
 import { AppSearchOverlayService } from './app-search-overlay/app-search-overlay.service';
 import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
@@ -7,13 +7,14 @@ import 'rxjs/add/operator/debounceTime';
 import { Block, Message, Transaction, Validator } from 'src/app/api';
 import { NOT_FOUND } from './app-search-overlay/app-search-overlay.component';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { appRouteMap } from 'src/app/app-route-map';
 
 @Component({
   selector: 'app-search',
   templateUrl: './app-search.component.html',
   styleUrls: ['./app-search.component.scss'],
   providers: [ AppSearchService ],
-//   animations: [ smoothDisplayAfterSkeletonAnimation ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppSearchComponent implements OnInit, OnDestroy {
   /**
@@ -61,6 +62,11 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   @Output() searchChange: EventEmitter<string>;
 
   /**
+   * Select event
+   */
+  @Output() selectChange: EventEmitter<string>;
+
+  /**
    * фокус на поле
    */
   public focused: boolean;
@@ -95,6 +101,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   constructor(
     private service: AppSearchService,
     private overlayService: AppSearchOverlayService,
+    private changeDetection: ChangeDetectorRef
   ) {
     
     this.overlaySubs = [];
@@ -107,6 +114,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
 
     /** События */
     this.searchChange = new EventEmitter<string>();
+    this.selectChange = new EventEmitter<string>();
 
     this.debouncer = new Subject<string>();
 
@@ -288,9 +296,16 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * 
+   */
+  closePanelWithDelay(): void {
+    setTimeout(() => { this.closePanel(); }, 200);
+  }
+
+  /**
    * Закрытие overlay
    */
-  closePanel(): void {
+  private closePanel(): void {
     this.service.closePanel();
     this.overlayUnsubscribe();
   }
@@ -322,11 +337,46 @@ export class AppSearchComponent implements OnInit, OnDestroy {
 
     /** Событие передает выбранный элемент */
     const optionSub = this.overlayService.selectOption
-      .subscribe((option: any) => {
+      .subscribe((data: {type: string, option: any}) => {
 
-        this.searchChange.emit(option);
+        this.selectChange.emit(data.option.id);
+
+        this.search = data.option.id;
 
         this.closePanel();
+
+        this.isResetClick = true;
+
+        if (data.type === appRouteMap.blocks) {
+          this.blocks = JSON.parse(JSON.stringify([data.option]));
+          this.transactions = [];
+          this.messages = [];
+          this.accounts = [];
+          this.validators = [];
+        }
+        else if (data.type === appRouteMap.transactions) {
+          this.transactions = JSON.parse(JSON.stringify([data.option]));
+          this.blocks = [];
+          this.messages = [];
+          this.accounts = [];
+          this.validators = [];
+        }
+        else if (data.type === appRouteMap.messages) {
+          this.messages = JSON.parse(JSON.stringify([data.option]));
+          this.blocks = [];
+          this.transactions = [];
+          this.accounts = [];
+          this.validators = [];
+        }
+        else if (data.type === appRouteMap.accounts) {
+          this.accounts = JSON.parse(JSON.stringify([data.option]));
+          this.blocks = [];
+          this.messages = [];
+          this.transactions = [];
+          this.validators = [];
+        }
+
+        this.changeDetection.detectChanges();
 
       });
 

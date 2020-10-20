@@ -10,7 +10,7 @@
       <input matInput type="text" class="app-search__input"
         placeholder="Type id of block, transaction, message, account or validator for search them" [(ngModel)]="search"
         tabindex="0" (keyup.enter)="onOpenPanel()" (keyup.space)="onOpenPanel()" #searchInput
-        (focus)="focused=true;isResetClick = false;" (blur)="focused=false;closePanel();" (ngModelChange)="onSearch(search)" autocomplete="off">
+        (focus)="focused=true;isResetClick = false;" (blur)="focused=false;closePanelWithDelay();" (ngModelChange)="onSearch(search)" autocomplete="off">
   
       <!-- Иконка удаления -->
       <div matSuffix class="app-search__icon-clear icon" [class.app-search__icon-clear--show]="isDirty && !isLoading" (click)="onResetSearch($event)"></div>

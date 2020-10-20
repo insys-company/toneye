@@ -103,24 +103,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Initialization of the component
    */
   ngOnInit(): void {
-
-    this.detectChanges();
-    // TODO
-
-    // setTimeout(() => {
-      
-    //   let d = [];
-    //   d.push(new TabViewerData({titleLeft: 'ddfgdfhgf'}));
-    //   d.push(new TabViewerData({titleLeft: 'ddfhdfhsdfhsf'}));
-    //   d.push(new TabViewerData({titleLeft: 'ddhfhgdshfghfghfdghgff'}));
-    //   d.push(new TabViewerData({titleLeft: 'dfghfghfghff'}));
-    //   d.push(new TabViewerData({titleLeft: 'dfghfghfghf'}));
-
-    //   this.data = d;
-
-    //   this.skeletalAnimation = false;
-    //   this.detectChanges();
-    // }, 3000);
+    // this.detectChanges();
   }
 
   /**

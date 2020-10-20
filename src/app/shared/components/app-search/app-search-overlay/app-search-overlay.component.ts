@@ -105,8 +105,8 @@ export class AppSearchOverlayComponent implements OnInit, AfterViewInit, AfterCo
    * Метод выбора элементов из списка
    * @param {any} option Выбранный элемент
    */
-  onSelectOption(option: any): void {
-    this.service.selectOption.next(option);
+  onSelectOption(type: string, option: any): void {
+    this.service.selectOption.next({type, option});
   }
 
   /**

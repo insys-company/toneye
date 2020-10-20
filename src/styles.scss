@@ -239,6 +239,11 @@ p {
   }
 }
 
+// FIELDS
+.mat-form-field {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
 
 // SEARCH
 .app-search__search {
@@ -304,6 +309,31 @@ app-search-overlay {
   width: 100%;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
   border-radius: 0px 0px 5px 5px;
+}
+
+// FILTERS
+.app-filters__multiselect {
+  .mat-form-field-appearance-outline,
+  .mat-form-field-outline,
+  .mat-form-field-outline mat-form-field-outline-thick {
+    max-height: 40px;
+    min-height: 40px;
+  }
+
+  .mat-form-field-appearance-outline {
+    max-width: 100%;
+  }
+
+  .mat-form-field-appearance-outline .mat-form-field-wrapper,
+  .mat-form-field-appearance-outline mat-form-field-flex,
+  .mat-form-field-infix {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .mat-form-field-label-wrapper {
+
+  }
 }
 
 

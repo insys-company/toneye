@@ -9,6 +9,7 @@ export { DataCounts } from './data-counts';
 export { GeneralViewer } from './general-viewer';
 export { InMsg } from './in-msg';
 export { ItemList } from './item-list';
+export { ListItem } from './list-item';
 export { Message } from './message';
 export { MsgEnvelope } from './msg-envelope';
 export { QueryOrderBy } from './query-orderby';
