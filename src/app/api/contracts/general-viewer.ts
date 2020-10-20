@@ -2,7 +2,7 @@ export class GeneralViewer {
   title: string;
   value: string;
   isNumber?: boolean;
-  dinamic?: boolean; 
+  dinamic?: boolean;
 
   constructor(data?: any) {
     if (data) {

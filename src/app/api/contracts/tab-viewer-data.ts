@@ -1,6 +1,7 @@
 export type DataType = 'date' | 'time' | 'number' | 'string' | 'percent';
 
 export class TabViewerData {
+  id: string | number;
   titleLeft: string;
   subtitleLeft: DataConfig;
   titleRight: DataConfig;

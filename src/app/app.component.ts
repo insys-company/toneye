@@ -161,12 +161,22 @@ export class AppComponent implements OnDestroy {
       .subscribe(event => {
         if (event instanceof NavigationStart) {
 
-          const _url = event.url != null ? event.url.replace('/', '').toLowerCase() : '';
+          const _urlArray = event.url != null ? _.without(event.url.split('/'), '', null) : '';
+  
+          const _url = _urlArray[0] != null ? _urlArray[0] : '';
+
           this.breadcrumbs = this.breadcrumbs.slice(0, 1);
 
           if (_url == appRouteMap.home) { return; }
 
-          this.breadcrumbs.push(new Breadcrumbs({ name: _url, url: _url }));
+          if (_urlArray.length === 1) {
+            this.breadcrumbs.push(new Breadcrumbs({ name: _url, url: _url }));
+          }
+          // details
+          else {
+            this.breadcrumbs.push(new Breadcrumbs({ name: `${_url}s`, url: `${_url}s` }));
+            this.breadcrumbs.push(new Breadcrumbs({ name: `${_url} details`, url: _url }));
+          }
         }
       });
   }

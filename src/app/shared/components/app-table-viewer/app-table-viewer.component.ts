@@ -67,6 +67,10 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Tab index change event
    */
   @Output() tabChange: EventEmitter<number> = new EventEmitter<number>(null);
+  /**
+   * Select item from tabs
+   */
+  @Output() selectItem: EventEmitter<any> = new EventEmitter<any>(null);
 
   /**
    * Tab index
@@ -157,6 +161,14 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.isTabsHeaderMode
       ? this.moreEvent.next(this.selectedTabIndex) // For redirect
         : this.moreEvent.next(null); // For reques
+  }
+
+  /**
+   * Event of select
+   * @param item Selected item from table
+   */
+  public onSelectItem(item: TabViewerData): void {
+    this.selectItem.next(item);
   }
 
   /**

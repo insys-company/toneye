@@ -35,7 +35,8 @@
           footerPlaceholder="Load 25 more"
           [skeletalAnimation]="tableViewerLoading"
           (exportEvent)="onExport()"
-          (moreEvent)="onSeeMore($event)">
+          (moreEvent)="onSeeMore($event)"
+          (selectItem)="onSelectItem($event)">
         </app-table-viewer>
       </div>
     </div>

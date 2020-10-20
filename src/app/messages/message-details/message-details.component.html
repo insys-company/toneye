@@ -1,0 +1,30 @@
+<div class="messages-page page">
+  <!-- Page header -->
+  <div class="messages-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Messages details</h1>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="messages-page__content messages-content page-details-content">
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #generalViewer class="page-details-content__component"
+        [data]="generalViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="generalViewerLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isGeneralInfoOpen"
+        [header]="'More details'"
+        [data]="aditionalViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="generalViewerLoading">
+      </app-general-viewer>
+    </div>
+
+  </div>
+</div>

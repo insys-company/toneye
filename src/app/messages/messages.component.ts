@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
+import { appRouteMap } from '../app-route-map';
 
 @Component({
   selector: 'app-messages',
@@ -74,6 +75,18 @@ export class MessagesComponent implements OnInit, OnDestroy {
    */
   onExport(): void {
     // TODO
+  }
+
+  /**
+   * Event of select
+   * @param item Selected item from table
+   */
+  public onSelectItem(item: TabViewerData): void {
+
+    if (item.id) {
+      this.router.navigate([`/${appRouteMap.message}/${item.id}`]);
+    }
+
   }
 
   /**
@@ -201,6 +214,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
       m.value = m.value && m.value.match('x') ? String(parseInt(m.value, 16)) : m.value;
 
       return new TabViewerData({
+        id: m.id,
         titleLeft: m.id,
         subtitleLeft: new DataConfig({
           text: `${(!m.src || m.src == '') ? 'ext' : m.src.substring(0, 6)} -> ${(!m.dst || m.dst == '') ? 'ext' : m.dst.substring(0, 6)}`,

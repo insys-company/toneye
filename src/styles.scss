@@ -102,8 +102,12 @@ p {
   text-decoration: underline;
 }
 
-.no-pointer {
+.pointer {
   cursor: default;
+}
+
+.no-pointer {
+  cursor: pointer;
 }
 
 .border-light {
@@ -236,6 +240,15 @@ p {
       // margin-bottom: 20px;
       // min-height: 45%;
     }
+  }
+}
+// Dateils
+.page-details-content {
+  display: flex;
+  flex-direction: column;
+
+  &__component-wrapper {
+    margin-bottom: 20px;
   }
 }
 
@@ -403,7 +416,6 @@ app-home {
 @media screen and (max-width: 789px) {
   // LIST PAGE
   .page-list-content {
-    display: flex;
     display: flex;
     flex-direction: column;
 

@@ -37,7 +37,7 @@
 
   <!-- Data -->
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
-    <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item border-bottom-light">
+    <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item border-bottom-light pointer" (click)="onSelectItem(item)">
       <div class="app-viewer__body-item-row">
         <span class="color-blue link no-pointer">{{item.titleLeft}}</span>
 

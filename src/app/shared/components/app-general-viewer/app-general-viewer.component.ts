@@ -32,7 +32,7 @@ export class AppGeneralViewerComponent implements OnChanges, OnDestroy {
   /**
    * Flag for main info
    */
-  public isGeneralInfoOpen: boolean;
+  @Input() public isGeneralInfoOpen: boolean;
 
   /**
    * For button in info
