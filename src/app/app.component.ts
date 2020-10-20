@@ -6,7 +6,7 @@ import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, Validator } fro
 import { takeUntil, map } from 'rxjs/operators';
 import { Subject, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries } from './api/queries';
+import { BlockQueries, MessageQueries, AccountQueries, TransactionQueries } from './api/queries';
 import _ from 'underscore';
 
 @Component({
@@ -55,8 +55,9 @@ export class AppComponent implements OnDestroy {
     private apollo: Apollo,
     private blockQueries: BlockQueries,
     // private commonQueries: CommonQueries,
-    // private messageQueries: MessageQueries,
-    // private transactionQueries: TransactionQueries,
+    private accountQueries: AccountQueries,
+    private messageQueries: MessageQueries,
+    private transactionQueries: TransactionQueries,
   ) {
 
     /** Disable change detection for application optimization */
@@ -185,11 +186,45 @@ export class AppComponent implements OnDestroy {
     // Get blocks
     this.getBlocks(search)
       .pipe(takeUntil(this._unsubscribe))
-      .subscribe((res: Block[]) => {
+      .subscribe((b: Block[]) => {
 
-        // Для вызова в child ngOnChanges
-        this.foundBlocks = JSON.parse(JSON.stringify(res)) ? JSON.parse(JSON.stringify(res)) : JSON.parse(JSON.stringify([]));
-        this.detectChanges();
+        // Get messages
+        this.getMessages(search)
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((m: Message[]) => {
+
+            // Get transactions
+            this.getTransaction(search)
+              .pipe(takeUntil(this._unsubscribe))
+              .subscribe((t: Transaction[]) => {
+
+                // Get accounts
+                this.getAccounts(search)
+                  .pipe(takeUntil(this._unsubscribe))
+                  .subscribe((a: Account[]) => {
+
+                    // Для вызова в child ngOnChanges
+                    this.foundBlocks = JSON.parse(JSON.stringify(b)) ? JSON.parse(JSON.stringify(b)) : JSON.parse(JSON.stringify([]));
+
+                    // Для вызова в child ngOnChanges
+                    this.foundMessages = JSON.parse(JSON.stringify(m)) ? JSON.parse(JSON.stringify(m)) : JSON.parse(JSON.stringify([]));
+
+                    this.foundTransactions = JSON.parse(JSON.stringify(t)) ? JSON.parse(JSON.stringify(t)) : JSON.parse(JSON.stringify([]));
+
+                    this.foundAccounts = JSON.parse(JSON.stringify(a)) ? JSON.parse(JSON.stringify(a)) : JSON.parse(JSON.stringify([]));
+                    this.detectChanges();
+
+                  }, (error: any) => {
+                    console.log(error);
+                  });
+
+              }, (error: any) => {
+                console.log(error);
+              });
+
+          }, (error: any) => {
+            console.log(error);
+          });
 
       }, (error: any) => {
         console.log(error);
@@ -213,14 +248,102 @@ export class AppComponent implements OnDestroy {
       ]
     }
 
-    console.log('e');
-
     return this.apollo.watchQuery<Block[]>({
       query: this.blockQueries.getBlocks,
       variables: _variables,
       errorPolicy: 'all'
     })
     .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]));
   }
+
+  /**
+   * Get messages list query
+   * @param _search String for searching
+   */
+  private getMessages(_search?: string): Observable<Message[]> {
+
+    const _variables = {
+      filter: {id: {in: _search}},
+      orderBy: [
+        new QueryOrderBy({path: 'created_at', direction: 'DESC'}),
+      ]
+    }
+
+    return this.apollo.watchQuery<Block[]>({
+      query: this.messageQueries.getMessages,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.messages]));
+  }
+
+  /**
+   * Get transaction list query
+   * @param _search String for searching
+   */
+  private getTransaction(_search?: string): Observable<Transaction[]> {
+
+    const _variables = {
+      filter: {id: {in: _search}},
+      orderBy: [
+        new QueryOrderBy({path: 'now', direction: 'DESC'}),
+        new QueryOrderBy({path: 'account_addr', direction: 'DESC'}),
+        new QueryOrderBy({path: 'lt', direction: 'DESC'})
+      ]
+    }
+
+    return this.apollo.watchQuery<Transaction[]>({
+      query: this.transactionQueries.getTransaction,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.transactions]));
+  }
+
+  /**
+   * Get accounts list query
+   * @param _search String for searching
+   */
+  private getAccounts(_search?: string): Observable<Account[]> {
+
+    const _variables = {
+      filter: {id: {in: _search}},
+      orderBy: [
+        new QueryOrderBy({path: "balance", direction: "DESC"}),
+      ]
+    }
+
+    return this.apollo.watchQuery<Account[]>({
+      query: this.accountQueries.getAccounts,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.accounts]));
+  }
+
+  // /**
+  //  * Get accounts list query
+  //  * @param _search String for searching
+  //  */
+  // private getValidators(_search?: string): Observable<Account[]> {
+
+  //   const _variables = {
+  //     filter: {id: {in: _search}},
+  //     orderBy: [
+  //       new QueryOrderBy({path: "balance", direction: "DESC"}),
+  //     ]
+  //   }
+
+  //   return this.apollo.watchQuery<Account[]>({
+  //     query: this.transactionQueries.getTransaction,
+  //     variables: _variables,
+  //     errorPolicy: 'all'
+  //   })
+  //   .valueChanges
+  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.validators]));
+  // }
 }
