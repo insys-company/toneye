@@ -1,0 +1,40 @@
+<div class="transaction-page page">
+  <!-- Page header -->
+  <div class="transaction-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Transaction details</h1>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="transaction-page__content transaction-content page-details-content">
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #generalViewer class="page-details-content__component"
+        [data]="generalViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="generalViewerLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isGeneralInfoOpen"
+        [header]="'More details'"
+        [data]="aditionalViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="generalViewerLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isGeneralInfoOpen"
+        [header]="'Storage'"
+        [data]="storageViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="generalViewerLoading">
+      </app-general-viewer>
+    </div>
+
+  </div>
+</div>

@@ -77,9 +77,9 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
 
         this.messagesService.getMessage(this.modelId)
           .pipe(takeUntil(this.unsubscribe))
-          .subscribe((m: Message[]) => {
+          .subscribe((model: Message[]) => {
   
-            this.data = m[0];
+            this.data = model[0];
             this.init(this.modelId);
 
           }, (error: any) => {
@@ -109,67 +109,54 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
    */
   private init(id: string | number): void {
 
-    this.messagesService.getMessage(this.modelId)
+    this.messagesService.getTransaction(this.modelId)
       .pipe(takeUntil(this.unsubscribe))
-      .subscribe((m: Message[]) => {
+      .subscribe((in_t: Transaction[]) => {
 
-        this.data = m[0] ? m[0] : new Message();
+        if(in_t[0]) {
+          this.generalViewerData = this.mapData(this.data, in_t[0]);
+          this.generalViewerLoading = false;
+          this.detectChanges();
+        }
+        else {
 
-        this.messagesService.getTransaction(this.modelId)
-          .pipe(takeUntil(this.unsubscribe))
-          .subscribe((in_t: Transaction[]) => {
+          this.messagesService.getTransaction(this.modelId, true)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((out_t: Transaction[]) => {
 
-            if(in_t[0]) {
-              this.generalViewerData = this.mapData(this.data, in_t[0]);
+            if(out_t[0]) {
+              this.generalViewerData = this.mapData(this.data, out_t[0]);
               this.generalViewerLoading = false;
               this.detectChanges();
             }
-            else {
 
-
-              this.messagesService.getTransaction(this.modelId, true)
-                .pipe(takeUntil(this.unsubscribe))
-                .subscribe((out_t: Transaction[]) => {
+            }, (error: any) => {
     
-                if(out_t[0]) {
-                  this.generalViewerData = this.mapData(this.data, out_t[0]);
-                  this.generalViewerLoading = false;
-                  this.detectChanges();
-                }
-    
-                }, (error: any) => {
-        
-                });
+            });
 
-
-            }
-
-        }, (error: any) => {
-
-        });
-
+        }
 
     }, (error: any) => {
-      console.log(error);
-    });    
+
+    });
 
   }
 
   /**
-   * Map messages for table
-   * @param _list Array of messages
+   * Map messages for viewer
+   * @param _model Model of message
    */
-  private mapData(_model: Message, _transaction: Transaction): GeneralViewer[] {
+  private mapData(_model: Message, _data: Transaction): GeneralViewer[] {
 
-    let _data = [];
+    let viewers = [];
 
-    _data.push(new GeneralViewer({title: 'ID', value: _model.id}));
-    _data.push(new GeneralViewer({title: 'Type', value: _model.msg_type === 0 ? 'Internal' : '?'}));
-    _data.push(new GeneralViewer({title: 'Time & Date', value: _model.created_at}));
-    _data.push(new GeneralViewer({title: 'From', value: _model.src}));
-    _data.push(new GeneralViewer({title: 'To', value: _model.dst}));
-    _data.push(new GeneralViewer({title: 'Value', value: _model.value}));
-    _data.push(new GeneralViewer({title: 'Child transaction', value: _transaction.id}));
+    viewers.push(new GeneralViewer({title: 'ID', value: _model.id}));
+    viewers.push(new GeneralViewer({title: 'Type', value: _model.msg_type === 0 ? 'Internal' : '?'}));
+    viewers.push(new GeneralViewer({title: 'Time & Date', value: _model.created_at}));
+    viewers.push(new GeneralViewer({title: 'From', value: _model.src}));
+    viewers.push(new GeneralViewer({title: 'To', value: _model.dst}));
+    viewers.push(new GeneralViewer({title: 'Value', value: _model.value}));
+    viewers.push(new GeneralViewer({title: 'Child transaction', value: _data.id}));
 
     this.aditionalViewerData = [];
 
@@ -180,7 +167,7 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
     this.aditionalViewerData.push(new GeneralViewer({title: 'Bounced', value: _model.bounced ? 'Yes' : 'No'}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Boc', value: _model.boc}));
 
-    return _data;
+    return viewers;
   }
 
   /**

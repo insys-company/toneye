@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
+import { appRouteMap } from '../app-route-map';
 
 @Component({
   selector: 'app-transactions',
@@ -74,6 +75,18 @@ export class TransactionsComponent implements OnInit, OnDestroy {
    */
   onExport(): void {
     // TODO
+  }
+
+  /**
+   * Event of select
+   * @param item Selected item from table
+   */
+  public onSelectItem(item: TabViewerData): void {
+
+    if (item.id) {
+      this.router.navigate([`/${appRouteMap.transaction}/${item.id}`]);
+    }
+
   }
 
   /**
@@ -210,13 +223,14 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       const residue = i % 2;
 
       return new TabViewerData({
+        id: t.id,
         titleLeft: t.id,
         subtitleLeft: new DataConfig({
           text: t.account_addr ? t.account_addr.substring(0, 6) : '',
           type: 'string'
         }),
         titleRight: new DataConfig({
-          text: t.balance_delta && t.balance_delta != '0' ? t.balance_delta : residue == 0 ? 'Tock' : 'Tick',
+          text: t.tr_type == 3 ? 'Tock' : t.tr_type == 2 ? 'Tick' : t.balance_delta,
           icon: (t.balance_delta && t.balance_delta != '0') ? true : false,
           iconClass: 'icon-gem',
           textColorClass: (t.balance_delta && t.balance_delta != '0') ? '' : 'color-gray',

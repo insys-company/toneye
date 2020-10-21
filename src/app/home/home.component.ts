@@ -316,7 +316,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           type: 'string'
         }),
         titleRight: new DataConfig({
-          text: t.balance_delta && t.balance_delta != '0' ? t.balance_delta : residue == 0 ? 'Tock' : 'Tick',
+          text: t.tr_type == 3 ? 'Tock' : t.tr_type == 2 ? 'Tick' : t.balance_delta,
           icon: (t.balance_delta && t.balance_delta != '0') ? true : false,
           iconClass: 'icon-gem',
           textColorClass: (t.balance_delta && t.balance_delta != '0') ? '' : 'color-gray',

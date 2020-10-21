@@ -20,6 +20,21 @@ export class TransactionQueries {
         in_msg
         now
         tr_type
+        prev_trans_hash
+        lt
+        outmsg_cnt
+        orig_status
+        end_status
+        old_hash
+        new_hash
+        aborted
+        boc
+        storage {
+          status_change
+          storage_fees_collected
+          storage_fees_due
+          __typename
+        }
         __typename
       }
     }

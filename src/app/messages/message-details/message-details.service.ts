@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { MessageDetailsServicesModule } from './message-details-services.module';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../../api/queries';
+import { MessageQueries, TransactionQueries } from '../../api/queries';
 import { Observable, Subject } from 'rxjs';
-import { Block, Message, Transaction, QueryOrderBy } from '../../api';
+import { Message, Transaction } from '../../api';
 import { map } from 'rxjs/operators';
-// import 'rxjs/add/operator/map';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from '../../app-route-map';
 
