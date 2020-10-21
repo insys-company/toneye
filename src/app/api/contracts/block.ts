@@ -23,7 +23,9 @@ export class Block {
 
   serialize() {
     return {
+      id: this.id,
       gen_utime: this.gen_utime,
+      master: this.master,
       prev_key_block_seqno: this.prev_key_block_seqno,
       seq_no: this.seq_no,
       shard: this.shard,

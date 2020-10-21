@@ -1,4 +1,6 @@
 export class InMsg {
+  id: string;
+  block_id: string;
   __typename: string;
 
   constructor(data?: any) {
@@ -13,6 +15,8 @@ export class InMsg {
 
   serialize() {
     return {
+      id: this.id,
+      block_id: this.block_id,
       __typename: this.__typename,
     };
   }

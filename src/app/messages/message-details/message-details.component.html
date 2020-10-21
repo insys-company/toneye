@@ -12,17 +12,17 @@
       <app-general-viewer #generalViewer class="page-details-content__component"
         [data]="generalViewerData"
         [skeletonArray]="skeletonArray"
-        [skeletalAnimation]="generalViewerLoading">
+        [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
-        [isGeneralInfoOpen]="isGeneralInfoOpen"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
         [header]="'More details'"
         [data]="aditionalViewerData"
         [skeletonArray]="skeletonArray"
-        [skeletalAnimation]="generalViewerLoading">
+        [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 

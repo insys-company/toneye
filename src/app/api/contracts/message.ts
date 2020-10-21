@@ -31,6 +31,12 @@ export class Message {
       id: this.id,
       src: this.src,
       value: this.value,
+      msg_type: this.msg_type,
+      ihr_fee: this.ihr_fee,
+      fwd_fee: this.fwd_fee,
+      bounce: this.bounce,
+      bounced: this.bounced,
+      boc: this.boc,
       __typename: this.__typename,
     };
   }

@@ -19,38 +19,53 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
    */
   public unsubscribe: Subject<void> = new Subject();
   /**
-   * Data for view
+   * For skeleton animation
+   */
+  public skeletonArray: Array<number> = new Array(4);
+  /**
+   * Flag for show/hide state of info
+   */
+  public isAditionalInfoOpen: boolean;
+  /**
+   * Flag for loading animation in Viewers
+   */
+  public viewersLoading: boolean;
+  /**
+   * Model
+   */
+  public data: Transaction;
+  /**
+   * ModelId
+   */
+  public modelId: string | number;
+  /**
+   * General Data for view
    */
   public generalViewerData: Array<GeneralViewer>;
   /**
-   * Data for view
+   * Aditional Data for view
    */
   public aditionalViewerData: Array<GeneralViewer>;
   /**
-   * Data for view
+   * Storage Data for view
    */
   public storageViewerData: Array<GeneralViewer>;
   /**
-   * For skeleton animation
+   * Compute Data for view
    */
-  public skeletonArray: Array<number> = new Array(6);
+  public computeViewerData: Array<GeneralViewer>;
   /**
-   * Flag for loading data of General Viewer
+   * Action Data for view
    */
-  public generalViewerLoading: boolean;
-
-  public data: Transaction;
-
-  public modelId: string | number;
-
+  public actionViewerData: Array<GeneralViewer>;
   /**
-   * Flag for main info
+   * Final State Data for view
    */
-  public isGeneralInfoOpen: boolean;
+  public finalStateViewerData: Array<GeneralViewer>;
 
   constructor(
     private changeDetection: ChangeDetectorRef,
-    private transactionsService: TransactionDetailsService,
+    private service: TransactionDetailsService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -58,7 +73,7 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
     this.changeDetection.detach();
 
     /** Loading animation in children */
-    this.generalViewerLoading = true;
+    this.viewersLoading = true;
   }
 
   /**
@@ -79,12 +94,15 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.transactionsService.getTransaction(this.modelId)
+        this.service.getTransaction(this.modelId)
           .pipe(takeUntil(this.unsubscribe))
           .subscribe((model: Transaction[]) => {
   
-            this.data = model[0];
-            this.init(this.modelId);
+            this.data = model[0]
+              ? new Transaction(model[0])
+              : new Transaction();
+
+            this.init();
 
           }, (error: any) => {
             console.log(error);
@@ -111,18 +129,22 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
   /**
    * Init method
    */
-  private init(id: string | number): void {
+  private init(): void {
 
-    this.transactionsService.getBlock(this.data.block_id)
+    this.service.getBlock(this.data.block_id)
       .pipe(takeUntil(this.unsubscribe))
-      .subscribe((model: Block[]) => {
+      .subscribe((blockModel: Block[]) => {
 
-        this.generalViewerData = this.mapData(this.data, (model[0] ? model[0] : new Block({})));
-        this.generalViewerLoading = false;
+        blockModel[0] = blockModel[0]
+          ? new Block(blockModel[0])
+          : new Block();
+
+        this.generalViewerData = this.mapData(this.data, blockModel[0]);
+        this.viewersLoading = false;
         this.detectChanges();
 
     }, (error: any) => {
-
+      console.log(error);
     });
 
   }
@@ -140,15 +162,14 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
     viewers.push(new GeneralViewer({title: 'Time & Date', value: _model.now}));
     viewers.push(new GeneralViewer({title: 'Account', value: _model.account_addr}));
 
-    this.aditionalViewerData = [];
     // Details
+    this.aditionalViewerData = [];
     this.aditionalViewerData.push(new GeneralViewer({title: 'Block', value: `${_data.seq_no} / ${_data.workchain_id} : ${_data.shard}`}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Block ID', value: _data.id}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Logical time', value: _data.gen_utime}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Prev. transaction hash', value: _model.prev_trans_hash ? 'Yes' : 'No'}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Prev. transaction lt', value: _model.lt}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Out messages count', value: _model.outmsg_cnt}));
-
     // Details
     this.aditionalViewerData.push(new GeneralViewer({title: 'Original status', value: _model.orig_status}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'End status', value: _model.end_status}));
@@ -157,28 +178,45 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
     this.aditionalViewerData.push(new GeneralViewer({title: 'Aborted', value: _model.aborted ? 'Yes' : 'No'}));
     this.aditionalViewerData.push(new GeneralViewer({title: 'Boc', value: _model.boc}));
 
-    this.storageViewerData = [];
-
     // Storage
+    this.storageViewerData = [];
     this.storageViewerData.push(new GeneralViewer({title: 'Storage fees collected', value: _model.storage ? _model.storage.storage_fees_collected : ''}));
     this.storageViewerData.push(new GeneralViewer({title: 'Storage fees due', value: _model.storage ? _model.storage.storage_fees_due : ''}));
-    this.storageViewerData.push(new GeneralViewer({title: 'Status change', value: _model.storage ? _model.storage.status_change : ''}));
+    this.storageViewerData.push(new GeneralViewer({title: 'Status change', value: _model.storage ? !_model.storage.status_change ? 'Unchanged' : '??' : ''}));
 
-    // // Compute
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Original status', value: _model.orig_status}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'End status', value: _model.end_status}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Old hash', value: _model.old_hash}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'New hash', value: _model.new_hash}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Aborted', value: _model.aborted ? 'Yes' : 'No'}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Boc', value: _model.boc}));
+    // Compute
+    this.computeViewerData = [];
+    this.computeViewerData.push(new GeneralViewer({title: 'Gas Limit', value: _model.compute ? _model.compute.gas_limit : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Gas Used', value: _model.compute ? _model.compute.gas_used : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Gas fees', value: _model.compute ? _model.compute.gas_fees : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Gas credit', value: _model.compute ? _model.compute.gas_credit : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Compute type', value: _model.compute ? _model.compute.compute_type == 1 ? 'VM' : '??' : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Success', value: _model.compute && _model.compute.success ? 'Yes' : 'No'}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Message state used', value: _model.compute && _model.compute.msg_state_used ? 'Yes' : 'No'}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Account activated', value: _model.compute && _model.compute.account_activated ? 'Yes' : 'No'}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Mode', value: _model.compute ? _model.compute.mode : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'Exit code', value: _model.compute ? _model.compute.exit_code : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'VM steps', value: _model.compute ? _model.compute.vm_steps : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'VM init state hash', value: _model.compute ? _model.compute.vm_init_state_hash : ''}));
+    this.computeViewerData.push(new GeneralViewer({title: 'VM final state hash', value: _model.compute ? _model.compute.vm_final_state_hash : ''}));
 
     // // Action
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Original status', value: _model.orig_status}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'End status', value: _model.end_status}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Old hash', value: _model.old_hash}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'New hash', value: _model.new_hash}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Aborted', value: _model.aborted ? 'Yes' : 'No'}));
-    // this.aditionalViewerData.push(new GeneralViewer({title: 'Boc', value: _model.boc}));
+    this.actionViewerData = [];
+    this.actionViewerData.push(new GeneralViewer({title: 'Success', value: _model.action && _model.action.success ? 'Yes' : 'No'}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Valid', value: _model.action && _model.action.valid ? 'Yes' : 'No'}));
+    this.actionViewerData.push(new GeneralViewer({title: 'No funds', value: _model.action && _model.action.no_funds ? 'Yes' : 'No'}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Status change', value: _model.action && _model.action.total_fwd_fees ? _model.action.total_fwd_fees : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Total fwd fees', value: _model.action && _model.action.total_fwd_fees ? _model.action.total_fwd_fees : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Total action fees', value: _model.action ? _model.action.total_action_fees : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Result code', value: _model.action ? _model.action.result_code : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Tot actions', value: _model.action ? _model.action.tot_actions : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Spec actions', value: _model.action ? _model.action.spec_actions : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Skipped actions', value: _model.action ? _model.action.skipped_actions : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Messages created', value: _model.action ? _model.action.msgs_created : ''}));
+    this.actionViewerData.push(new GeneralViewer({title: 'Action list hash', value: _model.action ? _model.action.action_list_hash : ''}));
+
+    this.finalStateViewerData = [];
+    this.finalStateViewerData.push(new GeneralViewer({title: 'Destroyed', value: _model.destroyed ? 'Yes' : 'No'}));
 
     return viewers;
   }

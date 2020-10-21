@@ -12,27 +12,57 @@
       <app-general-viewer #generalViewer class="page-details-content__component"
         [data]="generalViewerData"
         [skeletonArray]="skeletonArray"
-        [skeletalAnimation]="generalViewerLoading">
+        [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
-        [isGeneralInfoOpen]="isGeneralInfoOpen"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
         [header]="'More details'"
         [data]="aditionalViewerData"
         [skeletonArray]="skeletonArray"
-        [skeletalAnimation]="generalViewerLoading">
+        [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 
     <div class="page-details-content__component-wrapper">
-      <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
-        [isGeneralInfoOpen]="isGeneralInfoOpen"
+      <app-general-viewer #storageGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
         [header]="'Storage'"
         [data]="storageViewerData"
         [skeletonArray]="skeletonArray"
-        [skeletalAnimation]="generalViewerLoading">
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #computeGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Storage'"
+        [data]="computeViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #actionGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Action'"
+        [data]="actionViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #finalStateGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Final State'"
+        [data]="finalStateViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 

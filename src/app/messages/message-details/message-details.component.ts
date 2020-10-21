@@ -19,34 +19,37 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
    */
   public unsubscribe: Subject<void> = new Subject();
   /**
-   * Data for view
+   * For skeleton animation
+   */
+  public skeletonArray: Array<number> = new Array(7);
+  /**
+   * Flag for show/hide state of info
+   */
+  public isAditionalInfoOpen: boolean;
+  /**
+   * Flag for loading animation in Viewers
+   */
+  public viewersLoading: boolean;
+  /**
+   * Model
+   */
+  public data: Message;
+  /**
+   * ModelId
+   */
+  public modelId: string | number;
+  /**
+   * General Data for view
    */
   public generalViewerData: Array<GeneralViewer>;
   /**
-   * Data for view
+   * Aditional Data for view
    */
   public aditionalViewerData: Array<GeneralViewer>;
-  /**
-   * For skeleton animation
-   */
-  public skeletonArray: Array<number> = new Array(6);
-  /**
-   * Flag for loading data of General Viewer
-   */
-  public generalViewerLoading: boolean;
-
-  public data: Message;
-
-  public modelId: string | number;
-
-  /**
-   * Flag for main info
-   */
-  public isGeneralInfoOpen: boolean;
 
   constructor(
     private changeDetection: ChangeDetectorRef,
-    private messagesService: MessageDetailsService,
+    private service: MessageDetailsService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -54,7 +57,7 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
     this.changeDetection.detach();
 
     /** Loading animation in children */
-    this.generalViewerLoading = true;
+    this.viewersLoading = true;
   }
 
   /**
@@ -75,12 +78,15 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.messagesService.getMessage(this.modelId)
+        this.service.getMessage(this.modelId)
           .pipe(takeUntil(this.unsubscribe))
           .subscribe((model: Message[]) => {
   
-            this.data = model[0];
-            this.init(this.modelId);
+            this.data = model[0]
+              ? new Message(model[0])
+              : new Message();
+
+            this.init();
 
           }, (error: any) => {
             console.log(error);
@@ -107,37 +113,39 @@ export class MessageDetailsComponent implements OnInit, OnDestroy {
   /**
    * Init method
    */
-  private init(id: string | number): void {
+  private init(): void {
 
-    this.messagesService.getTransaction(this.modelId)
+    this.service.getTransaction(this.modelId)
       .pipe(takeUntil(this.unsubscribe))
-      .subscribe((in_t: Transaction[]) => {
+      .subscribe((in_trasaction: Transaction[]) => {
 
-        if(in_t[0]) {
-          this.generalViewerData = this.mapData(this.data, in_t[0]);
-          this.generalViewerLoading = false;
+        if(in_trasaction[0]) {
+          this.generalViewerData = this.mapData(this.data, new Transaction(in_trasaction[0]));
+          this.viewersLoading = false;
           this.detectChanges();
         }
         else {
 
-          this.messagesService.getTransaction(this.modelId, true)
+          this.service.getTransaction(this.modelId, true)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((out_t: Transaction[]) => {
+            .subscribe((out_trasaction: Transaction[]) => {
 
-            if(out_t[0]) {
-              this.generalViewerData = this.mapData(this.data, out_t[0]);
-              this.generalViewerLoading = false;
+              out_trasaction[0] = out_trasaction[0]
+                ? new Transaction(out_trasaction[0])
+                : new Transaction();
+
+              this.generalViewerData = this.mapData(this.data, out_trasaction[0]);
+              this.viewersLoading = false;
               this.detectChanges();
-            }
 
             }, (error: any) => {
-    
+              console.log(error);
             });
 
         }
 
     }, (error: any) => {
-
+      console.log(error);
     });
 
   }
