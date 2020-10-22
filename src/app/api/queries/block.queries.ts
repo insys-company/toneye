@@ -64,7 +64,6 @@ export class BlockQueries extends GraphQueryService {
           __typename
         }
         master {
-
           config_addr
           max_shard_gen_utime
           min_shard_gen_utime
@@ -200,6 +199,15 @@ export class BlockQueries extends GraphQueryService {
       }
     }
   `;
+
+// config {  67 строка
+//   p15 
+//   p16
+//   p17
+//   p32
+//   p34
+//   p36
+// }
 
   getMasterBlock = gql`
     query getMasterBlock($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {

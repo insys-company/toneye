@@ -126,6 +126,9 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
     this.inMessages = [];
     this.outMessages = [];
 
+    this.tableViewerLoading = true;
+    this.tableViewerData = [];
+
     this.detectChanges();
   }
 
