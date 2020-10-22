@@ -67,6 +67,10 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
     super.ngOnDestroy();
     this.transactions = null;
     this.messages = null;
+    this.tableViewerData = null;
+    this.tableViewerLoading = null;
+    this.selectedTabIndex = null;
+    this.isGeneralInfoOpen = null;
   }
 
   /**

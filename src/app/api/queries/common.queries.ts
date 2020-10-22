@@ -52,5 +52,17 @@ export class CommonQueries {
     }
   `;
 
+  getValidatorAggregateAccounts = gql`
+    query aggregateAccounts($filter: AccountFilter, $fields: [FieldAggregation]){
+      aggregateAccounts(filter: $filter, fields: $fields)
+    }
+  `;
+
+  getValidatorAggregateMessages = gql`
+    query aggregateMessages($filter: MessageFilter, $fields: [FieldAggregation]){
+      aggregateMessages(filter: $filter, fields: $fields)
+    }
+  `;
+
   constructor(private blockFragments: BlockFragments) { }
 }

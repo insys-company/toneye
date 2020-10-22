@@ -1,0 +1,40 @@
+@import './../../../scss/abstracts/colors';
+
+.contract-page__general-filter {
+  transition: all .3s ease;
+}
+
+.contract-page__general-filter {
+  display: flex;
+  flex-direction: row;
+
+  background-color: transparent;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.general-filter__general {
+  padding: 20px;
+  flex: 1 1;
+}
+
+.general-filter__filters {
+  max-width: 260px;
+  min-width: 260px;
+}
+
+.page-list-content__tabs {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+
+@media screen and (max-width: 959px) {
+  .contract-page__general-filter {
+    flex-direction: column;
+  }
+  .general-filter__filters {
+    max-width: 100%;
+    min-width: 100%;
+  }
+}

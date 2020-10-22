@@ -1,0 +1,81 @@
+<div class="contract-page page">
+  <!-- Page header -->
+  <div class="contract-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Contract details</h1>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="contract-page__content contract-content page-details-content">
+
+  <div class="contract-page__general-filter border-light">
+    <div class="general-filter__general">
+
+      <div class="">
+        <div class="">
+          <h1 class="color-blue">Surf</h1>
+        </div>
+        <div class="">
+          <p>Total balances</p>
+          <div class="">
+            <span>{{totalBalance | thousandspipe}}</span>
+            <div class="icon icon gem"></div>
+          </div>
+        </div>
+      </div>
+      <div class="">
+        <div class=""><p>Code hash</p></div>
+        <div class=""><p>{{modelId}}</p></div>
+      </div>
+      <div class="">
+        <div class="">
+          <span>Contracts</span>
+        </div>
+        <div class="">
+          <div class="">
+            <div class=""><p>Deploed</p></div>
+            <div class=""><span>{{deployedContracts | thousandspipe}}</span></div>
+          </div>
+          <div class="">
+            <div class=""><p>Active in period</p></div>
+            <div class=""><span>{{activeContracts | thousandspipe}}</span></div>
+          </div>
+          <div class="">
+            <div class=""><p>New in period</p></div>
+            <div class=""><span>{{newContracts | thousandspipe}}</span></div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="general-filter__filters">
+      <app-filter #filter class=""
+        [skeletonArray]="skeletonArray"
+        [isFilterOpen]="isFilterOpen"
+        [isFilterHideBtnVisible]="isFilterHideBtnVisible"
+        [isFilterFooterVisible]="isFilterFooterVisible">
+      </app-filter>
+    </div>
+  </div>
+
+  <div class="contract-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Accounts</h1>
+    </div>
+  </div>
+  <div class="blocks-page__content blocks-content page-list-content ide-filters">
+      <div class="page-list-content__tabs">
+        <div class="page-list-content__component-wrapper">
+          <app-table-viewer #tableViewer
+            [data]="tableViewerData"
+            footerPlaceholder="Load 25 more"
+            [skeletalAnimation]="tableViewerLoading"
+            (exportEvent)="onExport()"
+            (moreEvent)="onSeeMore($event)">
+          </app-table-viewer>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

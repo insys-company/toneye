@@ -4,7 +4,7 @@
     <div class="app-viewer__header">
       <span>Filters</span>
     </div>
-    <div class="app-viewer__btn" (click)="onShowOrHide()">
+    <div *ngIf="isFilterHideBtnVisible" class="app-viewer__btn" (click)="onShowOrHide()">
       <span class="color-blue link">
         {{btnPlaceholder}}
       </span>
@@ -57,10 +57,10 @@
   </div> -->
 
   <!-- Footer line -->
-  <div class="app-viewer__footer-line"></div>
+  <div *ngIf="isFilterFooterVisible" class="app-viewer__footer-line"></div>
 
   <!-- Footer -->
-  <div class="app-viewer__footer-wrapper">
+  <div *ngIf="isFilterFooterVisible" class="app-viewer__footer-wrapper">
     <div class="app-viewer__body-item-block skeleton skeleton-filter-bg skeleton--block w-40"></div>
   </div>
 </div>

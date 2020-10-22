@@ -36,11 +36,21 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(4);
+  @Input() public skeletonArray: Array<number> = new Array(4);
+
   /**
    * Flag for main info
    */
-  public isFilterOpen: boolean;
+  @Input() public isFilterOpen: boolean;
+  /**
+   * Flag for hide btn
+   */
+  @Input() public isFilterHideBtnVisible: boolean = true;
+  /**
+   * Flag for footer
+   */
+  @Input() public isFilterFooterVisible: boolean = true;
+  
 
   /**
    * Url params

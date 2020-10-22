@@ -16,10 +16,14 @@ const routes: Routes = [
   { path: appRouteMap.transactions, loadChildren: () => import('./transactions/transaction-list/transactions.module').then(m => m.TransactionsModule) },
   { path: appRouteMap.messages, loadChildren: () => import('./messages/message-list/messages.module').then(m => m.MessagesModule) },
 
+  // { path: appRouteMap.contracts, loadChildren: () => import('./contracts/contract-list/contracts.module').then(m => m.ContractsModule) },
+
   { path: appRouteMap.account + '/:id', loadChildren: () => import('./accounts/account-details/account-details.module').then(m => m.AccountDetailsModule) },
   { path: appRouteMap.block + '/:id', loadChildren: () => import('./blocks/block-details/block-details.module').then(m => m.BlockDetailsModule) },
   { path: appRouteMap.transaction + '/:id', loadChildren: () => import('./transactions/transaction-details/transaction-details.module').then(m => m.TransactionDetailsModule) },
   { path: appRouteMap.message + '/:id', loadChildren: () => import('./messages/message-details/message-details.module').then(m => m.MessageDetailsModule) },
+
+  { path: appRouteMap.contract + '/:id', loadChildren: () => import('./contracts/contract-details/contract-details.module').then(m => m.ContractDetailsModule) },
 
   // Empty page for children
   { path: appRouteMap.home, loadChildren: () => import('./home/home.module').then(m => m.HomeModule) },
