@@ -108,8 +108,6 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
    * Destruction of the component
    */
   clearData(): void {
-    // this.skeletonArray = null;
-    // this.isAditionalInfoOpen = null;
     this.viewersLoading = true;
     this.disabled = false;
     this.generalViewerData = [];
@@ -120,8 +118,6 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
     this.masterConfigViewerData = [];
     this.model = null;
     this.modelId =  null;
-    // this.previosBlockId = null;
-    // this.nextBlockId = null;
     this.transactions = [];
     this.inMessages = [];
     this.outMessages = [];
@@ -234,7 +230,11 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
         this.viewersLoading = false;
         this.detectChanges();
 
-        this.tableViewerData = this.mapTransactions(this.transactions);
+        this.tableViewerData = this.selectedTabIndex == 0
+          ? this.mapTransactions(this.transactions)
+          : this.selectedTabIndex == 1
+            ? this.mapMessages(this.inMessages)
+            : this.mapMessages(this.outMessages);
 
         this.tableViewerLoading = false;
 
@@ -362,8 +362,6 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
     data = _list.map((t: Transaction, i: number) => {
 
       t.balance_delta = t.balance_delta && t.balance_delta.match('x') ? String(parseInt(t.balance_delta, 16)) : t.balance_delta;
-
-      const residue = i % 2;
 
       return new TabViewerData({
         id: t.id,

@@ -2,6 +2,7 @@ export class GeneralViewer {
   title: string;
   value: string;
   isNumber?: boolean;
+  isDate?: boolean;
   dinamic?: boolean;
 
   constructor(data?: any) {

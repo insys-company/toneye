@@ -42,6 +42,11 @@ export class AccountsComponent implements OnInit, OnDestroy {
   /** Array of ... */
   public data: Account[] = [];
 
+  /**
+   * Balance
+   */
+  public totalBalance: number; 
+
   constructor(
     private changeDetection: ChangeDetectorRef,
     private accountsService: AccountsService,
@@ -137,6 +142,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
           isNumber: true
         });
 
+        this.totalBalance = Number(generalData.getAccountsTotalBalance);
+
         this.generalViewerData = [];
 
         this.generalViewerData.push(getAccountsCount);
@@ -146,27 +153,28 @@ export class AccountsComponent implements OnInit, OnDestroy {
 
         this.detectChanges();
 
+
+        // Get accounts
+        this.accountsService.getAccounts()
+          .pipe(takeUntil(this.unsubscribe))
+          .subscribe((res: Account[]) => {
+
+            this.data = res ? res : [];
+
+            this.tableViewerData = this.mapData(this.data);
+
+            this.tableViewerLoading = false;
+
+            this.detectChanges();
+
+          }, (error: any) => {
+            console.log(error);
+      });
+
+
       }, (error: any) => {
         console.log(error);
       });
-
-    // Get accounts
-    this.accountsService.getAccounts()
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((res: Account[]) => {
-
-        this.data = res ? res : [];
-
-        this.tableViewerData = this.mapData(this.data);
-
-        this.tableViewerLoading = false;
-
-        this.detectChanges();
-
-      }, (error: any) => {
-        console.log(error);
-      });
-
   }
 
   /**
@@ -183,14 +191,14 @@ export class AccountsComponent implements OnInit, OnDestroy {
 
       return new TabViewerData({
         id: item.id,
-        // url: appRouteMap.account,
+        url: appRouteMap.account,
         titleLeft: item.id,
         subtitleLeft: new DataConfig({
           text: item.last_paid == 0 ? '' : `${item.last_paid}`,
           type: item.last_paid == 0 ? 'string' : 'date'
         }),
         titleRight: new DataConfig({text: item.balance, icon: true, iconClass: 'icon-gem', type: 'number'}),
-        subtitleRight: new DataConfig({text: 1, type: 'percent'})
+        subtitleRight: new DataConfig({text: Number(((Number(item.balance)/this.totalBalance)*100).toFixed(2)), type: 'percent'})
       });
     });
 

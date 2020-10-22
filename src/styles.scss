@@ -109,6 +109,14 @@ a {
   color: $explorer--base__blue;
 }
 
+.color-green {
+  color: $explorer--base__green;
+}
+
+.color-red {
+  color: $explorer--base__red;
+}
+
 .link {
   cursor: pointer;
   text-decoration: underline;
@@ -374,9 +382,19 @@ a {
   &__tabs-buttons {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     transition:  all .3s ease;
     margin-bottom: 20px;
+
+    .tabs-buttons__wrapper {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      transition:  all .3s ease;
+    }
+
     .tabs-buttons__header {
       padding: 10px 5px;
 

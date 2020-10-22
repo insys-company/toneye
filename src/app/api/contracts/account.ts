@@ -1,7 +1,21 @@
 export class Account {
-  id: string;
+  acc_type: number;
   balance: string;
+  balance_other: {}; //?
+  boc: string;
+  code: string;
+  code_hash: string;
+  data: string;
+  data_hash: string;
+  due_payment: string; //?
+  id: string;
   last_paid: number;
+  last_trans_lt: string;
+  library: string; //?
+  library_hash: string; //?
+  proof: string; //?
+  tick: string; //?
+  tock: string; //?
   __typename: string;
 
   constructor(data?: any) {

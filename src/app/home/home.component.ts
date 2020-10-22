@@ -309,8 +309,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       t.balance_delta = t.balance_delta && t.balance_delta.match('x') ? String(parseInt(t.balance_delta, 16)) : t.balance_delta;
 
-      const residue = i % 2;
-
       return new TabViewerData({
         id: t.id,
         url: appRouteMap.transaction,

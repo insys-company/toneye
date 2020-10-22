@@ -127,10 +127,10 @@
     }
 
     .icon {
-      background-repeat: no-repeat;
-      background-position: center;
-      min-width: 12px;
-      min-height: 12px;
+      // background-repeat: no-repeat;
+      // background-position: center;
+      // min-width: 12px;
+      // min-height: 12px;
       margin-left: 5px;
     }
   }
@@ -211,6 +211,14 @@
       margin-top: 30px;
     }
   }
+}
+
+.icon {
+  background-repeat: no-repeat !important;
+  background-position: center;
+  min-width: 12px;
+  min-height: 12px;
+  max-height: 12px;
 }
 
 .icon-transactions {

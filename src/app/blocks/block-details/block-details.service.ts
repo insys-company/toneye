@@ -16,7 +16,6 @@ export class BlockDetailsService extends DetailsService<Block> {
   constructor(
     protected apollo: Apollo,
     protected graphQueryService: BlockQueries,
-    private blockQueries: BlockQueries,
     private transactionQueries: TransactionQueries,
   ) {
 
@@ -73,7 +72,7 @@ export class BlockDetailsService extends DetailsService<Block> {
     }
 
     return this.apollo.watchQuery<Block[]>({
-      query: this.blockQueries.getBlocks,
+      query: this.graphQueryService.getBlocks,
       variables: _variables,
       errorPolicy: 'all'
     })
@@ -92,7 +91,7 @@ export class BlockDetailsService extends DetailsService<Block> {
     }
 
     return this.apollo.watchQuery<Block[]>({
-      query: this.blockQueries.getBlocks,
+      query: this.graphQueryService.getBlocks,
       variables: _variables,
       errorPolicy: 'all'
     })
