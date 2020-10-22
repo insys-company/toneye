@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { AccountsServicesModule } from './Accounts-services.module';
 import { Apollo } from 'apollo-angular';
-import { AccountQueries, CommonQueries } from '../api/queries';
+import { AccountQueries, CommonQueries } from '../../api/queries';
 import { Observable, Subject } from 'rxjs';
-import { Account, Transaction, QueryOrderBy } from '../api';
+import { Account, Transaction } from '../../api';
 import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/map';
 import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../app-route-map';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: AccountsServicesModule
@@ -54,9 +54,7 @@ export class AccountsService {
     const _variables = {
       filter: {},
       limit: 50,
-      orderBy:  [
-        new QueryOrderBy({path: "balance", direction: "DESC"})
-      ]
+      orderBy:  [{path: "balance", direction: "DESC"}],
     }
 
     return this.apollo.watchQuery<Transaction[]>({

@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Message, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../api';
+import { Message, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { MessagesService } from './messages.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
-import { appRouteMap } from '../app-route-map';
+import { appRouteMap } from '../../app-route-map';
 
 @Component({
   selector: 'app-messages',
@@ -103,8 +103,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     const _variables = {
       filter: {created_at: {le: date}},
+      orderBy: [{path: 'created_at', direction: 'DESC'}],
       limit: 25,
-      orderBy: [new QueryOrderBy({path: 'created_at', direction: 'DESC'})]
     }
 
     // Get messages
@@ -215,6 +215,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
       return new TabViewerData({
         id: m.id,
+        url: appRouteMap.message,
         titleLeft: m.id,
         subtitleLeft: new DataConfig({
           text: `${(!m.src || m.src == '') ? 'ext' : m.src.substring(0, 6)} -> ${(!m.dst || m.dst == '') ? 'ext' : m.dst.substring(0, 6)}`,

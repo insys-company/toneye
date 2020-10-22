@@ -2,6 +2,7 @@ export type DataType = 'date' | 'time' | 'number' | 'string' | 'percent';
 
 export class TabViewerData {
   id: string | number;
+  url: string;
   titleLeft: string;
   subtitleLeft: DataConfig;
   titleRight: DataConfig;

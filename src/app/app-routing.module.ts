@@ -11,13 +11,13 @@ const routes: Routes = [
   { path: 'm', redirectTo: appRouteMap.messages, pathMatch: 'full' },
   { path: 'h', redirectTo: appRouteMap.home, pathMatch: 'full' },
 
-  { path: appRouteMap.accounts, loadChildren: () => import('./accounts/accounts.module').then(m => m.AccountsModule) },
-  { path: appRouteMap.blocks, loadChildren: () => import('./blocks/blocks.module').then(m => m.BlocksModule) },
-  { path: appRouteMap.transactions, loadChildren: () => import('./transactions/transactions.module').then(m => m.TransactionsModule) },
-  { path: appRouteMap.messages, loadChildren: () => import('./messages/messages.module').then(m => m.MessagesModule) },
+  { path: appRouteMap.accounts, loadChildren: () => import('./accounts/account-list/accounts.module').then(m => m.AccountsModule) },
+  { path: appRouteMap.blocks, loadChildren: () => import('./blocks/block-list/blocks.module').then(m => m.BlocksModule) },
+  { path: appRouteMap.transactions, loadChildren: () => import('./transactions/transaction-list/transactions.module').then(m => m.TransactionsModule) },
+  { path: appRouteMap.messages, loadChildren: () => import('./messages/message-list/messages.module').then(m => m.MessagesModule) },
 
-  // { path: appRouteMap.account + '/:id', loadChildren: () => import('./accounts/account-details.module').then(m => m.AccountsDetailsModule) },
-  // { path: appRouteMap.block + '/:id', loadChildren: () => import('./blocks/block-details.module').then(m => m.BlockDetailsModule) },
+  // { path: appRouteMap.account + '/:id', loadChildren: () => import('./accounts/account-details/account-details.module').then(m => m.AccountsDetailsModule) },
+  { path: appRouteMap.block + '/:id', loadChildren: () => import('./blocks/block-details/block-details.module').then(m => m.BlockDetailsModule) },
   { path: appRouteMap.transaction + '/:id', loadChildren: () => import('./transactions/transaction-details/transaction-details.module').then(m => m.TransactionDetailsModule) },
   { path: appRouteMap.message + '/:id', loadChildren: () => import('./messages/message-details/message-details.module').then(m => m.MessageDetailsModule) },
 

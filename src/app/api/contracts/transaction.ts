@@ -14,6 +14,7 @@ export class Transaction {
   destroyed: boolean;
   end_status: number;
   id: string;
+  transaction_id: string; // for AccountBlock
   in_message: InMsg;
   in_msg: string;
   installed: boolean;

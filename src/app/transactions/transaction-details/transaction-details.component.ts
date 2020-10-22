@@ -1,11 +1,9 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Transaction, Block, GeneralViewer } from '../../api';
 import { TransactionDetailsService } from './transaction-details.service';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
-import _ from 'underscore';
-import { appRouteMap } from 'src/app/app-route-map';
+import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-details.component';
 
 @Component({
   selector: 'app-transaction-details',
@@ -13,39 +11,7 @@ import { appRouteMap } from 'src/app/app-route-map';
   styleUrls: ['./transaction-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransactionDetailsComponent implements OnInit, OnDestroy {
-  /**
-   * Для отписок на запросы
-   */
-  public unsubscribe: Subject<void> = new Subject();
-  /**
-   * For skeleton animation
-   */
-  public skeletonArray: Array<number> = new Array(4);
-  /**
-   * Flag for show/hide state of info
-   */
-  public isAditionalInfoOpen: boolean;
-  /**
-   * Flag for loading animation in Viewers
-   */
-  public viewersLoading: boolean;
-  /**
-   * Model
-   */
-  public data: Transaction;
-  /**
-   * ModelId
-   */
-  public modelId: string | number;
-  /**
-   * General Data for view
-   */
-  public generalViewerData: Array<GeneralViewer>;
-  /**
-   * Aditional Data for view
-   */
-  public aditionalViewerData: Array<GeneralViewer>;
+export class TransactionDetailsComponent extends AppDetailsComponent<Transaction> implements OnInit, OnDestroy {
   /**
    * Storage Data for view
    */
@@ -64,59 +30,30 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
   public finalStateViewerData: Array<GeneralViewer>;
 
   constructor(
-    private changeDetection: ChangeDetectorRef,
-    private service: TransactionDetailsService,
-    private route: ActivatedRoute,
-    private router: Router,
+    protected changeDetection: ChangeDetectorRef,
+    protected service: TransactionDetailsService,
+    protected route: ActivatedRoute,
+    protected router: Router,
   ) {
-    /** Disable change detection for application optimization */
-    this.changeDetection.detach();
 
-    /** Loading animation in children */
-    this.viewersLoading = true;
-  }
+    super(
+      changeDetection,
+      service,
+      route,
+      router,
+    );
 
-  /**
-   * Initialization of the component
-   */
-  ngOnInit(): void {
-    this.detectChanges();
-
-    this.route.params
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((params: Params) => {
-        this.modelId = params['id'] != null ? params['id'].trim() : null;
-
-        if (this.modelId == null) {
-          this.router.navigate([`/${appRouteMap.transactions}`]);
-          this.unsubscribe.next();
-          this.unsubscribe.complete();
-          return;
-        }
-
-        this.service.getTransaction(this.modelId)
-          .pipe(takeUntil(this.unsubscribe))
-          .subscribe((model: Transaction[]) => {
-  
-            this.data = model[0]
-              ? new Transaction(model[0])
-              : new Transaction();
-
-            this.init();
-
-          }, (error: any) => {
-            console.log(error);
-          });
-
-      })
-      .unsubscribe();
   }
 
   /**
    * Destruction of the component
    */
   ngOnDestroy(): void {
-    // TODO
+    super.ngOnDestroy();
+    this.storageViewerData = null;
+    this.computeViewerData = null;
+    this.actionViewerData = null;
+    this.finalStateViewerData = null;
   }
 
   /**
@@ -127,19 +64,19 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Init method
+   * Data for model from other queries
    */
-  private init(): void {
+  protected getData(): void {
 
-    this.service.getBlock(this.data.block_id)
-      .pipe(takeUntil(this.unsubscribe))
+    this.service.getBlock(this.model.block_id)
+      .pipe(takeUntil(this._unsubscribe))
       .subscribe((blockModel: Block[]) => {
 
         blockModel[0] = blockModel[0]
           ? new Block(blockModel[0])
           : new Block();
 
-        this.generalViewerData = this.mapData(this.data, blockModel[0]);
+        this.mapData(this.model, blockModel[0]);
         this.viewersLoading = false;
         this.detectChanges();
 
@@ -150,17 +87,17 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Map transaction for viewer
-   * @param _model Model of transaction
+   * Map for viewer
+   * @param _model Model
+   * @param _data Aditional data
    */
-  private mapData(_model: Transaction, _data: Block): GeneralViewer[] {
+  protected mapData(_model: Transaction, _data: Block): void {
 
-    let viewers = [];
-
-    viewers.push(new GeneralViewer({title: 'ID', value: _model.id}));
-    viewers.push(new GeneralViewer({title: 'Type', value: _model.tr_type == 3 ? 'Tock' : _model.tr_type == 2 ? 'Tick' : _model.balance_delta}));
-    viewers.push(new GeneralViewer({title: 'Time & Date', value: _model.now}));
-    viewers.push(new GeneralViewer({title: 'Account', value: _model.account_addr}));
+    this.generalViewerData = [];
+    this.generalViewerData.push(new GeneralViewer({title: 'ID', value: _model.id}));
+    this.generalViewerData.push(new GeneralViewer({title: 'Type', value: _model.tr_type == 3 ? 'Tock' : _model.tr_type == 2 ? 'Tick' : _model.balance_delta}));
+    this.generalViewerData.push(new GeneralViewer({title: 'Time & Date', value: _model.now}));
+    this.generalViewerData.push(new GeneralViewer({title: 'Account', value: _model.account_addr}));
 
     // Details
     this.aditionalViewerData = [];
@@ -217,14 +154,5 @@ export class TransactionDetailsComponent implements OnInit, OnDestroy {
 
     this.finalStateViewerData = [];
     this.finalStateViewerData.push(new GeneralViewer({title: 'Destroyed', value: _model.destroyed ? 'Yes' : 'No'}));
-
-    return viewers;
-  }
-
-  /**
-   * Detect Changes
-   */
-  private detectChanges(): void {
-    this.changeDetection.detectChanges();
   }
 }

@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../api';
+import { Block, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { BlocksService } from './blocks.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
+import { appRouteMap } from 'src/app/app-route-map';
 
 @Component({
   selector: 'app-blocks',
@@ -77,6 +78,18 @@ export class BlocksComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Event of select
+   * @param item Selected item from table
+   */
+  public onSelectItem(item: TabViewerData): void {
+
+    if (item.id) {
+      this.router.navigate([`/${appRouteMap.block}/${item.id}`]);
+    }
+
+  }
+
+  /**
    * Change tab
    * @param index Index of selected tab
    */
@@ -90,8 +103,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
 
     const _variables = {
       filter: {gen_utime: {le: date}},
+      orderBy: [{path: 'gen_utime', direction: 'DESC'}],
       limit: 25,
-      orderBy: [new QueryOrderBy({path: 'gen_utime', direction: 'DESC'})]
     }
 
     // Get blocks
@@ -205,6 +218,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
     let data = [];
     data = _list.map((b: Block, i) => {
       return new TabViewerData({
+        id: b.id,
+        url: appRouteMap.block,
         titleLeft: b.seq_no,
         subtitleLeft: new DataConfig({text: `${b.workchain_id}:${b.shard ? b.shard.substring(0, 3) : b.shard}`, type: 'string'}),
         titleRight: new DataConfig({text: (b.tr_count ? b.tr_count : ''), icon: true, iconClass: 'icon-transactions', type: 'number'}),

@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Account, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../api';
+import { Account, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { AccountsService } from './accounts.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
+import { appRouteMap } from 'src/app/app-route-map';
 
 @Component({
   selector: 'app-accounts',
@@ -92,8 +93,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
 
     const _variables = {
       filter: {balance: {le: balance}},
+      orderBy: [{path: 'balance', direction: 'DESC'}],
       limit: 25,
-      orderBy: [new QueryOrderBy({path: 'balance', direction: 'DESC'})]
     }
 
     // Get accounts
@@ -181,6 +182,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
       item.balance = item.balance && item.balance.match('x') ? String(parseInt(item.balance, 16)) : item.balance;
 
       return new TabViewerData({
+        id: item.id,
+        // url: appRouteMap.account,
         titleLeft: item.id,
         subtitleLeft: new DataConfig({
           text: item.last_paid == 0 ? '' : `${item.last_paid}`,

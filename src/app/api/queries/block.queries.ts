@@ -1,17 +1,197 @@
 import { Injectable } from '@angular/core';
-import { BlockFragments } from '../fragments';
 import gql from 'graphql-tag';
+import { GraphQueryService } from 'src/app/shared/services';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BlockQueries {
+export class BlockQueries extends GraphQueryService {
+
+  getItem = gql`
+    query getBlock($filter: BlockFilter) {
+      blocks(filter: $filter) {
+        account_blocks {
+          account_addr
+          new_hash
+          old_hash
+          tr_count
+          transactions {
+            lt
+            total_fees
+            transaction_id
+            __typename
+            __typename
+          }
+          __typename
+        }
+        after_merge
+        after_split
+        before_split
+        boc
+        end_lt
+        flags
+        gen_catchain_seqno
+        gen_software_capabilities
+        gen_software_version
+        gen_utime
+        gen_validator_list_hash_short
+        global_id
+        id
+        in_msg_descr {
+          fwd_fee
+          ihr_fee
+          in_msg {
+            cur_addr
+            fwd_fee_remaining
+            msg_id
+            next_addr
+            __typename
+          }
+          msg_id
+          msg_type
+          msg_type_name
+          out_msg {
+            cur_addr
+            fwd_fee_remaining
+            msg_id
+            next_addr
+            __typename
+          }
+          proof_created
+          proof_delivered
+          transaction_id
+          transit_fee
+          __typename
+        }
+        master {
+
+          config_addr
+          max_shard_gen_utime
+          min_shard_gen_utime
+          recover_create_msg {
+            fwd_fee
+            ihr_fee
+            in_msg {
+              cur_addr
+              fwd_fee_remaining
+              msg_id
+              next_addr
+              __typename
+            }
+            msg_id
+            msg_type
+            msg_type_name
+            out_msg {
+              cur_addr
+              fwd_fee_remaining
+              msg_id
+              next_addr
+              __typename
+            }
+            proof_created
+            proof_delivered
+            transaction_id
+            transit_fee
+            __typename
+          }
+          shard_fees {
+            create
+            fees
+            shard
+            workchain_id
+            __typename
+          }
+          shard_hashes {
+            descr {
+              before_merge
+              before_split
+              end_lt
+              fees_collected
+              file_hash
+              flags
+              funds_created
+              gen_utime
+              min_ref_mc_seqno
+              next_catchain_seqno
+              next_validator_shard
+              nx_cc_updated
+              reg_mc_seqno
+              root_hash
+              seq_no
+              split
+              split_type
+              split_type_name
+              start_lt
+              want_merge
+              want_split
+              __typename
+            }
+            shard
+            workchain_id
+            __typename
+          }
+          __typename
+        }
+        master_ref {
+          end_lt
+          file_hash
+          root_hash
+          seq_no
+          __typename
+        }
+        min_ref_mc_seqno
+        out_msg_descr {
+          __typename
+        }
+        prev_alt_ref {
+          __typename
+        }
+        prev_key_block_seqno
+        prev_ref {
+          end_lt
+          file_hash
+          root_hash
+          seq_no
+          __typename
+        }
+        prev_vert_alt_ref {
+          __typename
+        }
+        prev_vert_ref {
+          __typename
+        }
+        rand_seed
+        seq_no
+        shard
+        start_lt
+        status
+        tr_count
+        value_flow {
+          created
+          exported
+          fees_collected
+          fees_imported
+          from_prev_blk
+          imported
+          minted
+          to_next_blk
+          __typename
+        }
+        version
+        vert_seq_no
+        want_merge
+        want_split
+        workchain_id
+        __typename
+      }
+    }
+  `;
 
   getBlocks = gql`
     query getBlocks($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
       blocks(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
-        id
         gen_utime
+        id
         seq_no
         shard
         tr_count
@@ -71,5 +251,5 @@ export class BlockQueries {
     }
   `;
 
-  constructor(private blockFragments: BlockFragments) { }
+  constructor() { super() }
 }

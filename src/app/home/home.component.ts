@@ -263,6 +263,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     let data = [];
     data = _blocks.map((b: Block, i) => {
       return new TabViewerData({
+        id: b.id,
+        url: appRouteMap.block,
         titleLeft: b.seq_no,
         subtitleLeft: new DataConfig({text: `${b.workchain_id}:${b.shard ? b.shard.substring(0, 3) : b.shard}`, type: 'string'}),
         titleRight: new DataConfig({text: (b.tr_count ? b.tr_count : ''), icon: true, iconClass: 'icon-transactions', type: 'number'}),
@@ -310,6 +312,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       const residue = i % 2;
 
       return new TabViewerData({
+        id: t.id,
+        url: appRouteMap.transaction,
         titleLeft: t.id,
         subtitleLeft: new DataConfig({
           text: t.account_addr ? t.account_addr.substring(0, 6) : '',
@@ -344,6 +348,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       m.value = m.value && m.value.match('x') ? String(parseInt(m.value, 16)) : m.value;
 
       return new TabViewerData({
+        id: m.id,
+        url: appRouteMap.message,
         titleLeft: m.id,
         subtitleLeft: new DataConfig({
           text: `${(!m.src || m.src == '') ? 'ext' : m.src.substring(0, 6)} -> ${(!m.dst || m.dst == '') ? 'ext' : m.dst.substring(0, 6)}`,

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { TransactionsServicesModule } from './transactions-services.module';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../api/queries';
+import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../../api/queries';
 import { Observable, Subject } from 'rxjs';
-import { Block, Message, Transaction, QueryOrderBy } from '../api';
+import { Block, Message, Transaction } from '../../api';
 import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/map';
 import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../app-route-map';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: TransactionsServicesModule
@@ -56,8 +56,8 @@ export class TransactionsService {
 
     const _variables = {
       filter: {},
+      orderBy: [{path: 'gen_utime', direction: 'DESC'}],
       limit: 50,
-      orderBy: [new QueryOrderBy({path: 'gen_utime', direction: 'DESC'})]
     }
 
     return this.apollo.watchQuery<Block[]>({
@@ -77,8 +77,8 @@ export class TransactionsService {
 
     const _variables = {
       filter: {},
+      orderBy: [{path: 'created_at', direction: 'DESC'}],
       limit: 50,
-      orderBy: [{path: 'created_at', direction: 'DESC'}]
     }
 
     return this.apollo.watchQuery<Message[]>({
@@ -98,12 +98,12 @@ export class TransactionsService {
 
     const _variables = {
       filter: {},
-      limit: 50,
       orderBy:  [
         {path: 'now', direction: 'DESC'},
         {path: 'account_addr', direction: 'DESC'},
         {path: 'lt', direction: 'DESC'}
-      ]
+      ],
+      limit: 50,
     }
 
     return this.apollo.watchQuery<Transaction[]>({

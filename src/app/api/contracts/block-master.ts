@@ -1,13 +1,12 @@
-import { BlockMasterShardHashes } from '..';
+import { BlockMasterShardFees, BlockMasterShardHashes, MsgData } from '..';
 
 export class BlockMaster {
-  // еще куча полей
-  // config: {}
-  // recover_create_msg: {}
-  // shard_fees: {}
+  config: {} //?
   config_addr: string;
   max_shard_gen_utime: number;
   min_shard_gen_utime: number;
+  recover_create_msg: MsgData;
+  shard_fees: Array<BlockMasterShardFees>
   shard_hashes: Array<BlockMasterShardHashes>;
   __typename: string;
 

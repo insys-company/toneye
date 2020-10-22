@@ -19,7 +19,7 @@
   </div>
   <!-- Data -->
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
-    <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item">
+    <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item no-link">
       <div class="app-viewer__body-item-header"><p>{{item?.title}}</p></div>
       <div class="app-viewer__body-item-subheader"><span>{{item?.isNumber ? (item?.value | thousandspipe) : item?.value}}</span></div>
     </div>

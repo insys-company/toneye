@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { appRouteMap } from './app-route-map';
-import { RouterOutlet, Router, NavigationStart } from '@angular/router';
+import { RouterOutlet, Router, NavigationStart, NavigationEnd } from '@angular/router';
 import { routeAnimation } from './app-animations';
 import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, Validator } from './api';
 import { takeUntil, map } from 'rxjs/operators';
@@ -25,12 +25,13 @@ export class AppComponent implements OnDestroy {
    * Array of links
    */
   public links: Array<string> = [
-    appRouteMap.home,
+    // appRouteMap.home,
     appRouteMap.blocks,
     appRouteMap.transactions,
     appRouteMap.messages,
     appRouteMap.accounts,
-    // this.validators
+    // appRouteMap.contracts,
+    // appRouteMap.validators
   ];
   /**
    * Flag for mobile menu and mobile menu icon
@@ -120,6 +121,30 @@ export class AppComponent implements OnDestroy {
   }
 
   /**
+   * 
+   * @param obj 
+   */
+  onDetails(data: {type: string, option: any}): void {
+    let baseUrl: string;
+    if (data.type === appRouteMap.blocks) {
+      baseUrl = appRouteMap.block;
+    }
+    else if (data.type === appRouteMap.transactions) {
+      baseUrl = appRouteMap.transaction;
+    }
+    else if (data.type === appRouteMap.messages) {
+      baseUrl = appRouteMap.message;
+    }
+    else if (data.type === appRouteMap.accounts) {
+      baseUrl = appRouteMap.account;
+    }
+
+    if (baseUrl && data.option.id) {
+      this.router.navigate([`/${baseUrl}/${data.option.id}`]);
+    }
+  }
+
+  /**
    * Method for ngFor optimization (Menu)
    * @param index Item index in ngFor
    * @param item Item in ngFor
@@ -142,24 +167,13 @@ export class AppComponent implements OnDestroy {
   }
 
   /**
-   * Redirect by link from breadcrumbs
-   * @param indexOfItem Index of selected item
-   * @param item Selected breadcrumb
-   */
-  onRedirect(indexOfItem: number, item: Breadcrumbs): void {
-    if (item.url != null && indexOfItem !== (this.breadcrumbs.length - 1)) {
-      this.router.navigate([`/${item.url}`]);
-    }
-  }
-
-  /**
    * Check url and change breadcrumbs object
    */
   private routerSubscribe(): void {
     this.router.events
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(event => {
-        if (event instanceof NavigationStart) {
+        if (event instanceof NavigationEnd) {
 
           const _urlArray = event.url != null ? _.without(event.url.split('/'), '', null) : '';
   
@@ -174,7 +188,8 @@ export class AppComponent implements OnDestroy {
           }
           // details
           else {
-            this.breadcrumbs.push(new Breadcrumbs({ name: `${_url}s`, url: `${_url}s` }));
+            const parent = _.find(this.links, (l) => { return l.includes(_url)})
+            this.breadcrumbs.push(new Breadcrumbs({ name: `${parent}`, url: `${parent}` }));
             this.breadcrumbs.push(new Breadcrumbs({ name: `${_url} details`, url: _url }));
           }
         }

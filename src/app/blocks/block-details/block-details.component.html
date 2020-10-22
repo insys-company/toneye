@@ -1,0 +1,111 @@
+<div class="block-page page">
+  <!-- Page header -->
+  <div class="block-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Block details</h1>
+    </div>
+    <div class="page-header__nav-btns">
+      <div class="page-header__nav-btn page-header__nav-btn--previos" [class.disabled]="!previosBlockId" (click)="onPreviosBlock()"></div>
+      <div class="page-header__nav-btn page-header__nav-btn--next" [class.disabled]="!nextBlockId" (click)="onNextBlock()"></div>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="block-page__content block-content page-details-content">
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #generalViewer class="page-details-content__component"
+        [data]="generalViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'More details'"
+        [data]="aditionalViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #valueGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Value flow'"
+        [data]="valueViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <!-- <div class="page-details-content__component-wrapper">
+      <app-general-viewer #accountGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Account blocks'"
+        [data]="accountViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #shardsGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Shards'"
+        [data]="shardsViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #masterGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Master config'"
+        [data]="masterConfigViewerData"
+        [skeletonArray]="skeletonArray"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div> -->
+
+    <div class="page-details-content__tabs-buttons">
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Transactions {{transactions?.length ? '(' + transactions.length + ')' : ''}}</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 1" (click)="onChangeTab(1)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">In Messages {{inMessages?.length ? '(' + inMessages.length + ')' : ''}}</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 2" (click)="onChangeTab(2)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 2">Out Messages {{outMessages?.length ? '(' + outMessages.length + ')' : ''}}</h2>
+      </div>
+    </div>
+
+    <div class="blocks-page__content blocks-content page-list-content" [class.hide-filters]="selectedTabIndex !== 0">
+      <div class="page-list-content__filters">
+  
+        <!-- Sticky block for desctop -->
+        <div class="page-list-content__filters-sticky-position">
+          <div class="page-list-content__component-wrapper">
+            <app-filter #filter class="page-list-content__component"></app-filter>
+          </div>
+        </div>
+  
+      </div>
+  
+      <div class="page-list-content__tabs">
+        <div class="page-list-content__component-wrapper">
+          <app-table-viewer #tableViewer
+            [data]="tableViewerData"
+            footerPlaceholder="Load 25 more"
+            [skeletalAnimation]="tableViewerLoading"
+            (exportEvent)="onExport()"
+            (moreEvent)="onSeeMore($event)">
+          </app-table-viewer>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

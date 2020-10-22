@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Transaction, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../api';
+import { Transaction, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { TransactionsService } from './transactions.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
-import { appRouteMap } from '../app-route-map';
+import { appRouteMap } from '../../app-route-map';
 
 @Component({
   selector: 'app-transactions',
@@ -103,12 +103,12 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
     const _variables = {
       filter: {now: {le: date}},
-      limit: 25,
       orderBy: [
-        new QueryOrderBy({path: 'now', direction: 'DESC'}),
-        new QueryOrderBy({path: 'account_addr', direction: 'DESC'}),
-        new QueryOrderBy({path: 'lt', direction: 'DESC'})
-      ]
+        {path: 'now', direction: 'DESC'},
+        {path: 'account_addr', direction: 'DESC'},
+        {path: 'lt', direction: 'DESC'}
+      ],
+      limit: 25,
     }
 
     // Get transaction
@@ -224,6 +224,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
       return new TabViewerData({
         id: t.id,
+        url: appRouteMap.transaction,
         titleLeft: t.id,
         subtitleLeft: new DataConfig({
           text: t.account_addr ? t.account_addr.substring(0, 6) : '',

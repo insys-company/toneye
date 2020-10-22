@@ -3,7 +3,7 @@ import { HomeServicesModule } from './home-services.module';
 import { Apollo } from 'apollo-angular';
 import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../api/queries';
 import { Observable, Subject } from 'rxjs';
-import { Block, Message, Transaction, QueryOrderBy } from '../api';
+import { Block, Message, Transaction } from '../api';
 import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/map';
 import { takeUntil } from 'rxjs/operators';
@@ -45,8 +45,8 @@ export class HomeService {
       // static for master
       variables: {
         filter: {workchain_id: {eq: -1}},
+        orderBy: [{path: "seq_no", direction: "DESC"}],
         limit: 1,
-        orderBy: [new QueryOrderBy({path: "seq_no", direction: "DESC"})]
       },
       errorPolicy: 'all'
     })
@@ -80,8 +80,8 @@ export class HomeService {
 
     const _variables = {
       filter: {},
+      orderBy: [{path: 'gen_utime', direction: 'DESC'}],
       limit: 50,
-      orderBy: [new QueryOrderBy({path: 'gen_utime', direction: 'DESC'})]
     }
 
     return this.apollo.watchQuery<Block[]>({
@@ -101,8 +101,8 @@ export class HomeService {
 
     const _variables = {
       filter: {},
+      orderBy: [{path: 'created_at', direction: 'DESC'}],
       limit: 50,
-      orderBy: [{path: 'created_at', direction: 'DESC'}]
     }
 
     return this.apollo.watchQuery<Message[]>({
@@ -122,12 +122,12 @@ export class HomeService {
 
     const _variables = {
       filter: {},
-      limit: 50,
       orderBy:  [
         {path: 'now', direction: 'DESC'},
         {path: 'account_addr', direction: 'DESC'},
         {path: 'lt', direction: 'DESC'}
-      ]
+      ],
+      limit: 50,
     }
 
     return this.apollo.watchQuery<Transaction[]>({

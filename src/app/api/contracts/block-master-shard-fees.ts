@@ -1,7 +1,6 @@
-import { BlockMasterShardHashesDescr } from '..';
-
-export class BlockMasterShardHashes {
-  descr: BlockMasterShardHashesDescr;
+export class BlockMasterShardFees {
+  create: string;
+  fees: string;
   shard: string;
   workchain_id: number;
   __typename: string;
@@ -18,7 +17,8 @@ export class BlockMasterShardHashes {
 
   serialize() {
     return {
-      descr: this.descr,
+      create: this.create,
+      fees: this.fees,
       shard: this.shard,
       workchain_id: this.workchain_id,
       __typename: this.__typename,

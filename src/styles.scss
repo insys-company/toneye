@@ -69,7 +69,8 @@ h6 {
 }
 
 p,
-span {
+span,
+a {
   margin: 0;
 }
 
@@ -77,12 +78,23 @@ h1 {
   font-size: 24px;
 }
 
-span {
+h2 {
+  font-weight: 500;
+}
+
+span,
+a.span-class {
   font-size: 14px;
 }
 
-p {
+p,
+a.p-class {
   font-size: 12px;
+}
+
+a {
+  color: $explorer--base__black;
+  text-decoration: none;
 }
 
 .color-gray {
@@ -103,11 +115,11 @@ p {
 }
 
 .pointer {
-  cursor: default;
+  cursor: pointer;
 }
 
 .no-pointer {
-  cursor: pointer;
+  cursor: default;
 }
 
 .border-light {
@@ -198,6 +210,98 @@ p {
   &__slide-toggle {
 
   }
+
+  &__nav-btns {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &__nav-btn {
+    min-width: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    transition: all .3s ease;
+    border: 1px solid $explorer--base__gray-light;
+    position: relative;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        border-radius: 5px;
+        transition: all .3s ease;
+        height: 2px;
+        width: 8px;
+    }
+
+    &::before {
+      -moz-transform: rotate(-45deg);
+      -o-transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      transform: rotate(-45deg);
+    }
+
+    &::after {
+      -moz-transform: rotate(45deg);
+      -o-transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+    &--previos {
+      border-radius: 4px 0 0 4px;
+
+      &::before,
+      &::after {
+        left: 40%;
+      }
+
+      &::before {
+        top: 16.5px;
+      }
+  
+      &::after {
+        bottom: 16.5px;
+      }
+    }
+
+    &--next {
+      border-radius: 0 4px 4px 0;
+
+      &::before,
+      &::after {
+        right: 40%;
+      }
+
+      &::before {
+        bottom: 16.5px;
+      }
+  
+      &::after {
+        top: 16.5px;
+      }
+    }
+
+    &:not(.disabled) {
+      cursor: pointer;
+
+      &::before,
+      &::after {
+        background-color: $explorer--base__blue;
+      }
+
+    }
+    &.disabled {
+      cursor: default;
+      pointer-events: none !important;
+
+      &::before,
+      &::after {
+        background-color: $explorer--base__gray-light;
+      }
+    }
+  }
 }
 
 .page-list-content,
@@ -241,6 +345,22 @@ p {
       // min-height: 45%;
     }
   }
+
+  &.hide-filters {
+    .page-list-content__filters {
+      margin: 0;
+      min-width: 0;
+      max-width: 0;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+    .page-list-content__tabs {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+  }
+
 }
 // Dateils
 .page-details-content {
@@ -249,6 +369,27 @@ p {
 
   &__component-wrapper {
     margin-bottom: 20px;
+  }
+
+  &__tabs-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    transition:  all .3s ease;
+    margin-bottom: 20px;
+    .tabs-buttons__header {
+      padding: 10px 5px;
+
+      &:not(.tabs-buttons__header--active) {
+        cursor: pointer;
+      }
+
+      &--active {
+        h2 {
+          font-weight: 700;
+        }
+      }
+    }
   }
 }
 
@@ -445,6 +586,18 @@ app-home {
       flex: 0 1 100% !important;
       max-width: 100% !important;
     }
+
+    &.hide-filters {
+      .page-list-content__filters {
+        margin: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
+        opacity: 0 !important;
+        overflow: hidden;
+      }
+    }
+
   }
 
 }

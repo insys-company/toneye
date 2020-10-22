@@ -64,7 +64,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   /**
    * Select event
    */
-  @Output() selectChange: EventEmitter<string>;
+  @Output() selectChange: EventEmitter<{type: string, option: any}>;
 
   /**
    * фокус на поле
@@ -114,7 +114,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
 
     /** События */
     this.searchChange = new EventEmitter<string>();
-    this.selectChange = new EventEmitter<string>();
+    this.selectChange = new EventEmitter<{type: string, option: any}>();
 
     this.debouncer = new Subject<string>();
 
@@ -339,7 +339,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
     const optionSub = this.overlayService.selectOption
       .subscribe((data: {type: string, option: any}) => {
 
-        this.selectChange.emit(data.option.id);
+        this.selectChange.emit({type: data.type, option: data.option});
 
         this.search = data.option.id;
 

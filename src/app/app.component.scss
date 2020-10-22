@@ -102,6 +102,8 @@
     align-items: center;
     justify-content: center;
 
+    color: $explorer--base__black;
+
     &:hover,
     &.active {
       color: $explorer--base__blue;
@@ -247,6 +249,8 @@
 }
 
 .breadcrumbs {
+  transition: all .3s ease;
+  flex-wrap: wrap;
   margin: 20px 22px 0 22px;
   .breadcrumbs__content {
 
@@ -271,7 +275,7 @@
     }
 
     .breadcrumbs__name--last {
-      pointer-events: none;
+      pointer-events: none !important;
 
       &::after {
         display: none;
@@ -292,6 +296,7 @@
       padding: 10px 5px;
       transition: all .3s ease;
       text-transform: capitalize;
+      padding-left: 0;
 
       &::after {
         content: '';
@@ -299,7 +304,7 @@
         border-radius: 5px;
         background-color: $explorer--base__blue;
         height: 1px;
-        left: 5px;
+        left: 0;
         right: 5px;
         bottom: 10px;
       }

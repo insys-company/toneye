@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { MessagesServicesModule } from './messages-services.module';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../api/queries';
+import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../../api/queries';
 import { Observable, Subject } from 'rxjs';
-import { Block, Message, Transaction, QueryOrderBy } from '../api';
+import { Block, Message, Transaction, QueryOrderBy } from '../../api';
 import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/map';
 import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../app-route-map';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: MessagesServicesModule
@@ -58,8 +58,8 @@ export class MessagesService {
 
     const _variables = {
       filter: {},
-      limit: 50,
-      orderBy: [{path: 'created_at', direction: 'DESC'}]
+      orderBy: [{path: 'created_at', direction: 'DESC'}],
+      limit: 50
     }
 
     return this.apollo.watchQuery<Message[]>({

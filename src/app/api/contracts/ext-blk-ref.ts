@@ -1,9 +1,4 @@
-import { BlockMasterShardHashesDescr } from '..';
-
-export class BlockMasterShardHashes {
-  descr: BlockMasterShardHashesDescr;
-  shard: string;
-  workchain_id: number;
+export class ExtBlkRef {
   __typename: string;
 
   constructor(data?: any) {
@@ -18,9 +13,6 @@ export class BlockMasterShardHashes {
 
   serialize() {
     return {
-      descr: this.descr,
-      shard: this.shard,
-      workchain_id: this.workchain_id,
       __typename: this.__typename,
     };
   }
