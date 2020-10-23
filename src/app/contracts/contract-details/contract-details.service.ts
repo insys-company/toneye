@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from '../../app-route-map';
 import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
 import { DocumentNode } from 'graphql';
+import { BaseFunctionsService } from 'src/app/shared/services';
 
 @Injectable({
   providedIn: ContractDetailsServicesModule
@@ -17,11 +18,13 @@ export class ContractDetailsService extends DetailsService<Account> {
   constructor(
     protected apollo: Apollo,
     protected graphQueryService: AccountQueries,
+    public baseFunctionsService: BaseFunctionsService,
   ) {
 
     super(
       apollo,
       graphQueryService,
+      baseFunctionsService,
       (data: Account) => new Account(data),
       appRouteMap.accounts
     );
@@ -33,7 +36,7 @@ export class ContractDetailsService extends DetailsService<Account> {
    * @param _variables for query
    * @param _graphQ for query
    */
-  getAggregateData(_variables: any, _graphQ: DocumentNode): Observable<any> {
+  public getAggregateData(_variables: any, _graphQ: DocumentNode): Observable<any> {
     return this.apollo.watchQuery<any>({
       query: _graphQ,
       variables: _variables,
@@ -47,7 +50,7 @@ export class ContractDetailsService extends DetailsService<Account> {
    * Get data
    * @param _hash Code hash of contract
    */
-  getAccounts(_hash: string | number): Observable<Account[]> {
+  public getAccounts(_hash: string | number): Observable<Account[]> {
 
     const _variables = {
       filter: {code_hash: {eq: _hash}},

@@ -1,11 +1,10 @@
 import { Injectable, Inject } from '@angular/core';
-import { SimpleDataFilter, ItemList } from 'src/app/api';
+import { ItemList } from 'src/app/api';
 import { Apollo } from 'apollo-angular';
-import { IModel } from '../../interfaces/IModel';
+import { IModel } from '../../interfaces';
 import { Observable, Subject } from 'rxjs';
-// import { DocumentNode, DocumentNode } from 'graphql';
 import { map, takeUntil } from 'rxjs/operators';
-import { GraphQueryService } from '../../services';
+import { GraphQueryService, BaseFunctionsService } from '../../services';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +18,7 @@ export class DetailsService<TModel extends IModel> {
   constructor(
     protected apollo: Apollo,
     protected graphQueryService: GraphQueryService,
+    public baseFunctionsService: BaseFunctionsService,
     @Inject(function () { }) public factoryFunc: (model?: TModel) => TModel,
     @Inject(String) public parentPageName?: string,
   ) {
@@ -28,7 +28,7 @@ export class DetailsService<TModel extends IModel> {
   /**
    * Initialization of the service
    */
-  subscribeInit(): void {
+  public subscribeInit(): void {
     this._unsubscribe = new Subject<void>();
     // TODO
   }
@@ -36,7 +36,7 @@ export class DetailsService<TModel extends IModel> {
   /**
    * Destruction of the service
    */
-  destroy(): void {
+  public destroy(): void {
     this.unsubscribe();
     this._unsubscribe = null;
   }
@@ -44,7 +44,7 @@ export class DetailsService<TModel extends IModel> {
   /**
    * unsubscribe from qeries of the service
    */
-  unsubscribe(): void {
+  public unsubscribe(): void {
     if (this._unsubscribe) {
       this._unsubscribe.next();
       this._unsubscribe.complete();
@@ -54,7 +54,7 @@ export class DetailsService<TModel extends IModel> {
   /**
    * Получение данных
    */
-  refreshData(): void {
+  public refreshData(): void {
     // TODO
   }
 
@@ -63,7 +63,7 @@ export class DetailsService<TModel extends IModel> {
    * @param _id Id of model
    * @param _variables Variables for query
    */
-  getModel(_id: string | number, _variables?: object): Observable<TModel[]> {
+  public getModel(_id: string | number, _variables?: object): Observable<TModel[]> {
 
     const variables = _variables ? _variables : { filter: {id: {eq: _id} } };
 
@@ -74,44 +74,5 @@ export class DetailsService<TModel extends IModel> {
     })
     .valueChanges
     .pipe(takeUntil(this._unsubscribe), map(res => res.data[this.parentPageName]));
-  }
-
-  /**
-   * Получение параметров фильтра из queryParams
-   * @param queryParams Параметры из url
-   * @param filter Параметры для фильтра
-   */
-  getFilterParams(queryParams: Object, filter: SimpleDataFilter): SimpleDataFilter {
-
-    // Сбрасываем все параметры которые пришли null
-    for (const key in filter) {
-      if (!queryParams[key] && queryParams[key] !== 0) {
-
-        delete filter[key];
-      }
-    }
-
-    for (const key in queryParams) {
-      if (queryParams.hasOwnProperty(key)) {
-        filter[key] = queryParams[key];
-      }
-    }
-    return filter;
-  }
-
-  /**
-   * Метод проверяет наличие элементов в массиве - его содержание
-   * @param array Массив для проверки
-   */
-  checkArray(array: any[]): boolean {
-    return (array && array.length) ? true : false;
-  }
-
-  /**
-   * Метод проверяет строку
-   * @param str Строка для проверки
-   */
-  checkString(str: string): boolean {
-    return (str && str.length) ? true : false;
   }
 }

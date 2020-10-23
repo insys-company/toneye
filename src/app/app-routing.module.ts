@@ -17,6 +17,7 @@ const routes: Routes = [
   { path: appRouteMap.messages, loadChildren: () => import('./messages/message-list/messages.module').then(m => m.MessagesModule) },
 
   { path: appRouteMap.contracts, loadChildren: () => import('./contracts/contract-list/contracts.module').then(m => m.ContractsModule) },
+  { path: appRouteMap.validators, loadChildren: () => import('./validators/validator-list/validators.module').then(m => m.ValidatorsModule) },
 
   { path: appRouteMap.account + '/:id', loadChildren: () => import('./accounts/account-details/account-details.module').then(m => m.AccountDetailsModule) },
   { path: appRouteMap.block + '/:id', loadChildren: () => import('./blocks/block-details/block-details.module').then(m => m.BlockDetailsModule) },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: appRouteMap.message + '/:id', loadChildren: () => import('./messages/message-details/message-details.module').then(m => m.MessageDetailsModule) },
 
   { path: appRouteMap.contract + '/:id', loadChildren: () => import('./contracts/contract-details/contract-details.module').then(m => m.ContractDetailsModule) },
+  // { path: appRouteMap.validator + '/:id', loadChildren: () => import('./validators/validator-details/validator-details.module').then(m => m.ValidatorDetailsModule) },
 
   // Empty page for children
   { path: appRouteMap.home, loadChildren: () => import('./home/home.module').then(m => m.HomeModule) },

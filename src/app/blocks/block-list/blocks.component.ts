@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Block, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { BlocksService } from './blocks.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -21,7 +21,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
   /**
    * Data for view
    */
-  public generalViewerData: Array<GeneralViewer>;
+  public generalViewerData: Array<ViewerData>;
   /**
    * Data for view
    */
@@ -135,7 +135,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((generalData: any) => {
 
-        const aggregateBlocks = new GeneralViewer({
+        const aggregateBlocks = new ViewerData({
           title: 'Blocks by current validators',
           value: generalData.aggregateBlocks[0] ? generalData.aggregateBlocks[0] : 0,
           isNumber: true
@@ -146,7 +146,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.unsubscribe))
           .subscribe((masterBlock: any) => {
 
-            const shards = new GeneralViewer({
+            const shards = new ViewerData({
               title: 'Workchain shards',
               value: masterBlock[0].master && masterBlock[0].master.shard_hashes
                 ? masterBlock[0].master.shard_hashes.length
@@ -162,14 +162,14 @@ export class BlocksComponent implements OnInit, OnDestroy {
 
                 this.data = res ? res : [];
 
-                const headBlocks = new GeneralViewer({
+                const headBlocks = new ViewerData({
                   title: 'Head blocks',
                   value: this.data.length ? _.max(this.data, function(b){ return b.seq_no; })['seq_no'] : 0,
                   isNumber: true,
                   dinamic: true
                 });
 
-                const averageBlockTime = new GeneralViewer({
+                const averageBlockTime = new ViewerData({
                   title: 'Average block time',
                   value: (this.getAverageBlockTime(this.data) + ' sec').replace('.', ','),
                   isNumber: false,

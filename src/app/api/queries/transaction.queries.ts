@@ -7,6 +7,7 @@ import { GraphQueryService } from 'src/app/shared/services';
 })
 export class TransactionQueries extends GraphQueryService {
 
+  // All data
   getItem = gql`
     query getTransaction($filter: TransactionFilter) {
       transactions(filter: $filter) {

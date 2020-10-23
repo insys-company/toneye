@@ -8,6 +8,7 @@ import { GraphQueryService } from 'src/app/shared/services';
 })
 export class AccountQueries extends GraphQueryService {
 
+  // All data
   getItem = gql`
     query getAccounts($filter: AccountFilter) {
       accounts(filter: $filter) {

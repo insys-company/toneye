@@ -1,5 +1,5 @@
 import { Component, OnChanges, OnDestroy, Input, ChangeDetectorRef, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
-import { GeneralViewer } from 'src/app/api';
+import { ViewerData } from 'src/app/api';
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 
 /**
@@ -16,7 +16,7 @@ export class AppGeneralViewerComponent implements OnChanges, OnDestroy {
   /**
    * Data for view
    */
-  @Input() public data: Array<GeneralViewer>;
+  @Input() public data: Array<ViewerData>;
   /**
    * For skeleton animation
    */
@@ -77,11 +77,11 @@ export class AppGeneralViewerComponent implements OnChanges, OnDestroy {
   identifySkeleton(index: number, item: number): number { return item; }
 
   /**
-   * Method for ngFor optimization (GeneralViewer list)
+   * Method for ngFor optimization (ViewerData list)
    * @param index Item index in ngFor
    * @param item Item in ngFor
    */
-  identifyData(index: number, item: GeneralViewer): string { return item.value; }
+  identifyData(index: number, item: ViewerData): string { return item.value; }
 
   /**
    * Show/Hide info about TON

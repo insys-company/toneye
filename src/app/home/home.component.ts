@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, GeneralViewer, TabViewerData, Transaction, Message, DataConfig } from '../api';
+import { Block, ViewerData, TabViewerData, Transaction, Message, DataConfig } from '../api';
 import { appRouteMap } from '../app-route-map';
 import { HomeService } from './home.service';
 import { Router } from '@angular/router';
@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   /**
    * Data for view
    */
-  public generalViewerData: Array<GeneralViewer>;
+  public generalViewerData: Array<ViewerData>;
   /**
    * Data for view
    */
@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   /**
    * Initialization of the component
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.detectChanges();
     this.init();
   }
@@ -89,14 +89,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     // TODO
   }
 
   /**
    * Show/Hide info about TON
    */
-  onShowInfo(): void {
+  public onShowInfo(): void {
     this.isInfoOpen = !this.isInfoOpen;
     this.detectChanges();
   }
@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   /**
    * Export event
    */
-  onExport(): void {
+  public onExport(): void {
     // TODO
   }
 
@@ -112,7 +112,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Change tab
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onSeeMore(index: number): void {
 
     // Scroll to top
     window.scrollTo({top: 0, behavior: 'smooth'});
@@ -124,7 +124,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Change tab
    * @param index Index of selected tab
    */
-  onSelectTab(index: number): void {
+  public onSelectTab(index: number): void {
 
     this.tableViewerLoading = true;
     this.tableViewerData = [];
@@ -146,17 +146,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((generalData: any) => {
 
-        const aggregateTransactions = new GeneralViewer({
+        const aggregateTransactions = new ViewerData({
           title: 'Total transaction count',
           value: generalData.aggregateTransactions[0] ? generalData.aggregateTransactions[0] : 0,
           isNumber: true
         });
-        const getAccountsCount = new GeneralViewer({
+        const getAccountsCount = new ViewerData({
           title: 'Accounts',
           value: generalData.getAccountsCount ? generalData.getAccountsCount : 0,
           isNumber: true
         });
-        const getAccountsTotalBalance = new GeneralViewer({
+        const getAccountsTotalBalance = new ViewerData({
           title: 'Coins',
           value: generalData.getAccountsTotalBalance ? generalData.getAccountsTotalBalance : 0,
           isNumber: true
@@ -167,7 +167,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.unsubscribe))
           .subscribe((masterBlock: any) => {
 
-            const shards = new GeneralViewer({
+            const shards = new ViewerData({
               title: 'Workchain shards',
               value: masterBlock[0].master && masterBlock[0].master.shard_hashes
                 ? masterBlock[0].master.shard_hashes.length
@@ -183,14 +183,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
                 this.blocks = res ? res : [];
 
-                const headBlocks = new GeneralViewer({
+                const headBlocks = new ViewerData({
                   title: 'Head blocks',
                   value: this.blocks.length ? _.max(this.blocks, function(b){ return b.seq_no; })['seq_no'] : 0,
                   isNumber: true,
                   dinamic: true
                 });
 
-                const averageBlockTime = new GeneralViewer({
+                const averageBlockTime = new ViewerData({
                   title: 'Average block time',
                   value: (this.getAverageBlockTime(this.blocks) + ' sec').replace('.', ','),
                   isNumber: false,

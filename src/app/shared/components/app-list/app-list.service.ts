@@ -1,177 +1,115 @@
 import { Injectable, Inject } from '@angular/core';
-import { Subject } from 'rxjs';
-import { SimpleDataFilter } from 'src/app/api';
+import { Subject, Observable } from 'rxjs';
+import { Apollo } from 'apollo-angular';
+import { GraphQueryService, BaseFunctionsService } from '../../services';
+import { IModel } from '../../interfaces';
+import { FilterSettings } from '../app-filter/filter-settings';
+import { DocumentNode } from 'graphql';
+import { takeUntil, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ListService<TContract> {
+export class ListService<TModel extends IModel> {
   /**
-   * For unsubscribe
+   * For subscribers
    */
-  _unsubscribe: Subject<void>;
+  protected _unsubscribe: Subject<void> = new Subject();
   /**
-   * Флаг инициализации страницы
-   * @type {boolean}
+   * Filter settings
    */
-  initComplete: boolean;
-  /**
-   * Массив для скелетного блока
-   * @type {Array<number>}
-   */
-  skeletonArray: Array<number>;
-  /**
-   * Параметры фильтра
-   * @type {SimpleDataFilter}
-   */
-  filterParams: SimpleDataFilter;
-  /**
-   * Параметры фильтра которые сбрасывать не нужно
-   * @type {string[]}
-   */
-  defaultFilterParamsKeys: string[];
+  public _filterSettings: FilterSettings;
 
   constructor(
-
-    /** Настройки для меню */
-    @Inject(function() {}) protected _setMenuSettings?: () => void,
-    /** Настройки для хэдера */
-    @Inject(function() {}) protected _setHeaderSettings?: () => void,
+    protected apollo: Apollo,
+    protected graphQueryService: GraphQueryService,
+    public baseFunctionsService: BaseFunctionsService,
+    @Inject(String) public parentPageName: string,
+    @Inject(String) public detailsPageName?: string,
     /** Настройки для фильтров */
     @Inject(function() {}) protected _setFilterSettings?: () => void,
   ) {
-
-    /** Массив для скелетного блока */
-    this.skeletonArray = new Array(10);
-    /** Дефолтные параметры фильтра, которые нельзя сбросить */
-    this.defaultFilterParamsKeys = [ 'PageNumber', 'PageSize', 'OrderByField'];
+    // TODO
   }
 
   /**
    * Initialization of the service
    */
-  init(): void {
-    /** Для отписок */
+  public subscribeInit(): void {
     this._unsubscribe = new Subject<void>();
-    this.setMenuSettings();
-    this.setHeaderSettings();
     this.setFilterSettings();
   }
 
   /**
    * Destruction of the service
    */
-  destroy(): void {
+  public destroy(): void {
     this.unsubscribe();
-    this.initComplete = null;
+    this._unsubscribe = null;
   }
 
   /**
    * unsubscribe from qeries of the service
    */
-  unsubscribe(): void {
+  public unsubscribe(): void {
     if (this._unsubscribe) {
       this._unsubscribe.next();
       this._unsubscribe.complete();
-      this._unsubscribe = null;
     }
   }
 
   /**
-   * Инициализация сервиса из компонента
+   * Set Filters
    */
-  initService(): void {
-    // TODO
-  }
-
-  /**
-   * Получение данных
-   */
-  refreshData(): void {
-    // TODO
-  }
-
-  /**
-   * Установка хэдера
-   * @returns {void}
-   */
-  setHeaderSettings(): void {
-    if (this._setHeaderSettings) {
-      this._setHeaderSettings();
-    }
-  }
-
-  /**
-   * Установка менюшки
-   * Выполняется в кострукторе компонента
-   * @returns {void}
-   */
-  setMenuSettings(): void {
-    if (this._setMenuSettings) {
-      this._setMenuSettings();
-    }
-  }
-
-  /**
-   * Установка фильтров
-   * Выполняется в кострукторе компонента
-   * @returns {void}
-   */
-  setFilterSettings(): void {
+  public setFilterSettings(): void {
     if (this._setFilterSettings) {
       this._setFilterSettings();
     }
   }
 
   /**
-   * Получение параметров фильтра из queryParams
-   * @param {Object} queryParams Параметры из url
-   * @param {SimpleDataFilter} dataFilter Параметры для фильтра
-   * @param {string[]} defaultFilterParams Параметры для фильтра,
-   * которые сбрасывать не нужно
-   *
-   * @returns {SimpleDataFilter}
+   * Get data
+   * @param _variables for query
+   * @param _graphQ for query
+   * @param arrayMapName Name of array in data
    */
-  getFilterParams(
-    queryParams: Object,
-    dataFilter: SimpleDataFilter,
-    defaultDataFilter: string[] = this.defaultFilterParamsKeys): SimpleDataFilter {
-
-    // Сбрасываем все параметры которые пришли null, если
-    // только они не содержаться в списке дефолтных параметров
-    for (const key in dataFilter) {
-      if ((!queryParams[key] && queryParams[key] !== 0) &&
-        (!this.checkArray(this.defaultFilterParamsKeys) || defaultDataFilter.indexOf(`${key}`) === -1)) {
-
-        delete dataFilter[key];
-      }
-    }
-
-    for (const key in queryParams) {
-      if (queryParams.hasOwnProperty(key)) {
-        dataFilter[key] = queryParams[key];
-      }
-    }
-    return dataFilter;
+  public getData(_variables: any, _graphQ: DocumentNode, arrayMapName: string = null): Observable<TModel[]> {
+    return this.apollo.watchQuery<TModel[]>({
+      query: _graphQ,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => arrayMapName == null ? res.data[this.parentPageName] : res.data[arrayMapName]));
   }
 
   /**
-   * Метод проверяет наличие элементов в массиве - его содержание
-   * @param {any[]} array Массив для проверки
-   *
-   * @returns {boolean} результат - удовлетворяет ли массив условию
+   * Get data
+   * @param _variables for query
+   * @param _graphQ for query
    */
-  checkArray(array: any[]): boolean {
-    return (array && array.length) ? true : false;
+  public getGeneralData(_variables: any, _graphQ: DocumentNode): Observable<any> {
+    return this.apollo.watchQuery<any>({
+      query: _graphQ,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data));
   }
 
   /**
-   * Метод проверяет строку
-   * @param {string} str Строка для проверки
-   *
-   * @returns {boolean} результат - удовлетворяет ли строка условию
+   * Get data
+   * @param _variables for query
+   * @param _graphQ for query
    */
-  checkString(str: string): boolean {
-    return (str && str.length) ? true : false;
+  public getAggregateData(_variables: any, _graphQ: DocumentNode): Observable<any> {
+    return this.apollo.watchQuery<any>({
+      query: _graphQ,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data));
   }
 }

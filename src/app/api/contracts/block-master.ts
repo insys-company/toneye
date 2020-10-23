@@ -1,7 +1,7 @@
-import { BlockMasterShardFees, BlockMasterShardHashes, MsgData } from '..';
+import { BlockMasterShardFees, BlockMasterShardHashes, MsgData, BlockMasterConfig } from '..';
 
 export class BlockMaster {
-  config: {} //?
+  config: BlockMasterConfig
   config_addr: string;
   max_shard_gen_utime: number;
   min_shard_gen_utime: number;
@@ -22,6 +22,7 @@ export class BlockMaster {
 
   serialize() {
     return {
+      config: this.config,
       config_addr: this.config_addr,
       max_shard_gen_utime: this.max_shard_gen_utime,
       min_shard_gen_utime: this.min_shard_gen_utime,

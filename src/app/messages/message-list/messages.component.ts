@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Message, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Message, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { MessagesService } from './messages.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -21,7 +21,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   /**
    * Data for view
    */
-  public generalViewerData: Array<GeneralViewer>;
+  public generalViewerData: Array<ViewerData>;
   /**
    * Data for view
    */
@@ -135,7 +135,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((generalData: any) => {
 
-        const aggregateMessages = new GeneralViewer({
+        const aggregateMessages = new ViewerData({
           title: 'Message count',
           value: generalData.aggregateMessages[0] ? generalData.aggregateMessages[0] : 0,
           isNumber: true
@@ -148,7 +148,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
             this.data = res ? res : [];
 
-            const mps = new GeneralViewer({
+            const mps = new ViewerData({
               title: 'MPS',
               value: (this.getAverageTime(this.data) + ' sec').replace('.', ','),
               isNumber: false,

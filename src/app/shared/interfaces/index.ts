@@ -1,0 +1,1 @@
+export { IModel } from './IModel';

@@ -5,9 +5,6 @@ import { TransactionDetailsComponent } from './transaction-details.component';
 
 const routes: Routes = [
   { path: '', component: TransactionDetailsComponent, data: { animation: 'details' } },
-  // { path: routeMap.affiliate, component: AffiliateDetailsComponent },
-  // { path: routeMap.affiliate + '/:id', component: AffiliateDetailsComponent },
-  // { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

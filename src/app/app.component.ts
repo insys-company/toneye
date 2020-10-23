@@ -25,13 +25,12 @@ export class AppComponent implements OnDestroy {
    * Array of links
    */
   public links: Array<string> = [
-    // appRouteMap.home,
     appRouteMap.blocks,
     appRouteMap.transactions,
     appRouteMap.messages,
     appRouteMap.accounts,
     appRouteMap.contracts,
-    // appRouteMap.validators
+    appRouteMap.validators
   ];
   /**
    * Flag for mobile menu and mobile menu icon
@@ -75,7 +74,7 @@ export class AppComponent implements OnDestroy {
   /**
    * Initialization of the component
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.routerSubscribe();
     // this.detectChanges();
   }
@@ -83,7 +82,7 @@ export class AppComponent implements OnDestroy {
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this._unsubscribe.next();
     this._unsubscribe.complete();
     this._unsubscribe = null;
@@ -101,7 +100,7 @@ export class AppComponent implements OnDestroy {
    * Search method
    * @param search String from search input
    */
-  onSearch(search: string): void {
+  public onSearch(search: string): void {
     const _search = search ? search.trim() : search;
 
     if (!_search || _search == '') {
@@ -124,7 +123,7 @@ export class AppComponent implements OnDestroy {
    * 
    * @param obj 
    */
-  onDetails(data: {type: string, option: any}): void {
+  public onDetails(data: {type: string, option: any}): void {
     let baseUrl: string;
     if (data.type === appRouteMap.blocks) {
       baseUrl = appRouteMap.block;
@@ -149,14 +148,14 @@ export class AppComponent implements OnDestroy {
    * @param index Item index in ngFor
    * @param item Item in ngFor
    */
-  identifyMenu(index: number, item: string): string { return item; }
+  public identifyMenu(index: number, item: string): string { return item; }
 
   /**
    * Method for ngFor optimization (Breadcrumbs list)
    * @param index Item index in ngFor
    * @param item Item in ngFor
    */
-  identifyBreadcrumbs(index: number, item: Breadcrumbs): string { return item.name; }
+  public identifyBreadcrumbs(index: number, item: Breadcrumbs): string { return item.name; }
 
   /**
    * Method for route animation

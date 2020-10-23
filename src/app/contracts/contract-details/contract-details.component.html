@@ -8,73 +8,75 @@
   <!-- Page content -->
   <div class="contract-page__content contract-content page-details-content">
 
-  <div class="contract-page-viewer border-light">
-    <div class="contract-page-viewer__general-wrapper">
+    <div class="contract-page-viewer border-light">
+      <div class="contract-page-viewer__general-wrapper">
 
-      <div class="contract-page-viewer__header-wrapper mb-20">
-        <div class="contract-page-viewer__header">
-          <h1 class="color-blue">Surf</h1>
-        </div>
-        <div class="contract-page-viewer__total">
-          <p class="contract-page-viewer__content-item">Total balances</p>
-          <div class="contract-page-viewer__total-value">
-            <span>{{totalBalance | thousandspipe}}</span>
-            <div class="icon icon-gem"></div>
+        <div class="contract-page-viewer__header-wrapper mb-20">
+          <div class="contract-page-viewer__header">
+            <h1 class="color-blue">Surf</h1>
+          </div>
+          <div class="contract-page-viewer__total">
+            <p class="contract-page-viewer__content-item">Total balances</p>
+            <div class="contract-page-viewer__total-value">
+              <span>{{totalBalance | thousandspipe}}</span>
+              <div class="icon icon-gem"></div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="contract-page-viewer__content-wrapper mb-40">
-        <div class="contract-page-viewer__content-item"><p>Code hash</p></div>
-        <div class="contract-page-viewer__content-subitem"><p>{{modelId}}</p></div>
-      </div>
-      <div class="contract-page-viewer__content-wrapper">
-        <div class="contract-page-viewer__content-header mb-25">
-          <span class="header-style">Contracts</span>
+        <div class="contract-page-viewer__content-wrapper mb-40">
+          <div class="contract-page-viewer__content-item"><p>Code hash</p></div>
+          <div class="contract-page-viewer__content-subitem"><p>{{modelId}}</p></div>
         </div>
-        <div class="contract-page-viewer__footer-wrapper">
-          <div class="contract-page-viewer__content-wrapper small-w">
-            <div class="contract-page-viewer__content-item"><p>Deploed</p></div>
-            <div class="contract-page-viewer__content-subitem"><span>{{deployedContracts | thousandspipe}}</span></div>
+        <div class="contract-page-viewer__content-wrapper">
+          <div class="contract-page-viewer__content-header mb-25">
+            <span class="header-style">Contracts</span>
           </div>
-          <div class="contract-page-viewer__content-wrapper small-w">
-            <div class="contract-page-viewer__content-item"><p>Active in period</p></div>
-            <div class="contract-page-viewer__content-subitem"><span>{{activeContracts | thousandspipe}}</span></div>
-          </div>
-          <div class="contract-page-viewer__content-wrapper small-w">
-            <div class="contract-page-viewer__content-item"><p>New in period</p></div>
-            <div class="contract-page-viewer__content-subitem"><span>{{newContracts | thousandspipe}}</span></div>
+          <div class="contract-page-viewer__footer-wrapper">
+            <div class="contract-page-viewer__content-wrapper small-w">
+              <div class="contract-page-viewer__content-item"><p>Deploed</p></div>
+              <div class="contract-page-viewer__content-subitem"><span>{{deployedContracts | thousandspipe}}</span></div>
+            </div>
+            <div class="contract-page-viewer__content-wrapper small-w">
+              <div class="contract-page-viewer__content-item"><p>Active in period</p></div>
+              <div class="contract-page-viewer__content-subitem"><span>{{activeContracts | thousandspipe}}</span></div>
+            </div>
+            <div class="contract-page-viewer__content-wrapper small-w">
+              <div class="contract-page-viewer__content-item"><p>New in period</p></div>
+              <div class="contract-page-viewer__content-subitem"><span>{{newContracts | thousandspipe}}</span></div>
+            </div>
           </div>
         </div>
-      </div>
 
 
+      </div>
+      <div class="contract-page-viewer__filters-wrapper">
+        <app-filter #filter class=""
+          [skeletonArray]="skeletonArray"
+          [isFilterOpen]="isFilterOpen"
+          [isFilterHideBtnVisible]="isFilterHideBtnVisible"
+          [isFilterFooterVisible]="isFilterFooterVisible">
+        </app-filter>
+      </div>
     </div>
-    <div class="contract-page-viewer__filters-wrapper">
-      <app-filter #filter class=""
-        [skeletonArray]="skeletonArray"
-        [isFilterOpen]="isFilterOpen"
-        [isFilterHideBtnVisible]="isFilterHideBtnVisible"
-        [isFilterFooterVisible]="isFilterFooterVisible">
-      </app-filter>
+
+    <div class="contract-page__page-header page-header">
+      <div class="page-header__header">
+        <h1>Accounts</h1>
+      </div>
     </div>
+
   </div>
 
-  <div class="contract-page__page-header page-header">
-    <div class="page-header__header">
-      <h1>Accounts</h1>
-    </div>
-  </div>
   <div class="blocks-page__content blocks-content page-list-content ide-filters">
-      <div class="page-list-content__tabs">
-        <div class="page-list-content__component-wrapper">
-          <app-table-viewer #tableViewer
-            [data]="tableViewerData"
-            footerPlaceholder="Load 25 more"
-            [skeletalAnimation]="tableViewerLoading"
-            (exportEvent)="onExport()"
-            (moreEvent)="onSeeMore($event)">
-          </app-table-viewer>
-        </div>
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          footerPlaceholder="Load 25 more"
+          [skeletalAnimation]="tableViewerLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onSeeMore($event)">
+        </app-table-viewer>
       </div>
     </div>
   </div>

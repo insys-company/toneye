@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from '../../app-route-map';
 import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { BaseFunctionsService } from 'src/app/shared/services';
 
 @Injectable({
   providedIn: MessageDetailsServicesModule
@@ -17,12 +18,14 @@ export class MessageDetailsService extends DetailsService<Message> {
   constructor(
     protected apollo: Apollo,
     protected graphQueryService: MessageQueries,
+    public baseFunctionsService: BaseFunctionsService,
     private transactionQueries: TransactionQueries,
   ) {
 
     super(
       apollo,
       graphQueryService,
+      baseFunctionsService,
       (data: Message) => new Message(data),
       appRouteMap.messages
     );
@@ -34,7 +37,7 @@ export class MessageDetailsService extends DetailsService<Message> {
    * @param _id Id of model
    * @param isInMsg for query
    */
-  getTransaction(_id: string | number, isInMsg: boolean = false): Observable<Transaction[]> {
+  public getTransaction(_id: string | number, isInMsg: boolean = false): Observable<Transaction[]> {
 
     const _variables = {
       filter: isInMsg ? {in_msg: { eq: _id}} : {out_msgs: {any: {eq: _id}}},

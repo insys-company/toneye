@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from '../../app-route-map';
 import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { BaseFunctionsService } from 'src/app/shared/services';
 
 @Injectable({
   providedIn: AccountDetailsServicesModule
@@ -16,6 +17,7 @@ export class AccountDetailsService extends DetailsService<Account> {
   constructor(
     protected apollo: Apollo,
     protected graphQueryService: AccountQueries,
+    public baseFunctionsService: BaseFunctionsService,
     private messageQueries: MessageQueries,
     private transactionQueries: TransactionQueries,
   ) {
@@ -23,6 +25,7 @@ export class AccountDetailsService extends DetailsService<Account> {
     super(
       apollo,
       graphQueryService,
+      baseFunctionsService,
       (data: Account) => new Account(data),
       appRouteMap.accounts
     );
@@ -33,7 +36,7 @@ export class AccountDetailsService extends DetailsService<Account> {
    * Get data
    * @param _id Id of model
    */
-  getTransactions(_id: string | number): Observable<Transaction[]> {
+  public getTransactions(_id: string | number): Observable<Transaction[]> {
 
     const _variables = {
       filter: {account_addr: { eq: _id}},
@@ -58,7 +61,7 @@ export class AccountDetailsService extends DetailsService<Account> {
    * Get data
    * @param params _id Id of currently model
    */
-  getMessages(_id: string | number): Observable<Message[]> {
+  public getMessages(_id: string | number): Observable<Message[]> {
 
     const _variables = {
       filter: {src: {eq: _id}},

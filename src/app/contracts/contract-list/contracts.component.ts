@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Account, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Account, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { ContractsService } from './contracts.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -21,7 +21,7 @@ export class ContractsComponent implements OnInit, OnDestroy {
   /**
    * Data for view
    */
-  public generalViewerData: Array<GeneralViewer>;
+  public generalViewerData: Array<ViewerData>;
   /**
    * Data for view
    */
@@ -130,13 +130,13 @@ export class ContractsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((generalData: any) => {
 
-        const getAccountsCount = new GeneralViewer({
+        const getAccountsCount = new ViewerData({
           title: 'Accounts',
           value: generalData.getAccountsCount ? generalData.getAccountsCount : 0,
           isNumber: true
         });
 
-        const getAccountsTotalBalance = new GeneralViewer({
+        const getAccountsTotalBalance = new ViewerData({
           title: 'Coins',
           value: generalData.getAccountsTotalBalance ? generalData.getAccountsTotalBalance : 0,
           isNumber: true

@@ -5,9 +5,6 @@ import { BlockDetailsComponent } from './block-details.component';
 
 const routes: Routes = [
   { path: '', component: BlockDetailsComponent, data: { animation: 'details' } },
-  // { path: routeMap.affiliate, component: AffiliateDetailsComponent },
-  // { path: routeMap.affiliate + '/:id', component: AffiliateDetailsComponent },
-  // { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

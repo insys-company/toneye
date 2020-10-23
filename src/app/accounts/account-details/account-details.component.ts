@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Account, GeneralViewer, Transaction, TabViewerData, DataConfig, Message } from '../../api';
+import { Account, ViewerData, Transaction, TabViewerData, DataConfig, Message } from '../../api';
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { AccountDetailsService } from './account-details.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -63,7 +63,7 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     super.ngOnDestroy();
     this.transactions = null;
     this.messages = null;
@@ -76,7 +76,7 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
   /**
    * Destruction of the component
    */
-  clearData(): void {
+  public clearData(): void {
     this.viewersLoading = true;
     this.disabled = false;
     this.generalViewerData = [];
@@ -95,7 +95,7 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
   /**
    * Show/Hide info about TON
    */
-  onShowOrHide(): void {
+  public onShowOrHide(): void {
     this.isGeneralInfoOpen = !this.isGeneralInfoOpen;
     this.detectChanges();
   }
@@ -103,7 +103,7 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
   /**
    * Export event
    */
-  onExport(): void {
+  public onExport(): void {
     // TODO
   }
 
@@ -111,7 +111,7 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
    * Change tab
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onSeeMore(index: number): void {
     // TODO
   }
 
@@ -119,18 +119,18 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
    * Change tab
    * @param index Index of selected tab
    */
-  onChangeTab(index: number): void {
+  public onChangeTab(index: number): void {
 
     if (index == this.selectedTabIndex) { return; }
 
     this.selectedTabIndex = index;
-    this.detectChanges();
-
     this.tableViewerLoading = true;
     this.tableViewerData = [];
     this.detectChanges();
 
-    this.tableViewerData = index == 0 ? this.mapTransactions(this.transactions) : this.mapMessages(this.messages);
+    this.tableViewerData = index == 0
+      ? this.mapTransactions(this.transactions)
+      : this.mapMessages(this.messages);
 
     this.tableViewerLoading = false;
     this.detectChanges();
@@ -152,23 +152,23 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
         this.service.getMessages(this.modelId)
         .pipe(takeUntil(this._unsubscribe))
         .subscribe((m: Message[]) => {
-  
+
           this.transactions = t ? t : [];
           this.messages = m ? m : [];
-  
-          this.mapData(this.model);
+
+          this.mapDataForViews(this.model);
           this.viewersLoading = false;
 
           this.detectChanges();
-  
+
           this.tableViewerData = this.selectedTabIndex == 0
             ? this.mapTransactions(this.transactions)
             : this.mapMessages(this.messages);
-  
+
           this.tableViewerLoading = false;
-  
+
           this.detectChanges();
-  
+
         }, (error: any) => {
           console.log(error);
         });
@@ -183,17 +183,17 @@ export class AccountDetailsComponent extends AppDetailsComponent<Account> implem
    * @param _model Model
    * @param _data Aditional data
    */
-  protected mapData(_model: Account): void {
+  protected mapDataForViews(_model: Account): void {
 
     // Details
     this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Due payment', value: _model.due_payment}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Last transaction lt', value: Number(_model.last_trans_lt), isDate: true}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Code', value: _model.code}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Code hash', value: _model.code_hash}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Data', value: _model.data ? _model.data : ''}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Data hash', value: _model.data_hash ? _model.data_hash : ''}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Boc', value: _model.boc}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Due payment', value: _model.due_payment}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Last transaction lt', value: Number(_model.last_trans_lt), isDate: true}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Code', value: _model.code}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Code hash', value: _model.code_hash}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Data', value: _model.data ? _model.data : ''}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Data hash', value: _model.data_hash ? _model.data_hash : ''}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Boc', value: _model.boc}));
 
   }
 

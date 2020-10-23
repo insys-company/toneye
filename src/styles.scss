@@ -146,6 +146,7 @@ a {
 .page-header,
 .page-list-content,
 .page-details-content,
+.page-content__tabs-buttons,
 .page-list-content__filters,
 .page-list-content__tabs {
   opacity: 0;
@@ -167,6 +168,7 @@ a {
   animation: loadContent .5s ease 1 alternate .75s forwards;
 }
 
+.page-content__tabs-buttons,
 .page-list-content__tabs {
   animation: loadContent .7s ease 1 alternate .8s forwards;
 }
@@ -316,6 +318,7 @@ a {
 .page-details-content,
 .list-content__item,
 .page-list-content__filters,
+.page-content__tabs-buttons,
 .page-list-content__tabs,
 .page-list-content__filters-sticky-position {
   transition: all .3s ease;
@@ -378,34 +381,34 @@ a {
   &__component-wrapper {
     margin-bottom: 20px;
   }
+}
 
-  &__tabs-buttons {
+.page-content__tabs-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  transition:  all .3s ease;
+  margin-bottom: 20px;
+
+  .tabs-buttons__wrapper {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     flex-wrap: wrap;
     transition:  all .3s ease;
-    margin-bottom: 20px;
+  }
 
-    .tabs-buttons__wrapper {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      transition:  all .3s ease;
+  .tabs-buttons__header {
+    padding: 10px 5px;
+
+    &:not(.tabs-buttons__header--active) {
+      cursor: pointer;
     }
 
-    .tabs-buttons__header {
-      padding: 10px 5px;
-
-      &:not(.tabs-buttons__header--active) {
-        cursor: pointer;
-      }
-
-      &--active {
-        h2 {
-          font-weight: 700;
-        }
+    &--active {
+      h2 {
+        font-weight: 700;
       }
     }
   }
@@ -587,15 +590,19 @@ app-home {
 
     &__filters {
       margin-right: 0 !important;
-      margin-bottom: 20px !important;
+      // margin-bottom: 20px !important;
       display: flex;
       flex-direction: column-reverse;
       flex: 0 1 100% !important;
 
-      .page-list-content__component-wrapper:not(:last-child) {
-        margin-bottom: 0;
-      }
-      .page-list-content__component-wrapper:last-child {
+      // .page-list-content__component-wrapper:not(:last-child) {
+      //   margin-bottom: 0;
+      // }
+      // .page-list-content__component-wrapper:last-child {
+      //   margin-bottom: 20px !important;
+      // }
+
+      .page-list-content__component-wrapper {
         margin-bottom: 20px !important;
       }
     }

@@ -95,43 +95,43 @@
       </app-general-viewer>
     </div>
 
-    <div class="page-details-content__tabs-buttons">
-      <div class="tabs-buttons__wrapper">
-        <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
-          <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Transactions {{transactions?.length ? '(' + transactions.length + ')' : ''}}</h2>
-        </div>
-        <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 1" (click)="onChangeTab(1)">
-          <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">Messages {{messages?.length ? '(' + messages.length + ')' : ''}}</h2>
-        </div>
-      </div>
+  </div>
 
-      <mat-slide-toggle>Autoupdate</mat-slide-toggle>
+  <div class="page-content__tabs-buttons">
+    <div class="tabs-buttons__wrapper">
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Transactions {{transactions?.length ? '(' + transactions.length + ')' : ''}}</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 1" (click)="onChangeTab(1)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">Messages {{messages?.length ? '(' + messages.length + ')' : ''}}</h2>
+      </div>
     </div>
 
-    <div class="blocks-page__content blocks-content page-list-content">
-      <div class="page-list-content__filters">
-  
-        <!-- Sticky block for desctop -->
-        <div class="page-list-content__filters-sticky-position">
-          <div class="page-list-content__component-wrapper">
-            <app-filter #filter class="page-list-content__component"></app-filter>
-          </div>
-        </div>
-  
-      </div>
-  
-      <div class="page-list-content__tabs">
+    <mat-slide-toggle>Autoupdate</mat-slide-toggle>
+  </div>
+
+  <div class="blocks-page__content blocks-content page-list-content">
+    <div class="page-list-content__filters">
+
+      <!-- Sticky block for desctop -->
+      <div class="page-list-content__filters-sticky-position">
         <div class="page-list-content__component-wrapper">
-          <app-table-viewer #tableViewer
-            [data]="tableViewerData"
-            footerPlaceholder="Load 25 more"
-            [skeletalAnimation]="tableViewerLoading"
-            (exportEvent)="onExport()"
-            (moreEvent)="onSeeMore($event)">
-          </app-table-viewer>
+          <app-filter #filter class="page-list-content__component"></app-filter>
         </div>
       </div>
+
     </div>
 
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          footerPlaceholder="Load 25 more"
+          [skeletalAnimation]="tableViewerLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onSeeMore($event)">
+        </app-table-viewer>
+      </div>
+    </div>
   </div>
 </div>

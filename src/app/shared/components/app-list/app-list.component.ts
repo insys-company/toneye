@@ -1,224 +1,267 @@
-import { OnInit, OnDestroy, Inject } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { SimpleDataFilter } from 'src/app/api';
+import { OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Subscription, Subject } from 'rxjs';
+import { SimpleDataFilter, ViewerData, TabViewerData } from 'src/app/api';
 import { ListService } from './app-list.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { IModel } from '../../interfaces/IModel';
+import { takeUntil } from 'rxjs/operators';
+import { appRouteMap } from 'src/app/app-route-map';
+import { FilterSettings } from '../app-filter/filter-settings';
+import _ from 'underscore';
 
-export class AppListComponent<TContract> implements OnInit, OnDestroy {
+export class AppListComponent<TModel extends IModel> implements OnInit, OnDestroy {
+  /** For subs  */
+  private subs: Subscription[] = [];
   /**
-   * Переменная для подписок
+   * Для отписок на запросы
    */
-  protected subscriptions: Subscription[];
+  public _unsubscribe: Subject<void> = new Subject();
+  /**
+   * Params
+   */
+  public params: SimpleDataFilter = new SimpleDataFilter();
+  /**
+   * Data for view
+   */
+  public generalViewerData: Array<ViewerData>;
+  /**
+   * Data for view
+   */
+  public tableViewerData: Array<TabViewerData>;
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(4);
+  /**
+   * Flag for show/hide state of info
+   */
+  public isAditionalInfoOpen: boolean;
+  /**
+   * Flag for loading data of General Viewer
+   */
+  public viewersLoading: boolean;
+  /**
+   * Flag for loading data of Tabs Viewer
+   */
+  public tableViewersLoading: boolean;
+
+  /** Array of ... */
+  public data: TModel[] = [];
 
   /**
-   * Флаг инициализации компонента
+   * data length
    */
-  get initComplete(): boolean {
-    return this.service.initComplete;
-  }
-  /**
-   * Флаг инициализации компонента
-   */
-  set initComplete(init: boolean) {
-    this.service.initComplete = init;
-  }
+  public total: number = 0;
 
   /**
-   * Массив чисел для скелетной анимации
+   * Filter settings
    */
-  get skeletonArray(): Array<number> {
-    return this.service.skeletonArray;
-  }
-
-  /**
-   * Параметры фильтра
-   */
-  get filterParams(): SimpleDataFilter {
-    return this.service.filterParams;
-  }
-  /**
-   * Параметры фильтра
-   */
-  set filterParams(_filterParams: SimpleDataFilter) {
-    this.service.filterParams = _filterParams;
-  }
-
-  /**
-   * Дефолтные параметры фильтра
-   * которые нельзя сбросить
-   */
-  get defaultFilterParams(): string[] {
-    return this.service.defaultFilterParamsKeys;
-  }
-  /**
-   * Дефолтные параметры фильтра
-   * которые нельзя сбросить
-   */
-  set defaultFilterParams(_defaultFilterParams: string[]) {
-    this.service.defaultFilterParamsKeys = _defaultFilterParams;
+  get filterSettings(): FilterSettings {
+    return this._service._filterSettings;
   }
 
   constructor(
-    protected service: ListService<TContract>,
+    protected changeDetection: ChangeDetectorRef,
+    protected _service: ListService<TModel>,
     protected route: ActivatedRoute,
     protected router: Router,
-    @Inject(String) protected detailsPageName?: string,
   ) {
-    this.filterParams = new SimpleDataFilter();
+    /** Disable change detection for application optimization */
+    this.changeDetection.detach();
+
+    this.params = new SimpleDataFilter();
     /** Для подписок в компоненте */
-    this.subscriptions = [];
+    this.subs = [];
+
+    /** Loading animation in children */
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
   }
 
-  /**
-   * Инициализация
-   */
-  ngOnInit(): void {
-    const _routeSub = this.route.queryParams.subscribe((queryParams: Params) => {
-      this.filterParams = this.service.getFilterParams(queryParams, this.filterParams);
-      // TODO
-    });
-
-    this.subscriptions.push(_routeSub);
-  }
-
-  /**
-   * Уничтожение компонента
-   * @returns {void}
-   */
-  ngOnDestroy(): void {
-    if (this.subscriptions) {
-      this.subscriptions.forEach((s: Subscription) => s.unsubscribe());
-      this.subscriptions = [];
-    }
-  }
-
-  /**
-   * Инициализация компонента задана строго после инициализации фильтра
-   * Чтобы параметры роута не терялись
-   * Переопределяем ngOnInit и onInitAfterFilter в наследователе
-   * и в onInitAfterFilter вызываем super.ngOnInit()
-   * @returns {void}
-   */
-  onInitAfterFilter(): void {
-    // TODO
-  }
-
-  /**
-   * Метод сортировки
-   * @param {string} orderBy После сортировки
-   *
-   * @returns {void}
-   */
-  onSort(orderBy: string): void {
-
-  }
-
-  // /**
-  //  * Метод смены страницы и размера страницы на пагинаторе
-  //  * @param {PageEvent} event Событие с пагинатора (с параметрами)
-  //  *
-  //  * @returns {void}
-  //  */
-  // onChangePage(event: PageEvent): void {
-
+  // constructor(
+  //   protected service: ListService<TModel>,
+  //   protected route: ActivatedRoute,
+  //   protected router: Router,
+  //   @Inject(String) protected detailsPageName?: string,
+  // ) {
+  //   this.params = new SimpleDataFilter();
+  //   /** Для подписок в компоненте */
+  //   this.subs = [];
   // }
 
   /**
-   * Любое доп действие
-   * @returns {void}
+   * Initialization of the component
    */
-  onAdditionalAction(): void {
-    // TODO
-  }
+  public ngOnInit(): void {
 
+    this.subscribeInit();
+    this.detectChanges();
 
-  /**
-   * Метод дупликации
-   * @param {string} id Идентификатор майлера
-   * @param {any} clickEvent Событие для прекращения распространения клика
-   *
-   * @returns {void}
-   */
-  onCopy(itemId: string, clickEvent: any = null): void {
-    /** Прекращение дальнейшей передачи текущего события */
-    this.stopPropagation(clickEvent);
+    this.route.queryParams
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((queryParams: Params) => {
 
-    // TODO
-  }
+        this.params = this._service.baseFunctionsService.getFilterParams(queryParams, this.params);
 
-  /**
-   * Метод редактирования выбранного элемента
-   * @param {string} itemId Идентификатор выбранного элемента
-   * @param {any} clickEvent Событие для прекращения распространения клика
-   *
-   * @returns {void}
-   */
-  onDetails(itemId: string, clickEvent: any = null): void {
-    /** Прекращение дальнейшей передачи текущего события */
-    this.stopPropagation(clickEvent);
+        this.refreshData();
 
-    if (!this.detailsPageName || !itemId) { return; }
+        // TODO
 
-    this.router.navigate([`/${this.detailsPageName}/${itemId}`]);
+      });
   }
 
   /**
-   * Метод раскрытия списков (более детальной инфы в таблице)
-   * @param {string | number} itemId Идентификатор выбранного элемента
-   * @param {any} clickEvent Событие для прекращения распространения клика
-   *
-   * @returns {void}
+   * Destruction of the component
    */
-  onShowMore(itemId: string | number, clickEvent: any = null): void {
-    /** Прекращение дальнейшей передачи текущего события */
-    this.stopPropagation(clickEvent);
+  public ngOnDestroy(): void {
+    if (this._unsubscribe) {
+      this._unsubscribe.next();
+      this._unsubscribe.complete();
+      this._unsubscribe = null;
+    }
 
+    if (this._service) {
+      this._service.destroy();
+    }
+
+    this.params = null;
+    this.generalViewerData = null;
+    this.tableViewerData = null;
+    this.skeletonArrayForGeneralViewer = null;
+    this.isAditionalInfoOpen = null;
+    this.viewersLoading =  null;
+    this.tableViewersLoading = null;
+    this.data = null;
+    this.total = null;
   }
 
   /**
-   * Метод импорта файла
-   * Переопределить в том компоненте, где импорт нужен
-   * @returns {void}
+   * Export method
    */
-  onImport(): void {
+  public onExport(): void {
     // TODO
   }
 
   /**
-   * Метод экспорта файла
-   * Переопределить в том компоненте, где импорт нужен
-   * @returns {void}
+   * Change tab
+   * @param index Index of selected tab
    */
-  onExport(): void {
+  public onChangeTab(index: number): void {
     // TODO
   }
 
   /**
-   * Прекращение распространения события
-   * @param {any} clickEvent Событие для прекращения распространения клика
-   *
-   * @returns {void}
+   * Load more data
+   * @param index Index of selected tab
    */
-  stopPropagation(clickEvent: any = null): void {
-    /** Прекращение дальнейшей передачи текущего события */
-    if (clickEvent) { clickEvent.stopPropagation(); }
+  public onLoadMore(index: number): void {
+    // TODO
   }
 
+  /**
+   * Получение данных
+   */
+  protected refreshData(): void {
+    // TODO
+  }
 
   /**
-   * Метод перенаправления для смены адресной строки
-   * Работа с параметрами и редирект
-   * @returns {Promise<boolean>}
+   * Reset scroll
+   */
+  protected scrollToTop(): void {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  /**
+   * Scroll to bottom
+   */
+  protected scrollToBottom(): void {
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+  }
+
+  /**
+   * Redirect to params
    */
   protected redirect(): Promise<boolean> {
-    // Object.keys(this.filterParams).map(key => {
-    //   if (!this.filterParams[this.service.constParamOrderByName]) {
-    //     delete this.filterParams[this.service.constParamOrderAscName];
-    //   }
-    //   if (!this.filterParams[key] && this.filterParams[key] !== this.service.constZero) {
-    //     delete this.filterParams[key];
-    //   }
-    // });
-    return this.router.navigate([], { queryParams: this.filterParams });
+    Object.keys(this.params).map(key => {
+      if (!this.params[key] && this.params[key] !== 0) {
+        delete this.params[key];
+      }
+    });
+    return this.router.navigate([], { queryParams: this.params });
+  }
+
+  /**
+   * For subscribers after ngOnDestroy
+   */
+  protected subscribeInit(): void {
+    this._service.subscribeInit();
+    this._unsubscribe = new Subject<void>();
+  }
+
+  /**
+   * Data for model from other queries
+   */
+  protected getData(): void {
+    // TODO
+  }
+
+  /**
+   * Map messages for viewer
+   * @param _model Model
+   * @param _data Aditional data
+   */
+  protected mapDataForViews(_model: TModel, _data?: any): void {
+    // TODO
+  }
+
+  /**
+   * Map data for viewer
+   * @param _list List of contracts
+   * @param type Type of contract
+   * @param arrayLength Length of mapped array
+   * @param _data Aditional data
+   */
+  protected mapDataForTable(_list: TModel[], type: string, arrayLength: number = 10, _data?: any): TabViewerData[] {
+    if (!_list || !_list.length) { return []; }
+
+    let data = [];
+
+    data = _list.map((item: any) => {
+      if (type === appRouteMap.accounts) {
+        return this._service.baseFunctionsService.mapAccountForTable(item, _data);
+      }
+      else if (type === appRouteMap.blocks) {
+        return this._service.baseFunctionsService.mapBlockForTable(item);
+      }
+      else if (type === appRouteMap.contracts) {
+        return this._service.baseFunctionsService.mapContractForTable(item);
+      }
+      else if (type === appRouteMap.messages) {
+        return this._service.baseFunctionsService.mapMessageForTable(item);
+      }
+      else if (type === appRouteMap.transactions) {
+        return this._service.baseFunctionsService.mapTransactionForTable(item);
+      }
+      else if (type === appRouteMap.validators) {
+        return this._service.baseFunctionsService.mapValidatorForTable(item, _data);
+      }
+      else {
+        return null;
+      }
+    });
+
+    data = _.without(data, null);
+
+    data = _.clone(_.first(data, arrayLength));
+
+    return data;
+  }
+
+  /**
+   * Detect Changes
+   */
+  protected detectChanges(): void {
+    this.changeDetection.detectChanges();
   }
 }

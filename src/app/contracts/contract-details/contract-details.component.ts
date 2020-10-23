@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Account, GeneralViewer, Transaction, TabViewerData, DataConfig, Message } from '../../api';
+import { Account, TabViewerData, DataConfig } from '../../api';
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { ContractDetailsService } from './contract-details.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
@@ -86,7 +86,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
   /**
    * Initialization of the component
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
 
     this.subscribeInit();
     this.detectChanges();
@@ -106,7 +106,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     super.ngOnDestroy();
     this.accounts = null;
     this.totalBalance = null;
@@ -115,12 +115,15 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
     this.newContracts = null;
     this.tableViewerData = null;
     this.tableViewerLoading = null;
+    this.isFilterOpen = null;
+    this.isFilterHideBtnVisible = null;
+    this.isFilterFooterVisible = null;
   }
 
   /**
    * Export event
    */
-  onExport(): void {
+  public onExport(): void {
     // TODO
   }
 
@@ -128,7 +131,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
    * Change tab
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onSeeMore(index: number): void {
     // TODO
   }
 
@@ -136,6 +139,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
    * Data for model from other queries
    */
   protected getData(): void {
+
     // Get Total
     let _variables1 = {
       filter: {code_hash: {eq: this.modelId}},
@@ -214,15 +218,6 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
       }, (error: any) => {
         console.log(error);
       });
-  }
-
-  /**
-   * Map for viewer
-   * @param _model Model
-   * @param _data Aditional data
-   */
-  protected mapData(_model: Account): void {
-    // TODO
   }
 
   /**

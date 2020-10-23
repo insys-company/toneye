@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Transaction, GeneralViewer, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Transaction, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
 import { TransactionsService } from './transactions.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -21,7 +21,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   /**
    * Data for view
    */
-  public generalViewerData: Array<GeneralViewer>;
+  public generalViewerData: Array<ViewerData>;
   /**
    * Data for view
    */
@@ -139,7 +139,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((generalData: any) => {
 
-        const aggregateTransactions = new GeneralViewer({
+        const aggregateTransactions = new ViewerData({
           title: 'Transaction count',
           value: generalData.aggregateTransactions[0] ? generalData.aggregateTransactions[0] : 0,
           isNumber: true
@@ -152,7 +152,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
             this.data = res ? res : [];
 
-            const tps = new GeneralViewer({
+            const tps = new ViewerData({
               title: 'TPS',
               value: (this.getAverageTime(this.data) + ' sec').replace('.', ','),
               isNumber: false,

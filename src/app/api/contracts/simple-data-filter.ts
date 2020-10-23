@@ -5,9 +5,13 @@ export class SimpleDataFilter {
   min: number;
   dateFrom: number;
   dateTo: number;
+  period: string;
   timeFrom: number;
   timeTo: number;
   shard: string;
+  aborted: boolean;
+  direction: string;
+  index: string;
 
   constructor(data?: any) {
     if (data) {

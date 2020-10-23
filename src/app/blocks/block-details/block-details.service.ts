@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from '../../app-route-map';
 import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { BaseFunctionsService } from 'src/app/shared/services';
 
 @Injectable({
   providedIn: BlockDetailsServicesModule
@@ -16,12 +17,14 @@ export class BlockDetailsService extends DetailsService<Block> {
   constructor(
     protected apollo: Apollo,
     protected graphQueryService: BlockQueries,
+    public baseFunctionsService: BaseFunctionsService,
     private transactionQueries: TransactionQueries,
   ) {
 
     super(
       apollo,
       graphQueryService,
+      baseFunctionsService,
       (data: Block) => new Block(data),
       appRouteMap.blocks
     );
@@ -32,7 +35,7 @@ export class BlockDetailsService extends DetailsService<Block> {
    * Get data
    * @param _id Id of model
    */
-  getTransactions(_id: string | number): Observable<Transaction[]> {
+  public getTransactions(_id: string | number): Observable<Transaction[]> {
 
     const _variables = {
       filter: {block_id: { eq: _id}},
@@ -59,7 +62,7 @@ export class BlockDetailsService extends DetailsService<Block> {
    * @param params _workchain_id workchain_id of currently model
    * @param params _shard shard of currently model
    */
-  getBlockBySeqNo(_seq_no: number, _workchain_id: number, _shard?: string): Observable<Block[]> {
+  public getBlockBySeqNo(_seq_no: number, _workchain_id: number, _shard?: string): Observable<Block[]> {
 
     const _variables = {
       filter: _shard != null
@@ -84,7 +87,7 @@ export class BlockDetailsService extends DetailsService<Block> {
    * Get data
    * @param params _id Id of previos block
    */
-  getPreviosBlock(_id: string | number): Observable<Block[]> {
+  public getPreviosBlock(_id: string | number): Observable<Block[]> {
 
     const _variables = {
       filter: {id: {eq: _id}},

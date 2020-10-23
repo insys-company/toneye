@@ -7,6 +7,7 @@ import { GraphQueryService } from 'src/app/shared/services';
 })
 export class MessageQueries extends GraphQueryService {
 
+  // All data
   getItem = gql`
     query getMessage($filter: MessageFilter) {
       messages(filter: $filter) {

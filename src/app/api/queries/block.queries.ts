@@ -7,6 +7,7 @@ import { GraphQueryService } from 'src/app/shared/services';
 })
 export class BlockQueries extends GraphQueryService {
 
+  // All data
   getItem = gql`
     query getBlock($filter: BlockFilter) {
       blocks(filter: $filter) {
@@ -64,6 +65,63 @@ export class BlockQueries extends GraphQueryService {
           __typename
         }
         master {
+          config {
+            p15 {
+              validators_elected_for
+              elections_start_before
+              elections_end_before
+              stake_held_for
+            }
+            p16 {
+              max_validators
+	            min_validators
+            }
+            p17 {
+              min_stake
+              max_stake
+              min_total_stake
+              max_stake_factor
+            }
+            p32 {
+              utime_since
+              utime_since_string
+              utime_until
+              utime_until_string
+              total
+              total_weight
+              list {
+                adnl_addr
+                public_key
+                weight
+              }
+            }
+            p34 {
+              utime_since
+              utime_since_string
+              utime_until
+              utime_until_string
+              total
+              total_weight
+              list {
+                adnl_addr
+                public_key
+                weight
+              }
+            }
+            p36 {
+              utime_since
+              utime_since_string
+              utime_until
+              utime_until_string
+              total
+              total_weight
+              list {
+                adnl_addr
+                public_key
+                weight
+              }
+            }
+          }
           config_addr
           max_shard_gen_utime
           min_shard_gen_utime
@@ -200,14 +258,36 @@ export class BlockQueries extends GraphQueryService {
     }
   `;
 
-// config {  67 строка
-//   p15 
-//   p16
-//   p17
-//   p32
-//   p34
-//   p36
-// }
+  getMasterBlockPrevKey = gql`
+    query getMasterBlockPrevKey($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
+      blocks(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
+        prev_key_block_seqno
+        seq_no
+        __typename
+      }
+    }
+  `;
+
+  getMasterBlockShard = gql`
+    query getMasterBlockShard($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
+      blocks(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
+        master {
+          shard_hashes {
+            shard
+            descr {
+              gen_utime
+              __typename
+            }
+            workchain_id
+            __typename
+          }
+          __typename
+        }
+        seq_no
+        __typename
+      }
+    }
+  `;
 
   getMasterBlock = gql`
     query getMasterBlock($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
@@ -216,6 +296,32 @@ export class BlockQueries extends GraphQueryService {
         master {
           max_shard_gen_utime
           min_shard_gen_utime
+          recover_create_msg {
+            fwd_fee
+            ihr_fee
+            in_msg {
+              cur_addr
+              fwd_fee_remaining
+              msg_id
+              next_addr
+              __typename
+            }
+            msg_id
+            msg_type
+            msg_type_name
+            out_msg {
+              cur_addr
+              fwd_fee_remaining
+              msg_id
+              next_addr
+              __typename
+            }
+            proof_created
+            proof_delivered
+            transaction_id
+            transit_fee
+            __typename
+          }
           shard_hashes {
             shard
             descr {
@@ -233,24 +339,103 @@ export class BlockQueries extends GraphQueryService {
     }
   `;
 
+
+
   getMasterBlockConfig = gql`
-    query getMasterBlock($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
+    query getMasterBlockConfig($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
       blocks(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
         prev_key_block_seqno
         master {
-
-          # add Other
+          config {
+            p15 {
+              validators_elected_for
+              elections_start_before
+              elections_end_before
+              stake_held_for
+            }
+            p16 {
+              max_validators
+	            min_validators
+            }
+            p17 {
+              min_stake
+              max_stake
+              min_total_stake
+              max_stake_factor
+            }
+            p32 {
+              utime_since
+              utime_since_string
+              utime_until
+              utime_until_string
+              total
+              total_weight
+              list {
+                adnl_addr
+                public_key
+                weight
+              }
+            }
+            p34 {
+              utime_since
+              utime_since_string
+              utime_until
+              utime_until_string
+              total
+              total_weight
+              list {
+                adnl_addr
+                public_key
+                weight
+              }
+            }
+            p36 {
+              utime_since
+              utime_since_string
+              utime_until
+              utime_until_string
+              total
+              total_weight
+              list {
+                adnl_addr
+                public_key
+                weight
+              }
+            }
+          }
+          config_addr
           max_shard_gen_utime
           min_shard_gen_utime
           shard_hashes {
-            shard
             descr {
+              before_merge
+              before_split
+              end_lt
+              fees_collected
+              file_hash
+              flags
+              funds_created
               gen_utime
+              min_ref_mc_seqno
+              next_catchain_seqno
+              next_validator_shard
+              nx_cc_updated
+              reg_mc_seqno
+              root_hash
+              seq_no
+              split
+              split_type
+              split_type_name
+              start_lt
+              want_merge
+              want_split
               __typename
             }
+            shard
             workchain_id
             __typename
           }
+
           __typename
         }
         seq_no
@@ -259,5 +444,5 @@ export class BlockQueries extends GraphQueryService {
     }
   `;
 
-  constructor() { super() }
+  constructor() { super(); }
 }

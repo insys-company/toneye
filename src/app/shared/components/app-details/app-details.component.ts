@@ -1,10 +1,12 @@
 import { OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
-import { GeneralViewer } from 'src/app/api';
+import { ViewerData, TabViewerData } from 'src/app/api';
 import { DetailsService } from './app-details.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
-import { IModel } from '../../interfaces/IModel';
+import { IModel } from '../../interfaces';
+import { appRouteMap } from 'src/app/app-route-map';
+import _ from 'underscore';
 
 export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDestroy {
   /**
@@ -38,11 +40,11 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
   /**
    * General Data for view
    */
-  public generalViewerData: Array<GeneralViewer>;
+  public generalViewerData: Array<ViewerData>;
   /**
    * Aditional Data for view
    */
-  public aditionalViewerData: Array<GeneralViewer>;
+  public aditionalViewerData: Array<ViewerData>;
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -60,7 +62,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
   /**
    * Initialization of the component
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
 
     this.subscribeInit();
     this.detectChanges();
@@ -104,7 +106,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     if (this._unsubscribe) {
       this._unsubscribe.next();
       this._unsubscribe.complete();
@@ -128,7 +130,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
   /**
    * Export method
    */
-  onExport(): void {
+  public onExport(): void {
     // TODO
   }
 
@@ -137,7 +139,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
    * @param id Идентификатор выбранного элемента
    * @param clickEvent Событие для прекращения распространения клика
    */
-  onCopy(itemId: string, clickEvent: any = null): void {
+  public onCopy(itemId: string, clickEvent: any = null): void {
     /** Прекращение дальнейшей передачи текущего события */
     this.stopPropagation(clickEvent);
 
@@ -148,7 +150,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
    * Прекращение распространения события
    * @param clickEvent Событие для прекращения распространения клика
    */
-  stopPropagation(clickEvent: any = null): void {
+  public stopPropagation(clickEvent: any = null): void {
     /** Прекращение дальнейшей передачи текущего события */
     if (clickEvent) { clickEvent.stopPropagation(); }
   }
@@ -166,10 +168,10 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
    */
   protected getData(): void {
 
-    this.mapData(this.model);
+    this.mapDataForViews(this.model);
     this.viewersLoading = false;
-    this.detectChanges();
 
+    this.detectChanges();
     // TODO
   }
 
@@ -178,11 +180,51 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
    * @param _model Model
    * @param _data Aditional data
    */
-  protected mapData(_model: TModel, _data?: any): void {
-
-    this.generalViewerData = [];
-
+  protected mapDataForViews(_model: TModel, _data?: any): void {
     // TODO
+  }
+
+  /**
+   * Map data for viewer
+   * @param _list List of contracts
+   * @param type Type of contract
+   * @param arrayLength Length of mapped array
+   * @param _data Aditional data
+   */
+  protected mapDataForTable(_list: TModel[], type: string, arrayLength: number = 10, _data?: any): TabViewerData[] {
+    if (!_list || !_list.length) { return []; }
+
+    let data = [];
+
+    data = _list.map((item: any) => {
+      if (type === appRouteMap.accounts) {
+        this._service.baseFunctionsService.mapAccountForTable(item, _data);
+      }
+      else if (type === appRouteMap.blocks) {
+        this._service.baseFunctionsService.mapBlockForTable(item);
+      }
+      else if (type === appRouteMap.contracts) {
+        this._service.baseFunctionsService.mapContractForTable(item);
+      }
+      else if (type === appRouteMap.messages) {
+        this._service.baseFunctionsService.mapMessageForTable(item);
+      }
+      else if (type === appRouteMap.transactions) {
+        this._service.baseFunctionsService.mapTransactionForTable(item);
+      }
+      else if (type === appRouteMap.validators) {
+        this._service.baseFunctionsService.mapValidatorForTable(item, _data);
+      }
+      else {
+        return null;
+      }
+    });
+
+    data = _.without(data, null);
+
+    data = _.clone(_.first(data, arrayLength));
+
+    return data;
   }
 
   /**

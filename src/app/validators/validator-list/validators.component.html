@@ -1,0 +1,85 @@
+<div class="validators-page page">
+  <!-- Page header -->
+  <div class="validators-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Validators</h1>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <div class="block-page__content block-content page-details-content">
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #p15Viewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Election parameters'"
+        [data]="p15ViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #p16GeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Validators count'"
+        [data]="p16ViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #p17GeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Validator stake parameters'"
+        [data]="p17ViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+  </div>
+
+  <div class="page-content__tabs-buttons">
+    <div class="tabs-buttons__wrapper">
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Previos</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 1" (click)="onChangeTab(1)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">Current</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 2" (click)="onChangeTab(2)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 2">Next</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="validators-page__content validators-content page-list-content">
+    <div class="page-list-content__filters">
+
+      <!-- Sticky block for desctop -->
+      <div class="page-list-content__filters-sticky-position">
+        <div class="page-list-content__component-wrapper">
+          <app-general-viewer #generalViewer class="page-list-content__component"
+            [data]="aditionalViewerData"
+            [skeletonArray]="skeletonArrayForGeneralViewer"
+            [skeletalAnimation]="viewersLoading">
+          </app-general-viewer>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          footerPlaceholder="Load 25 more"
+          [skeletalAnimation]="tableViewersLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onLoadMore($event)">
+        </app-table-viewer>
+      </div>
+    </div>
+  </div>
+</div>

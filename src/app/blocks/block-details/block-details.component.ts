@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, GeneralViewer, Transaction, MsgData, TabViewerData, DataConfig } from '../../api';
+import { Block, ViewerData, Transaction, MsgData, TabViewerData, DataConfig } from '../../api';
 import { BlockDetailsService } from './block-details.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
@@ -21,19 +21,19 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   /**
    * Value Data for view
    */
-  public valueViewerData: Array<GeneralViewer>;
+  public valueViewerData: Array<ViewerData>;
   /**
    * Account Data for view
    */
-  public accountViewerData: Array<GeneralViewer>;
+  public accountViewerData: Array<ViewerData>;
   /**
    * Shards Data for view
    */
-  public shardsViewerData: Array<GeneralViewer>;
+  public shardsViewerData: Array<ViewerData>;
   /**
    * Master config Data for view
    */
-  public masterConfigViewerData: Array<GeneralViewer>;
+  public masterConfigViewerData: Array<ViewerData>;
 
   /**
    * Id for redirect
@@ -91,7 +91,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     super.ngOnDestroy();
     this.valueViewerData = null;
     this.accountViewerData = null;
@@ -102,12 +102,15 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
     this.transactions = null;
     this.inMessages = null;
     this.outMessages = null;
+    this.tableViewerData = null;
+    this.tableViewerLoading = null;
+    this.selectedTabIndex = null;
   }
 
   /**
    * Destruction of the component
    */
-  clearData(): void {
+  public clearData(): void {
     this.viewersLoading = true;
     this.disabled = false;
     this.generalViewerData = [];
@@ -132,7 +135,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   /**
    * Redirect on previos block page
    */
-  onPreviosBlock(): void {
+  public onPreviosBlock(): void {
     if (!this.previosBlockId) { return; }
     this.clearData();
     this.router.navigate([`/${appRouteMap.block}/${this.previosBlockId}`])
@@ -142,7 +145,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   /**
    * Redirect on next block page
    */
-  onNextBlock(): void {
+  public onNextBlock(): void {
     if (!this.nextBlockId) { return; }
     this.clearData();
     this.router.navigate([`/${appRouteMap.block}/${this.nextBlockId}`])
@@ -152,7 +155,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   /**
    * Export event
    */
-  onPreviosBlockByKey(_seq_no: number): void {
+  public onPreviosBlockByKey(_seq_no: number): void {
     if (this.disabled || _seq_no == null) { return; }
   
     this.disabled = true;
@@ -175,7 +178,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   /**
    * Export event
    */
-  onExport(): void {
+  public onExport(): void {
     // TODO
   }
 
@@ -183,7 +186,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
    * Change tab
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onSeeMore(index: number): void {
     // TODO
   }
 
@@ -191,18 +194,20 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
    * Change tab
    * @param index Index of selected tab
    */
-  onChangeTab(index: number): void {
+  public onChangeTab(index: number): void {
 
     if (index == this.selectedTabIndex) { return; }
 
     this.selectedTabIndex = index;
-    this.detectChanges();
-
     this.tableViewerLoading = true;
     this.tableViewerData = [];
     this.detectChanges();
 
-    this.tableViewerData = index == 0 ? this.mapTransactions(this.transactions) : index == 1 ? this.mapMessages(this.inMessages) : this.mapMessages(this.outMessages);
+    this.tableViewerData = index == 0
+      ? this.mapTransactions(this.transactions)
+      : index == 1
+        ? this.mapMessages(this.inMessages)
+        : this.mapMessages(this.outMessages);
 
     this.tableViewerLoading = false;
     this.detectChanges();
@@ -226,7 +231,7 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
           ? this.model.prev_ref.root_hash
           : null;
 
-        this.mapData(this.model);
+        this.mapDataForViews(this.model);
         this.viewersLoading = false;
         this.detectChanges();
 
@@ -239,7 +244,6 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
         this.tableViewerLoading = false;
 
         this.detectChanges();
-
 
     }, (error: any) => {
       console.log(error);
@@ -255,7 +259,6 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
       }, (error: any) => {
         console.log(error);
       });
-
   }
 
   /**
@@ -263,58 +266,58 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
    * @param _model Model
    * @param _data Aditional data
    */
-  protected mapData(_model: Block): void {
+  protected mapDataForViews(_model: Block): void {
 
     this.generalViewerData = [];
-    this.generalViewerData.push(new GeneralViewer({title: 'ID', value: _model.id}));
-    this.generalViewerData.push(new GeneralViewer({title: 'Time & Date', value: _model.gen_utime}));
-    this.generalViewerData.push(new GeneralViewer({title: 'Number', value: _model.seq_no}));
-    this.generalViewerData.push(new GeneralViewer({title: 'Workchain', value: _model.workchain_id}));
-    this.generalViewerData.push(new GeneralViewer({title: 'Shard', value: _model.shard}));
-    this.generalViewerData.push(new GeneralViewer({title: 'Prev key block seq no', value: _model.prev_key_block_seqno}));
+    this.generalViewerData.push(new ViewerData({title: 'ID', value: _model.id}));
+    this.generalViewerData.push(new ViewerData({title: 'Time & Date', value: _model.gen_utime}));
+    this.generalViewerData.push(new ViewerData({title: 'Number', value: _model.seq_no}));
+    this.generalViewerData.push(new ViewerData({title: 'Workchain', value: _model.workchain_id}));
+    this.generalViewerData.push(new ViewerData({title: 'Shard', value: _model.shard}));
+    this.generalViewerData.push(new ViewerData({title: 'Prev key block seq no', value: _model.prev_key_block_seqno}));
 
     // Details
     this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Logical time', value: `${_model.start_lt} - ${_model.end_lt}`}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Fees collected', value: _model.value_flow ? _model.value_flow.fees_collected : ''}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Parent', value: _model.prev_ref ? _model.prev_ref.root_hash : ''}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Global Id', value: _model.global_id}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Want split', value: _model.want_split ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'After merge', value: _model.after_merge ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Get catchain seq no', value: _model.gen_catchain_seqno}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Prev ref root hash', value: _model.prev_ref ? _model.prev_ref.root_hash : ''}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Version', value: _model.version}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Gen validator list hash short', value: _model.gen_validator_list_hash_short}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Before split', value: _model.before_split ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'After split', value: _model.after_split ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Want merge', value: _model.want_merge ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Vert seq no', value: _model.vert_seq_no}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Min req mc seq no', value: _model.min_ref_mc_seqno}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Gen software version', value: _model.gen_software_version}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Gen software capabilities', value: _model.gen_software_capabilities}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Rand seed', value: _model.rand_seed}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Boc', value: _model.boc}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Logical time', value: `${_model.start_lt} - ${_model.end_lt}`}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Fees collected', value: _model.value_flow ? _model.value_flow.fees_collected : ''}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Parent', value: _model.prev_ref ? _model.prev_ref.root_hash : ''}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Global Id', value: _model.global_id}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Want split', value: _model.want_split ? 'Yes' : 'No'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'After merge', value: _model.after_merge ? 'Yes' : 'No'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Get catchain seq no', value: _model.gen_catchain_seqno}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Prev ref root hash', value: _model.prev_ref ? _model.prev_ref.root_hash : ''}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Version', value: _model.version}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Gen validator list hash short', value: _model.gen_validator_list_hash_short}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Before split', value: _model.before_split ? 'Yes' : 'No'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'After split', value: _model.after_split ? 'Yes' : 'No'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Want merge', value: _model.want_merge ? 'Yes' : 'No'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Vert seq no', value: _model.vert_seq_no}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Min req mc seq no', value: _model.min_ref_mc_seqno}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Gen software version', value: _model.gen_software_version}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Gen software capabilities', value: _model.gen_software_capabilities}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Rand seed', value: _model.rand_seed}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Boc', value: _model.boc}));
     // Details
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Msg type', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].msg_type_name : '???' }));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Ihr fee', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].ihr_fee : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'In msg / Msg Id', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.msg_id : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'In msg / Next addr', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.next_addr : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'In msg / Curr addr', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.cur_addr : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'In msg / Fwd fee remaining', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.fwd_fee_remaining : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Fwd fee', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].fwd_fee : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Transit fee', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].transit_fee : '???'}));
-    this.aditionalViewerData.push(new GeneralViewer({title: 'Transaction id', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].transaction_id : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Msg type', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].msg_type_name : '???' }));
+    this.aditionalViewerData.push(new ViewerData({title: 'Ihr fee', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].ihr_fee : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'In msg / Msg Id', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.msg_id : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'In msg / Next addr', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.next_addr : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'In msg / Curr addr', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.cur_addr : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'In msg / Fwd fee remaining', value: _model.in_msg_descr && _model.in_msg_descr[0] && _model.in_msg_descr[0].in_msg ? _model.in_msg_descr[0].in_msg.fwd_fee_remaining : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Fwd fee', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].fwd_fee : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Transit fee', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].transit_fee : '???'}));
+    this.aditionalViewerData.push(new ViewerData({title: 'Transaction id', value: _model.in_msg_descr && _model.in_msg_descr[0] ? _model.in_msg_descr[0].transaction_id : '???'}));
 
     // // Value
     this.valueViewerData = [];
-    this.valueViewerData.push(new GeneralViewer({title: 'To next block', value: _model.value_flow ? _model.value_flow.to_next_blk : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'Exported', value: _model.value_flow ? _model.value_flow.exported : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'Fees collected', value: _model.value_flow ? _model.value_flow.fees_collected : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'Created', value: _model.value_flow ? _model.value_flow.created : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'Imported', value: _model.value_flow ? _model.value_flow.imported : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'From prev block', value: _model.value_flow ? _model.value_flow.from_prev_blk : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'Minted', value: _model.value_flow ? _model.value_flow.minted : ''}));
-    this.valueViewerData.push(new GeneralViewer({title: 'Fees imported', value: _model.value_flow ? _model.value_flow.fees_imported : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'To next block', value: _model.value_flow ? _model.value_flow.to_next_blk : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'Exported', value: _model.value_flow ? _model.value_flow.exported : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'Fees collected', value: _model.value_flow ? _model.value_flow.fees_collected : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'Created', value: _model.value_flow ? _model.value_flow.created : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'Imported', value: _model.value_flow ? _model.value_flow.imported : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'From prev block', value: _model.value_flow ? _model.value_flow.from_prev_blk : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'Minted', value: _model.value_flow ? _model.value_flow.minted : ''}));
+    this.valueViewerData.push(new ViewerData({title: 'Fees imported', value: _model.value_flow ? _model.value_flow.fees_imported : ''}));
 
     // // Compute
     // this.computeViewerData = [];
