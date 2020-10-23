@@ -136,20 +136,6 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
    * Data for model from other queries
    */
   protected getData(): void {
-
-    this.service.getAccounts(this.modelId)
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe((res: Account[]) => {
-
-        this.accounts = res ? res : [];
-        this.tableViewerData = this.mapAccounts(this.accounts);
-        this.viewersLoading = false;
-        this.detectChanges();
-
-      }, (error: any) => {
-        console.log(error);
-      });
-
     // Get Total
     let _variables1 = {
       filter: {code_hash: {eq: this.modelId}},
@@ -215,6 +201,19 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
       }, (error: any) => {
         console.log(error);
       });
+
+    this.service.getAccounts(this.modelId)
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Account[]) => {
+
+        this.accounts = res ? res : [];
+        this.tableViewerData = this.mapAccounts(this.accounts);
+        this.viewersLoading = false;
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -247,7 +246,11 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
           type: item.last_paid == 0 ? 'string' : 'date'
         }),
         titleRight: new DataConfig({text: item.balance, icon: true, iconClass: 'icon-gem', type: 'number'}),
-        subtitleRight: new DataConfig({text: Number(((Number(item.balance)/this.totalBalance)*100).toFixed(2)), type: 'percent'})
+        subtitleRight: new DataConfig({
+          text: Number(item.balance) != null
+            ? Number(((Number(item.balance)/this.totalBalance)*100).toFixed(2))
+            : 0,
+          type: 'percent'})
       });
     });
 

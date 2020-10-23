@@ -59,7 +59,7 @@
         <p *ngIf="item.subtitleLeft?.type !== 'date'">{{item.subtitleLeft?.text ? item.subtitleLeft?.text : ''}}</p>
 
         <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>
-        <p *ngIf="item.subtitleRight?.type === 'percent'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | thousandspipe) : '' }}%</p>
+        <p *ngIf="item.subtitleRight?.type === 'percent'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | thousandspipe) : '0' }}%</p>
       </div>
     </a>
   </div>
