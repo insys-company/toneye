@@ -5,7 +5,7 @@ import { SharedModule } from '../../shared/shared.module';
 
 import { AccountsRoutingModule } from './accounts-routing.module';
 import { AccountsComponent } from './accounts.component';
-import { AccountsServicesModule } from './Accounts-services.module';
+import { AccountsServicesModule } from './accounts-services.module';
 
 @NgModule({
   declarations: [AccountsComponent],

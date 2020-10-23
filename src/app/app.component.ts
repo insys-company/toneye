@@ -30,7 +30,7 @@ export class AppComponent implements OnDestroy {
     appRouteMap.transactions,
     appRouteMap.messages,
     appRouteMap.accounts,
-    // appRouteMap.contracts,
+    appRouteMap.contracts,
     // appRouteMap.validators
   ];
   /**

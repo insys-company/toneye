@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AccountsServicesModule } from './accounts-services.module';
+import { ContractsServicesModule } from './contracts-services.module';
 import { Apollo } from 'apollo-angular';
 import { AccountQueries, CommonQueries } from '../../api/queries';
 import { Observable, Subject } from 'rxjs';
@@ -10,9 +10,9 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
-  providedIn: AccountsServicesModule
+  providedIn: ContractsServicesModule
 })
-export class AccountsService {
+export class ContractsService {
   protected _unsubscribe = new Subject();
 
   constructor(
