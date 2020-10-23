@@ -1,26 +1,97 @@
 @import './../../../scss/abstracts/colors';
 
-.contract-page__general-filter {
+.contract-page-viewer {
   transition: all .3s ease;
 }
 
-.contract-page__general-filter {
+.contract-page-viewer {
   display: flex;
   flex-direction: row;
 
   background-color: transparent;
   border-radius: 4px;
   overflow: hidden;
+
+  &__general-wrapper {
+    padding: 20px;
+    flex: 1 1;
+  }
+
+  &__header-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__header {
+
+  }
+
+  &__total {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__total-value,
+  &__footer-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__content-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__content-item {
+    margin-bottom: 5px;
+  }
+
+  &__content-subitem {
+
+  }
+
+  &__filters-wrapper {
+    max-width: 260px;
+    min-width: 260px;
+  }
+
+  .icon-gem {
+    margin-left: 5px;
+  }
+
+  .mb-20 {
+    margin-bottom: 20px;
+  }
+
+  .mb-25 {
+    margin-bottom: 25px;
+  }
+
+  .mb-40 {
+    margin-bottom: 40px;
+  }
+
+  .small-w {
+    max-width: 140px;
+    min-width: 140px;
+    &:not(:last-child) {
+      border-right: 1px solid $explorer--base__gray-light;
+    }
+    &:not(:first-child) {
+      padding-left: 20px;
+    }
+  }
+
+  .header-style {
+    font-weight: 700;
+  }
 }
 
-.general-filter__general {
-  padding: 20px;
-  flex: 1 1;
-}
-
-.general-filter__filters {
-  max-width: 260px;
-  min-width: 260px;
+.page-header__header {
+  margin-bottom: 0 !important;
 }
 
 .page-list-content__tabs {
@@ -30,11 +101,42 @@
 
 
 @media screen and (max-width: 959px) {
-  .contract-page__general-filter {
+  .contract-page-viewer {
     flex-direction: column;
   }
-  .general-filter__filters {
+
+  .contract-page-viewer__filters-wrapper {
     max-width: 100%;
     min-width: 100%;
+  }
+
+  .contract-page-viewer__header-wrapper {
+    flex-direction: column !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+  }
+
+  .contract-page-viewer__header {
+    margin-bottom: 20px;
+  }
+
+  .contract-page-viewer__footer-wrapper {
+    max-width: 100%;
+    min-width: unset;
+    flex-direction: column !important;
+    align-items: unset !important;
+    justify-content: unset !important;
+  }
+
+  .small-w {
+    max-width: 100% !important;
+    min-width: unset !important;
+    &:not(:last-child) {
+      border-right: none !important;
+      margin-bottom: 20px !important;
+    }
+    &:not(:first-child) {
+      padding-left: 0 !important;
+    }
   }
 }
