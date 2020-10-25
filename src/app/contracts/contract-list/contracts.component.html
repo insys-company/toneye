@@ -10,7 +10,7 @@
   </div>
 
   
-  <div class="contracts-page__content contracts-content page-list-content">
+  <!-- <div class="contracts-page__content contracts-content page-list-content">
     <div style="display: flex;flex-direction: column;">
       <span style="margin-right: 5px;">Click here! -></span> 
       <a class="color-blue link" routerLink="/contract/e2b60b6b602c10ced7ea8ede4bdf96342c97570a3798066f3fb50a4b2b27a208">
@@ -23,20 +23,21 @@
       </a>
     </div>
 
-  </div>
+  </div> -->
 
 
   <!-- Page content -->
-  <!-- <div class="contracts-page__content contracts-content page-list-content">
-    <div class="page-list-content__filters"> -->
+  <div class="contracts-page__content contracts-content page-list-content">
+    <div class="page-list-content__filters">
 
       <!-- Sticky block for desctop -->
-      <!-- <div class="page-list-content__filters-sticky-position">
+      <div class="page-list-content__filters-sticky-position">
         <div class="page-list-content__component-wrapper">
           <app-general-viewer #generalViewer class="page-list-content__component"
+            [isGeneralInfoOpen]="isGeneralInfoOpen"
             [data]="generalViewerData"
-            [skeletonArray]="skeletonArray"
-            [skeletalAnimation]="generalViewerLoading">
+            [skeletonArray]="skeletonArrayForGeneralViewer"
+            [skeletalAnimation]="viewersLoading">
           </app-general-viewer>
         </div>
         <div class="page-list-content__component-wrapper">
@@ -51,10 +52,10 @@
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
           footerPlaceholder="Load 25 more"
-          [skeletalAnimation]="tableViewerLoading"
+          [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()">
         </app-table-viewer>
       </div>
     </div>
-  </div> -->
+  </div>
 </div>

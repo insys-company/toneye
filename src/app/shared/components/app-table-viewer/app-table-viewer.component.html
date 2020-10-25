@@ -60,6 +60,7 @@
 
         <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>
         <p *ngIf="item.subtitleRight?.type === 'percent'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | thousandspipe) : '0' }}%</p>
+        <p *ngIf="item.subtitleRight?.type === 'string'">{{item.subtitleRight?.text}}</p>
       </div>
     </a>
   </div>

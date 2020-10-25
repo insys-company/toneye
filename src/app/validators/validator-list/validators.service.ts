@@ -21,7 +21,7 @@ export class ValidatorsService extends BaseService<any> {
       baseFunctionsService,
       (data: any) => data,
       appRouteMap.blocks, // на валидаторах работа с мастер блоком
-      appRouteMap.blocks,
+      null,
       () => {
         // this._filterSettings = new FilterSettings({
         //   filterVisible: true,
@@ -33,6 +33,4 @@ export class ValidatorsService extends BaseService<any> {
       }
     );
   }
-
-
 }

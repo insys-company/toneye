@@ -37,6 +37,7 @@ export class AccountQueries extends GraphQueryService {
     query getAccounts($filter: AccountFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
       accounts(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
         balance
+        code_hash
         id
         last_paid
         __typename

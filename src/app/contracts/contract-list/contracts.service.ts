@@ -1,68 +1,70 @@
 import { Injectable } from '@angular/core';
 import { ContractsServicesModule } from './contracts-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
-import { AccountQueries, CommonQueries } from '../../api/queries';
-import { Observable, Subject } from 'rxjs';
-import { Account, Transaction } from '../../api';
-import { map } from 'rxjs/operators';
-// import 'rxjs/add/operator/map';
-import { takeUntil } from 'rxjs/operators';
+import { AccountQueries } from '../../api/queries';
+import { BaseFunctionsService } from 'src/app/shared/services';
+import { Account } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
+// const HASH="80d6c47c4a25543c9b397b71716f3fae1e2c5d247174c52e2c19bd896442b105";
 @Injectable({
   providedIn: ContractsServicesModule
 })
-export class ContractsService {
-  protected _unsubscribe = new Subject();
-
+export class ContractsService extends BaseService<Account> {
   constructor(
-    private apollo: Apollo,
-    private accountQueries: AccountQueries,
-    private commonQueries: CommonQueries,
+    protected apollo: Apollo,
+    public graphQueryService: AccountQueries,
+    public baseFunctionsService: BaseFunctionsService,
   ) {
-    // TODO
-  }
-
-  ngUnsubscribe(): void {
-    this._unsubscribe.next();
-    this._unsubscribe.complete();
-  }
-
-  /**
-   * Get general information
-   *
-   * queries:
-   * getAccountsCount
-   * getAccountsTotalBalance
-   */
-  getGeneralData(): Observable<any>{
-    return this.apollo.watchQuery<any>({
-      query: this.commonQueries.getGeneralAccountData,
-      variables: {},
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data))
+    super(
+      apollo,
+      graphQueryService,
+      baseFunctionsService,
+      (data: Account) => new Account(data),
+      appRouteMap.accounts, // на валидаторах работа с мастер блоком
+      null,
+      () => {
+        // this._filterSettings = new FilterSettings({
+        //   filterVisible: true,
+        //   filterByCountry: true,
+        //   filterByStatus: true,
+        //   filterBySearch: true,
+        //   enableDefaultStatus: true,
+        // });
+      }
+    );
   }
 
   /**
-   * Get accounts list
-   * @param params Variables by filters for query
+   * Get variables
+   * @param hash for query
    */
-  getAccounts(params?: any): Observable<Account[]> {
+  public getVariablesForAggregateAccountsByBalance(hash: string | number): object {
+    return {fields: [{field: 'balance', fn: 'SUM'}], filter: {code_hash: {eq: hash}}};
+  }
 
-    const _variables = {
-      filter: {},
-      limit: 50,
-      orderBy:  [{path: "balance", direction: "DESC"}],
-    }
+  /**
+   * Get variables
+   * @param hash for query
+   */
+  public getVariablesForAggregateAccountsByType(hash: string | number): object {
+    return {filter: { acc_type: {eq: 1}, code_hash: {eq: hash}}};
+  }
 
-    return this.apollo.watchQuery<Transaction[]>({
-      query: this.accountQueries.getAccounts,
-      variables: params ? params : _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.accounts]))
+  /**
+   * Get variables
+   * @param hash for query
+   */
+  public getVariablesForAggregateAccountsByHash(hash: string | number): object {
+    return { filter: { code_hash: {eq: hash}}};
+  }
+
+  /**
+   * Get variables
+   * @param hash for query
+   */
+  public getVariablesForAggregateMessages(hash: string | number): object {
+    return {filter: { code_hash: {eq: hash}}};
   }
 }
