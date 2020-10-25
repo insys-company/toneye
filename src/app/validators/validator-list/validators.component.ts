@@ -1,21 +1,34 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, ViewerData, TabViewerData, DataConfig, QueryOrderBy, ValidatorSetList, ValidatorSet, Validator, BlockMasterConfig } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ValidatorsService } from './validators.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BlockQueries } from 'src/app/api/queries';
+import { ValidatorSet, ViewerData, TabViewerData, BlockMasterConfig, Block, ItemList } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
-import { AppListComponent } from 'src/app/shared/components/app-list/app-list.component';
-import _ from 'underscore';
-import { BlockQueries } from 'src/app/api/queries';
 
 @Component({
   selector: 'app-validators',
   templateUrl: './validators.component.html',
   styleUrls: ['./validators.component.scss'],
+  animations: [ smoothDisplayAfterSkeletonAnimation ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ValidatorsComponent extends AppListComponent<any> implements OnInit, OnDestroy {
+export class ValidatorsComponent extends BaseComponent<any> implements OnInit, OnDestroy {
+  /**
+   * Details or list
+   */
+  protected listMode: boolean = true;
+  /**
+   * key of previos block
+   */
+  protected prevBlockKey: number;
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(6);
+
   /**
    * Validators
    */
@@ -24,46 +37,17 @@ export class ValidatorsComponent extends AppListComponent<any> implements OnInit
   public nextValidators: ValidatorSet;
 
   /**
-   * key of previos block
-   */
-  public prevBlockKey: number;
-
-  /**
-   * General Data for view
-   */
-  public generalViewerData: Array<ViewerData>;
-  /**
-   * Aditional Data for view
-   */
-  public aditionalViewerData: Array<ViewerData>;
-  /**
    * Aditional Data for view
    */
   public p15ViewerData: Array<ViewerData>;
-  /**
-   * Aditional Data for view
-   */
   public p16ViewerData: Array<ViewerData>;
-  /**
-   * Aditional Data for view
-   */
   public p17ViewerData: Array<ViewerData>;
 
   /**
-   * Data for view
+   * Data for table view
    */
   public tableViewerDataPrev: Array<TabViewerData>;
-
-  /**
-   * Data for view
-   */
   public tableViewerDataNext: Array<TabViewerData>;
-
-  /**
-   * Tab index
-   * (For styles and queries in parent component)
-   */
-  public selectedTabIndex: number = 0;
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -85,15 +69,16 @@ export class ValidatorsComponent extends AppListComponent<any> implements OnInit
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
+    this.prevBlockKey = null;
+
     this.previosValidators = null;
     this.currentValidators = null;
     this.nextValidators = null;
-    this.prevBlockKey = null;
-    this.generalViewerData = null;
-    this.aditionalViewerData = null;
+
     this.p15ViewerData = null;
     this.p16ViewerData = null;
     this.p17ViewerData = null;
+
     this.tableViewerDataPrev = null;
     this.tableViewerDataNext = null;
   }
@@ -114,17 +99,35 @@ export class ValidatorsComponent extends AppListComponent<any> implements OnInit
     if (index == this.selectedTabIndex) { return; }
 
     this.selectedTabIndex = index;
-    // this.tableViewerLoading = true;
-    // this.tableViewerData = [];
-    // this.detectChanges();
+    this.tableViewersLoading = true;
+    this.tableViewerData = [];
+    this.detectChanges();
 
-    // this.tableViewerData = index == 0
-    //   ? this.mapTransactions(this.transactions)
-    //   : index == 1
-    //     ? this.mapMessages(this.inMessages)
-    //     : this.mapMessages(this.outMessages);
+    this.tableViewerData = index == 0
+      ? this.tableViewerDataPrev
+      : index == 1
+        ? this._service.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight)
+        : this.tableViewerDataNext;
 
-    // this.tableViewerLoading = false;
+
+    const conf = this.data.data[0] && this.data.data[0].master ? this.data.data[0].master.config : null;
+
+    this.aditionalViewerData.push(new ViewerData({
+      title: 'Since',
+      value: index == 0 ? conf.p32.utime_since : index == 1 ? conf.p34.utime_since : conf.p36.utime_since,
+      isDate: true
+    }));
+    this.aditionalViewerData.push(new ViewerData({
+      title: 'Until', value: index == 0 ? conf.p32.utime_until : index == 1 ? conf.p34.utime_until : (conf.p36 ? conf.p36.utime_until : null),
+      isDate: true
+    }));
+
+
+        // this.tableViewerDataPrev = this.mapDataForTable(this.previosValidators.list, appRouteMap.validators, 10, this.previosValidators.total_weight);
+        // this.tableViewerData = this.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight);
+        // this.tableViewerDataNext = this.mapDataForTable(this.nextValidators.list, appRouteMap.validators, 10, this.nextValidators.total_weight);
+
+    this.tableViewersLoading = false;
     this.detectChanges();
 
   }
@@ -145,19 +148,19 @@ export class ValidatorsComponent extends AppListComponent<any> implements OnInit
   }
 
   /**
-   * Data for model from other queries
-   */
-  protected getData(): void {
-    // TODO
-  }
-
-  /**
-   * Map messages for viewer
+   * Map for viewer
    * @param _model Model
    * @param _data Aditional data
    */
   protected mapDataForViews(_model: BlockMasterConfig, _data?: any): void {
 
+    this.generalViewerData = [];
+    this.generalViewerData.push(new ViewerData({title: 'Number of current validators', value: _model.p34.total, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: 'Elections status', value: 'Closed'}));
+    this.generalViewerData.push(new ViewerData({title: 'Elections start', value: _model.p34.utime_since, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: 'Next elections start',value: _model.p34.utime_until, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: 'Elections end', value: _model.p34.utime_since, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: 'Next elections end', value: _model.p34.utime_until, isDate: true}));
 
     this.p15ViewerData = [];
     this.p15ViewerData.push(new ViewerData({title: 'Validators elected for', value: _model.p15.validators_elected_for}));
@@ -182,93 +185,10 @@ export class ValidatorsComponent extends AppListComponent<any> implements OnInit
   }
 
   /**
-   * Init method
-   */
-  private init(): void {
-
-    // this.validatorsService.getGeneralData()
-    //   .pipe(takeUntil(this.unsubscribe))
-    //   .subscribe((generalData: any) => {
-
-    //     const aggregateBlocks = new ViewerData({
-    //       title: 'Blocks by current validators',
-    //       value: generalData.aggregateBlocks[0] ? generalData.aggregateBlocks[0] : 0,
-    //       isNumber: true
-    //     });
-
-    //     // Get master block
-    //     this.validatorsService.getMasterBlock()
-    //     .pipe(takeUntil(this.unsubscribe))
-    //       .subscribe((masterBlock: any) => {
-
-    //         const shards = new ViewerData({
-    //           title: 'Workchain shards',
-    //           value: masterBlock[0].master && masterBlock[0].master.shard_hashes
-    //             ? masterBlock[0].master.shard_hashes.length
-    //             : 0,
-    //           isNumber: true,
-    //           // dinamic: true
-    //         });
-
-    //         // Get blocks
-    //         this.validatorsService.getBlocks()
-    //           .pipe(takeUntil(this.unsubscribe))
-    //           .subscribe((res: Block[]) => {
-
-    //             this.data = res ? res : [];
-
-    //             const headBlocks = new ViewerData({
-    //               title: 'Head blocks',
-    //               value: this.data.length ? _.max(this.data, function(b){ return b.seq_no; })['seq_no'] : 0,
-    //               isNumber: true,
-    //               dinamic: true
-    //             });
-
-    //             const averageBlockTime = new ViewerData({
-    //               title: 'Average block time',
-    //               value: (this.getAverageBlockTime(this.data) + ' sec').replace('.', ','),
-    //               isNumber: false,
-    //               dinamic: true
-    //             });
-
-    //             this.generalViewerData = [];
-
-    //             this.generalViewerData.push(headBlocks);
-    //             this.generalViewerData.push(averageBlockTime);
-    //             this.generalViewerData.push(aggregateBlocks);
-    //             this.generalViewerData.push(shards);
-
-    //             this.generalViewerLoading = false;
-
-    //             this.detectChanges();
-        
-    //             this.tableViewerData = this.mapData(this.data);
-
-    //             this.tableViewerLoading = false;
-
-    //             this.detectChanges();
-
-    //           }, (error: any) => {
-    //             console.log(error);
-    //           });
-    
-    //       }, (error: any) => {
-    //         console.log(error);
-    //       });
-
-
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
-
-  }
-
-  /**
-   * 
+   * Get key of previos block
    */
   private getPrevBlockKey(): void {
-    const _variables = {filter: {workchain_id: {eq: -1}}, orderBy: [{path: 'seq_no', direction: 'DESC'}], limit: 1};
-    this._service.getData(_variables, this.blockQueries.getMasterBlockPrevKey)
+    this._service.getData(this._service.getVariablesForPrevBlockKey(), this.blockQueries.getMasterBlockPrevKey)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
@@ -286,37 +206,42 @@ export class ValidatorsComponent extends AppListComponent<any> implements OnInit
   }
 
   /**
-   * 
+   * Get config of previos block
    */
   private getPrevBlockConfig(): void {
-    const _variables = {filter: {seq_no: {eq: this.prevBlockKey}, workchain_id: {eq: -1}}};
-    this._service.getData(_variables, this.blockQueries.getMasterBlockConfig)
+    this._service.getData(this._service.getVariablesForPrevBlockConfig(this.prevBlockKey), this.blockQueries.getMasterBlockConfig)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
-        this.data = res ? res : [];
+        /** Master block */
+        this.data = new ItemList({
+          data: res ? res : [],
+          page: 0,
+          pageSize: 25,
+          total: res ? res.length : 0
+        });
 
-        this.previosValidators = this.data[0] && this.data[0].master && this.data[0].master.config
-          ? new ValidatorSet(this.data[0].master.config.p32)
+        this.previosValidators = this.data.data[0] && this.data.data[0].master && this.data.data[0].master.config
+          ? new ValidatorSet(this.data.data[0].master.config.p32)
           : new ValidatorSet();
 
-        this.currentValidators = this.data[0] && this.data[0].master && this.data[0].master.config
-          ? new ValidatorSet(this.data[0].master.config.p34)
+        this.currentValidators = this.data.data[0] && this.data.data[0].master && this.data.data[0].master.config
+          ? new ValidatorSet(this.data.data[0].master.config.p34)
           : new ValidatorSet();
 
-        this.nextValidators = this.data[0] && this.data[0].master && this.data[0].master.config
-          ? new ValidatorSet(this.data[0].master.config.p36)
+        this.nextValidators = this.data.data[0] && this.data.data[0].master && this.data.data[0].master.config
+          ? new ValidatorSet(this.data.data[0].master.config.p36)
           : new ValidatorSet();
 
-        this.mapDataForViews(this.data[0] && this.data[0].master ? this.data[0].master.config : null);
+        this.mapDataForViews(this.data.data[0] && this.data.data[0].master ? this.data.data[0].master.config : null);
 
         this.viewersLoading = false;
 
         this.detectChanges();
 
-        this.tableViewerDataPrev = this.mapDataForTable(this.previosValidators.list, appRouteMap.validators, 10, this.previosValidators.total_weight);
-        this.tableViewerData = this.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight);
-        this.tableViewerDataNext = this.mapDataForTable(this.nextValidators.list, appRouteMap.validators, 10, this.nextValidators.total_weight);
+        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list, appRouteMap.validators, 10, this.previosValidators.total_weight);
+        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight);
+        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list, appRouteMap.validators, 10, this.nextValidators.total_weight);
 
         this.tableViewersLoading = false;
 

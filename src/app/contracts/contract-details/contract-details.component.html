@@ -51,7 +51,7 @@
       </div>
       <div class="contract-page-viewer__filters-wrapper">
         <app-filter #filter class=""
-          [skeletonArray]="skeletonArray"
+          [skeletonArray]="skeletonArrayForGeneralViewer"
           [isFilterOpen]="isFilterOpen"
           [isFilterHideBtnVisible]="isFilterHideBtnVisible"
           [isFilterFooterVisible]="isFilterFooterVisible">
@@ -67,15 +67,15 @@
 
   </div>
 
-  <div class="blocks-page__content blocks-content page-list-content ide-filters">
+  <div class="blocks-page__content blocks-content page-list-content hide-filters">
     <div class="page-list-content__tabs">
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
           footerPlaceholder="Load 25 more"
-          [skeletalAnimation]="tableViewerLoading"
+          [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()"
-          (moreEvent)="onSeeMore($event)">
+          (moreEvent)="onLoadMore($event)">
         </app-table-viewer>
       </div>
     </div>

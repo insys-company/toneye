@@ -1,26 +1,21 @@
 import { Injectable } from '@angular/core';
 import { ContractDetailsServicesModule } from './contract-details-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
 import { AccountQueries } from '../../api/queries';
-import { Observable } from 'rxjs';
-import { Account } from '../../api';
-import { map } from 'rxjs/operators';
-import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../../app-route-map';
-import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
-import { DocumentNode } from 'graphql';
 import { BaseFunctionsService } from 'src/app/shared/services';
+import { Account } from 'src/app/api';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: ContractDetailsServicesModule
 })
-export class ContractDetailsService extends DetailsService<Account> {
+export class ContractDetailsService extends BaseService<Account> {
   constructor(
     protected apollo: Apollo,
-    protected graphQueryService: AccountQueries,
+    public graphQueryService: AccountQueries,
     public baseFunctionsService: BaseFunctionsService,
   ) {
-
     super(
       apollo,
       graphQueryService,
@@ -28,45 +23,52 @@ export class ContractDetailsService extends DetailsService<Account> {
       (data: Account) => new Account(data),
       appRouteMap.accounts
     );
-
   }
 
   /**
-   * Get data
-   * @param _variables for query
-   * @param _graphQ for query
-   */
-  public getAggregateData(_variables: any, _graphQ: DocumentNode): Observable<any> {
-    return this.apollo.watchQuery<any>({
-      query: _graphQ,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data));
-  }
-
-  /**
-   * Get data
+   * Get variables
    * @param _hash Code hash of contract
    */
-  public getAccounts(_hash: string | number): Observable<Account[]> {
-
-    const _variables = {
+  public getVariablesForAccounts(_hash: string | number): object {
+    return {
       filter: {code_hash: {eq: _hash}},
       orderBy: [
         {path: 'balance', direction: 'DESC'},
-        {path: "seq_no", direction: "DESC"}
+        {path: 'seq_no', direction: 'DESC'}
       ],
       limit: 50
-    }
+    };
+  }
 
-    return this.apollo.watchQuery<Account[]>({
-      query: this.graphQueryService.getAccounts,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.accounts]));
+  /**
+   * Get variables
+   * @param _hash Code hash of contract
+   */
+  public getVariablesForBalance(_hash: string | number): object {
+    return {
+      filter: {code_hash: {eq: _hash}},
+      orderBy: [
+        {path: 'balance', direction: 'DESC'},
+        {path: 'seq_no', direction: 'DESC'}
+      ],
+      fields: [{field: 'balance', fn: 'SUM'}],
+      limit: 50
+    };
+  }
+
+  /**
+   * Get variables
+   * @param _hash Code hash of contract
+   */
+  public getVariablesForDeployedContracts(_hash: string | number): object {
+    return {filter: {code_hash: {eq: _hash}, acc_type: {eq: 1}}};
+  }
+
+  /**
+   * Get variables
+   * @param _hash Code hash of contract
+   */
+  public getVariablesForContracts(_hash: string | number): object {
+    return {filter: {code_hash: {eq: _hash}}};
   }
 }

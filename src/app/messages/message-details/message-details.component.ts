@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Message, ViewerData, Transaction } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { MessageDetailsService } from './message-details.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TransactionQueries } from 'src/app/api/queries';
+import { Message, ViewerData, Transaction } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
-import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-details.component';
+import { appRouteMap } from 'src/app/app-route-map';
 
 @Component({
   selector: 'app-message-details',
@@ -11,26 +13,25 @@ import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-d
   styleUrls: ['./message-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessageDetailsComponent extends AppDetailsComponent<Message> implements OnInit, OnDestroy {
+export class MessageDetailsComponent extends BaseComponent<Message> implements OnInit, OnDestroy {
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(7);
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(7);
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
     protected service: MessageDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    private transactionQueries: TransactionQueries,
   ) {
-
     super(
       changeDetection,
       service,
       route,
       router,
     );
-
   }
 
   /**
@@ -44,8 +45,8 @@ export class MessageDetailsComponent extends AppDetailsComponent<Message> implem
    * Data for model from other queries
    */
   protected getData(): void {
-
-    this.service.getTransaction(this.modelId)
+    /** Get transaction for out msgs */
+    this.service.getData(this.service.getVariablesForOutMsgs(this.modelId), this.transactionQueries.getTransaction, appRouteMap.transactions)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((in_trasaction: Transaction[]) => {
 
@@ -55,8 +56,8 @@ export class MessageDetailsComponent extends AppDetailsComponent<Message> implem
           this.detectChanges();
         }
         else {
-
-          this.service.getTransaction(this.modelId, true)
+          /** Get transaction for in msgs */
+          this.service.getData(this.service.getVariablesForInMsgs(this.modelId), this.transactionQueries.getTransaction, appRouteMap.transactions)
             .pipe(takeUntil(this._unsubscribe))
             .subscribe((out_trasaction: Transaction[]) => {
 

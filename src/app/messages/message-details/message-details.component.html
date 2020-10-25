@@ -10,8 +10,9 @@
 
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #generalViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isGeneralInfoOpen"
         [data]="generalViewerData"
-        [skeletonArray]="skeletonArray"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
@@ -21,7 +22,7 @@
         [isGeneralInfoOpen]="isAditionalInfoOpen"
         [header]="'More details'"
         [data]="aditionalViewerData"
-        [skeletonArray]="skeletonArray"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>

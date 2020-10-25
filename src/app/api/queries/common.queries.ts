@@ -64,5 +64,13 @@ export class CommonQueries {
     }
   `;
 
+  getValidatorAggregateBlockSignatures = gql`
+    query aggregateBlockSignatures($filter: BlockSignaturesFilter, $fields: [FieldAggregation]){
+      aggregateBlockSignatures(filter: $filter, fields: $fields)
+    }
+  `;
+
+
+
   constructor(private blockFragments: BlockFragments) { }
 }

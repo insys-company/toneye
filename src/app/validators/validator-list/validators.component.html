@@ -8,6 +8,43 @@
 
   <!-- Page content -->
   <div class="block-page__content block-content page-details-content">
+
+    <!-- General block -->
+    <div class="page-details-content__component-wrapper">
+      <div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
+        <!-- Header -->
+        <div class="app-viewer__header-wrapper">
+          <div class="app-viewer__header">
+            <span>General</span>
+          </div>
+          <div class="app-viewer__btn" (click)="onShowOrHideGeneralInfo()">
+            <span class="color-blue link">
+              {{generalInfoBtnPlaceholder}}
+            </span>
+          </div>
+        </div>
+        <!-- Skeleton -->
+        <div *ngIf="viewersLoading"  class="app-viewer-validators__body-wrapper">
+          <div *ngFor="let wrapper of skeletonArrayForGeneralViewer | slice:0:3;trackBy:identifySkeleton;" class="app-viewer__body-wrapper">
+            <div *ngFor="let item of skeletonArrayForGeneralViewer | slice:0:2;trackBy:identifySkeleton;" class="app-viewer__body-item app-viewer__body-item--skeleton">
+              <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
+              <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div *ngIf="!viewersLoading" @smoothDisplayAnimation class="app-viewer-validators__body-wrapper">
+          <div *ngFor="let wrapper of skeletonArrayForGeneralViewer | slice:0:3;let i = index;trackBy:identifySkeleton;" class="app-viewer__body-wrapper">
+            <div *ngFor="let item of generalViewerData | slice:(i*2):((i*2)+2);let j = index;trackBy:identifyData;" class="app-viewer__body-item no-link" [class.arrows]="i === 1">
+              <div class="app-viewer__body-item-header"><p>{{item?.title}}</p></div>
+              <div class="app-viewer__body-item-subheader"><span>{{item?.isNumber ? (item?.value | thousandspipe) : item?.isDate ? (item?.isDate | unixdate: 'HH:mm:ss D.MM.YYYY') : item?.value}}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #p15Viewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
@@ -43,13 +80,13 @@
   <div class="page-content__tabs-buttons">
     <div class="tabs-buttons__wrapper">
       <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
-        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Previos</h2>
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Previos {{tableViewerDataPrev?.length ? '(' + tableViewerDataPrev.length + ')' : ''}}</h2>
       </div>
       <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 1" (click)="onChangeTab(1)">
-        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">Current</h2>
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">Current {{tableViewerData?.length ? '(' + tableViewerData.length + ')' : ''}}</h2>
       </div>
       <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 2" (click)="onChangeTab(2)">
-        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 2">Next</h2>
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 2">Next {{tableViewerDataNext?.length ? '(' + tableViewerDataNext.length + ')' : ''}}</h2>
       </div>
     </div>
   </div>
@@ -61,6 +98,7 @@
       <div class="page-list-content__filters-sticky-position">
         <div class="page-list-content__component-wrapper">
           <app-general-viewer #generalViewer class="page-list-content__component"
+            [isGeneralInfoOpen]="isGeneralInfoOpen"
             [data]="aditionalViewerData"
             [skeletonArray]="skeletonArrayForGeneralViewer"
             [skeletalAnimation]="viewersLoading">

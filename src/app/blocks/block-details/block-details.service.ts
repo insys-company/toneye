@@ -1,26 +1,21 @@
 import { Injectable } from '@angular/core';
 import { BlockDetailsServicesModule } from './block-details-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries, TransactionQueries } from '../../api/queries';
-import { Observable } from 'rxjs';
-import { Block, Transaction } from '../../api';
-import { map } from 'rxjs/operators';
-import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../../app-route-map';
-import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { BlockQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
+import { Block } from 'src/app/api';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: BlockDetailsServicesModule
 })
-export class BlockDetailsService extends DetailsService<Block> {
+export class BlockDetailsService extends BaseService<Block> {
   constructor(
     protected apollo: Apollo,
-    protected graphQueryService: BlockQueries,
-    public baseFunctionsService: BaseFunctionsService,
-    private transactionQueries: TransactionQueries,
+    public graphQueryService: BlockQueries,
+    public baseFunctionsService: BaseFunctionsService
   ) {
-
     super(
       apollo,
       graphQueryService,
@@ -28,16 +23,14 @@ export class BlockDetailsService extends DetailsService<Block> {
       (data: Block) => new Block(data),
       appRouteMap.blocks
     );
-
   }
 
   /**
-   * Get data
-   * @param _id Id of model
+   * Get variables
+   * @param _id Id for query
    */
-  public getTransactions(_id: string | number): Observable<Transaction[]> {
-
-    const _variables = {
+  public getVariablesForTransactions(_id: string | number): object {
+    return {
       filter: {block_id: { eq: _id}},
       orderBy: [
         {path: 'now', direction: 'DESC'},
@@ -45,60 +38,32 @@ export class BlockDetailsService extends DetailsService<Block> {
         {path: 'lt', direction: 'DESC'}
       ],
       limit: 50
-    }
-
-    return this.apollo.watchQuery<Transaction[]>({
-      query: this.transactionQueries.getTransactions,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.transactions]))
+    };
   }
 
   /**
-   * Get data
+   * Get variables
    * @param params _seq_no seq_no of currently model
    * @param params _workchain_id workchain_id of currently model
    * @param params _shard shard of currently model
    */
-  public getBlockBySeqNo(_seq_no: number, _workchain_id: number, _shard?: string): Observable<Block[]> {
-
-    const _variables = {
+  public getVariablesForBlockBySeqNo(_seq_no: number, _workchain_id: number, _shard?: string): object {
+    return {
       filter: _shard != null
         ? {seq_no: {eq: _seq_no}, workchain_id: {eq: _workchain_id}, shard: {eq: _shard}}
         : {seq_no: {eq: _seq_no}, workchain_id: {eq: _workchain_id}},
       orderBy: [
         {path: 'gen_utime', direction: 'DESC'},
-        {path: "seq_no", direction: "DESC"}
+        {path: 'seq_no', direction: 'DESC'}
       ]
-    }
-
-    return this.apollo.watchQuery<Block[]>({
-      query: this.graphQueryService.getBlocks,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
+    };
   }
 
   /**
-   * Get data
-   * @param params _id Id of previos block
+   * Get variables
+   * @param _id Id for query
    */
-  public getPreviosBlock(_id: string | number): Observable<Block[]> {
-
-    const _variables = {
-      filter: {id: {eq: _id}},
-    }
-
-    return this.apollo.watchQuery<Block[]>({
-      query: this.graphQueryService.getBlocks,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
+  public getVariablesForPrevBlock(_id: string | number): object {
+    return {filter: {id: {eq: _id}}};
   }
 }

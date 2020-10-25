@@ -19,6 +19,9 @@ export const appRouteMap = {
     validators: 'validators',
     validator: 'validator',
 
+    inOutMessages: 'inOutMessages',
+    blocksSignatures: 'blocks_signatures',
+
     loading: 'loading',
 };
 

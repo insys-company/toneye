@@ -46,8 +46,6 @@ export class AppGeneralViewerComponent implements OnChanges, OnDestroy {
   ) {
     /** Disable change detection for application optimization */
     this.changeDetection.detach();
-
-    this.isGeneralInfoOpen = true;
   }
 
   /**

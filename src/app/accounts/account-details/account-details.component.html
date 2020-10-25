@@ -8,89 +8,73 @@
   <!-- Page content -->
   <div class="account-page__content account-content page-details-content">
 
-
-    <div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
-      <!-- Header -->
-      <div class="app-viewer__header-wrapper">
-        <div class="app-viewer__header">
-          <span>General</span>
+    <!-- General block -->
+    <div class="page-details-content__component-wrapper">
+      <div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
+        <!-- Header -->
+        <div class="app-viewer__header-wrapper">
+          <div class="app-viewer__header">
+            <span>General</span>
+          </div>
+          <div class="app-viewer__btn" (click)="onShowOrHideGeneralInfo()">
+            <span class="color-blue link">
+              {{generalInfoBtnPlaceholder}}
+            </span>
+          </div>
         </div>
-        <div class="app-viewer__btn" (click)="onShowOrHide()">
-          <span class="color-blue link">
-            {{isGeneralInfoOpen ? 'Hide' : 'Show'}}
-          </span>
-        </div>
-      </div>
-      <!-- Skeleton -->
-      <div *ngIf="viewersLoading" class="app-viewer__body-wrapper">
-        <div class="app-viewer__content-wrapper">
-          <div class="general-info">
-            <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
-              <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
-              <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
-            </div>
-            <div class="additional-wrapper">
+        <!-- Skeleton -->
+        <div *ngIf="viewersLoading" class="app-viewer__body-wrapper">
+          <div class="app-viewer__content-wrapper">
+            <div class="general-info">
               <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
                 <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
                 <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
               </div>
-              <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
-                <div class="app-viewer__body-item-header skeleton skeleton--small-text w-25"></div>
-                <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-50"></div>
+              <div class="additional-wrapper">
+                <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
+                  <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
+                  <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
+                </div>
+                <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
+                  <div class="app-viewer__body-item-header skeleton skeleton--small-text w-25"></div>
+                  <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-50"></div>
+                </div>
               </div>
             </div>
           </div>
-          <img class="qr-code" src="https://chart.googleapis.com/chart?chs=164x164&chld=L|2&cht=qr&chl={{model?.code}}">
         </div>
-        <!-- <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link gray-line">
-          <div class="app-viewer__body-item-header skeleton skeleton--small-text w-25"></div>
-          <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
-        </div> -->
-      </div>
-      <!-- Data -->
-      <div *ngIf="!viewersLoading" @smoothDisplayAnimation class="app-viewer__body-wrapper">
-        <div class="app-viewer__content-wrapper">
-          <div class="general-info">
-            <div class="app-viewer__body-item no-link">
-              <div class="app-viewer__body-item-header"><p>Address</p></div>
-              <div class="app-viewer__body-item-subheader"><span>{{model?.id}}</span></div>
-            </div>
-            <div class="additional-wrapper">
+        <!-- Data -->
+        <div *ngIf="!viewersLoading" @smoothDisplayAnimation class="app-viewer__body-wrapper">
+          <div class="app-viewer__content-wrapper">
+            <div class="general-info">
               <div class="app-viewer__body-item no-link">
-                <div class="app-viewer__body-item-header"><p>Status</p></div>
-                <div class="app-viewer__body-item-subheader color-green" [class.color-red]="!model?.acc_type"><span>{{model?.acc_type ? 'Active' : 'Frozen'}}</span></div>
+                <div class="app-viewer__body-item-header"><p>Address</p></div>
+                <div class="app-viewer__body-item-subheader"><span>{{model?.id}}</span></div>
               </div>
-              <div class="app-viewer__body-item no-link">
-                <div class="app-viewer__body-item-header"><p>Balance</p></div>
-                <div class="app-viewer__body-item-subheader" style="display:flex;flex-direction:row;align-items: center;"><span>{{model?.balance | thousandspipe}}</span><div class="icon icon-gem" style="margin-left:5px;"></div></div>
+              <div class="additional-wrapper">
+                <div class="app-viewer__body-item no-link">
+                  <div class="app-viewer__body-item-header"><p>Status</p></div>
+                  <div class="app-viewer__body-item-subheader color-green" [class.color-red]="!model?.acc_type"><span>{{model?.acc_type ? 'Active' : 'Frozen'}}</span></div>
+                </div>
+                <div class="app-viewer__body-item no-link">
+                  <div class="app-viewer__body-item-header"><p>Balance</p></div>
+                  <div class="app-viewer__body-item-subheader" style="display:flex;flex-direction:row;align-items: center;"><span>{{model?.balance | thousandspipe}}</span><div class="icon icon-gem" style="margin-left:5px;"></div></div>
+                </div>
               </div>
             </div>
+            <img class="qr-code" src="https://chart.googleapis.com/chart?chs=164x164&chld=L|2&cht=qr&chl={{model?.code}}">
           </div>
-          <img class="qr-code" src="https://chart.googleapis.com/chart?chs=164x164&chld=L|2&cht=qr&chl={{model?.code}}">
         </div>
-        <!-- <div class="app-viewer__body-item no-link gray-line">
-          <div class="app-viewer__body-item-header"><p>Creator</p></div>
-          <div class="app-viewer__body-item-subheader"><a class="color-blue pointer link" routerLink="{{model?.id}}" style="font-weight: 700;">{{model?.id}}</a></div>
-        </div> -->
+      
       </div>
-    
     </div>
-
-
-    <!-- <div class="page-details-content__component-wrapper">
-      <app-general-viewer #generalViewer class="page-details-content__component"
-        [data]="generalViewerData"
-        [skeletonArray]="skeletonArray"
-        [skeletalAnimation]="viewersLoading">
-      </app-general-viewer>
-    </div> -->
 
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
         [header]="'More details'"
         [data]="aditionalViewerData"
-        [skeletonArray]="skeletonArray"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
@@ -127,9 +111,9 @@
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
           footerPlaceholder="Load 25 more"
-          [skeletalAnimation]="tableViewerLoading"
+          [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()"
-          (moreEvent)="onSeeMore($event)">
+          (moreEvent)="onLoadMore($event)">
         </app-table-viewer>
       </div>
     </div>

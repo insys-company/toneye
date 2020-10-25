@@ -16,7 +16,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(4);
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(4);
   /**
    * Flag for show/hide state of info
    */
@@ -26,18 +26,6 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
    */
   public viewersLoading: boolean;
   /**
-   * Model
-   */
-  public model: TModel;
-  /**
-   * ModelId
-   */
-  public modelId: string | number;
-  /**
-   * For for subscribers
-   */
-  public disabled: boolean;
-  /**
    * General Data for view
    */
   public generalViewerData: Array<ViewerData>;
@@ -45,6 +33,28 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
    * Aditional Data for view
    */
   public aditionalViewerData: Array<ViewerData>;
+  /**
+   * Flag for loading data of Tabs Viewer
+   */
+  public tableViewersLoading: boolean;
+  /**
+   * Data for view
+   */
+  public tableViewerData: Array<TabViewerData>;
+  /**
+   * For DOM elements
+   */
+  public disabled: boolean;
+
+
+  /**
+   * Model
+   */
+  public model: TModel;
+  /**
+   * ModelId
+   */
+  public modelId: string | number;
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -57,6 +67,7 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
 
     /** Loading animation in children */
     this.viewersLoading = true;
+    this.tableViewersLoading = true;
   }
 
   /**
@@ -117,14 +128,17 @@ export class AppDetailsComponent<TModel extends IModel> implements OnInit, OnDes
       this._service.destroy();
     }
 
-    this.skeletonArray = null;
+    this.skeletonArrayForGeneralViewer = null;
     this.isAditionalInfoOpen = null;
     this.viewersLoading = null;
-    this.model = null;
-    this.modelId =  null;
-    this.disabled = null;
     this.generalViewerData = null;
     this.aditionalViewerData = null;
+    this.tableViewersLoading = null;
+    this.tableViewerData = null;
+    this.disabled = null;
+
+    this.model = null;
+    this.modelId =  null;
   }
 
   /**

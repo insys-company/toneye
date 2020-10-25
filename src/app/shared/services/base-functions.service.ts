@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { SimpleDataFilter, Message, TabViewerData, DataConfig, Block, Transaction, Validator, Account, ValidatorSetList } from 'src/app/api';
+import { SimpleDataFilter, Message, TabViewerData, DataConfig, Block, Transaction, Validator, Account, ValidatorSetList, MsgData } from 'src/app/api';
 import { appRouteMap } from 'src/app/app-route-map';
 
 @Injectable({
@@ -16,7 +16,8 @@ export class BaseFunctionsService {
     if (!_item) { return null; }
 
     _item.balance = _item.balance && _item.balance.match('x')
-      ? String(parseInt(_item.balance, 16)) : _item.balance;
+      ? String(parseInt(_item.balance, 16))
+      : _item.balance;
 
     return new TabViewerData({
       id: _item.id,
@@ -86,6 +87,10 @@ export class BaseFunctionsService {
   public mapMessageForTable(_item: Message): TabViewerData {
     if (!_item) { return null; }
 
+    _item.value = _item.value && _item.value.match('x')
+      ? String(parseInt(_item.value, 16))
+      : _item.value;
+
     return new TabViewerData({
       id: _item.id,
       url: appRouteMap.message,
@@ -104,6 +109,21 @@ export class BaseFunctionsService {
         text: _item.created_at,
         type: 'date'
       })
+    });
+  }
+
+  /**
+   * Get in_out message format for common table
+   * @param _item Item For maping
+   */
+  public mapInOutMsgsForTable(_item: MsgData): TabViewerData {
+    if (!_item) { return null; }
+
+    return new TabViewerData({
+      id: _item.in_msg.msg_id,
+      url: appRouteMap.message,
+      titleLeft: _item.in_msg.msg_id,
+      titleRight: new DataConfig({text: _item.msg_type_name}),
     });
   }
 

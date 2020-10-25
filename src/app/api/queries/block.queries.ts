@@ -258,6 +258,16 @@ export class BlockQueries extends GraphQueryService {
     }
   `;
 
+  getBlocksSignatures = gql`
+    query gatBlocksSignatures($filter: BlockSignaturesFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
+      blocks_signatures(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
+        gen_utime
+        id
+        __typename
+      }
+    }
+  `;
+
   getMasterBlockPrevKey = gql`
     query getMasterBlockPrevKey($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
       blocks(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
@@ -338,8 +348,6 @@ export class BlockQueries extends GraphQueryService {
       }
     }
   `;
-
-
 
   getMasterBlockConfig = gql`
     query getMasterBlockConfig($filter: BlockFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {

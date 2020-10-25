@@ -1,27 +1,21 @@
 import { Injectable } from '@angular/core';
 import { AccountDetailsServicesModule } from './account-details-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
-import { AccountQueries, TransactionQueries, MessageQueries } from '../../api/queries';
-import { Observable } from 'rxjs';
-import { Account, Transaction, Message } from '../../api';
-import { map } from 'rxjs/operators';
-import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../../app-route-map';
-import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { AccountQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
+import { Account } from 'src/app/api';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: AccountDetailsServicesModule
 })
-export class AccountDetailsService extends DetailsService<Account> {
+export class AccountDetailsService extends BaseService<Account> {
   constructor(
     protected apollo: Apollo,
-    protected graphQueryService: AccountQueries,
+    public graphQueryService: AccountQueries,
     public baseFunctionsService: BaseFunctionsService,
-    private messageQueries: MessageQueries,
-    private transactionQueries: TransactionQueries,
   ) {
-
     super(
       apollo,
       graphQueryService,
@@ -29,55 +23,36 @@ export class AccountDetailsService extends DetailsService<Account> {
       (data: Account) => new Account(data),
       appRouteMap.accounts
     );
-
   }
 
   /**
-   * Get data
-   * @param _id Id of model
+   * Get variables
+   * @param _id Id for query
    */
-  public getTransactions(_id: string | number): Observable<Transaction[]> {
-
-    const _variables = {
-      filter: {account_addr: { eq: _id}},
+  public getVariablesForTransactions(_id: string | number): object {
+    return {
+      filter: {account_addr: {eq: _id}},
       orderBy: [
         {path: 'now', direction: 'DESC'},
         {path: 'account_addr', direction: 'DESC'},
         {path: 'lt', direction: 'DESC'}
       ],
       limit: 50
-    }
-
-    return this.apollo.watchQuery<Transaction[]>({
-      query: this.transactionQueries.getTransactions,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.transactions]))
+    };
   }
 
   /**
-   * Get data
-   * @param params _id Id of currently model
+   * Get variables
+   * @param _id Id for query
    */
-  public getMessages(_id: string | number): Observable<Message[]> {
-
-    const _variables = {
+  public getVariablesForMessages(_id: string | number): object {
+    return {
       filter: {src: {eq: _id}},
       orderBy: [
         {path: 'gen_utime', direction: 'DESC'},
-        {path: "seq_no", direction: "DESC"}
+        {path: 'seq_no', direction: 'DESC'}
       ],
       limit: 50
-    }
-
-    return this.apollo.watchQuery<Message[]>({
-      query: this.messageQueries.getMessages,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.messages]))
+    };
   }
 }

@@ -4,7 +4,7 @@
     <div class="app-viewer__header">
       <span>{{header}}</span>
     </div>
-    <div *ngIf="data?.length" class="app-viewer__btn" (click)="onExport()">
+    <div class="app-viewer__btn" (click)="onExport()">
       <span class="color-blue">
         {{btnPlaceholder}}
       </span>
@@ -40,7 +40,7 @@
     <div *ngIf="!data?.length" class="app-viewer__body-not-found">
       <span class="color-gray">Not Found</span>
     </div>
-    <a *ngFor="let item of data;trackBy:identifyData;" routerLink="/{{item?.url}}/{{item?.id}}" class="app-viewer__body-item border-bottom-light" [class.pointer]="item?.url && item?.id" [class.no-link]="!item?.url || !item?.id">
+    <a *ngFor="let item of data;trackBy:identifyData;" routerLink="/{{item?.url}}/{{item?.id}}" class="app-viewer__body-item border-bottom-light" [class.pointer]="item?.url && item?.id" [class.no-link]="!item?.url || !item?.id" (click)="onSelectItem(item)">
       <div class="app-viewer__body-item-row">
         <span class="color-blue link no-pointer">{{item.titleLeft}}</span>
 
@@ -69,7 +69,7 @@
     <!-- Skeleton -->
     <div *ngIf="skeletalAnimation" class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-25"></div>
     <!-- Button -->
-    <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-item-subheader" (click)="onSeeMore()">
+    <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-item-subheader" (click)="onLoadMore()">
       <span class="color-blue link">
         {{footerBtnPlaceholder}}
       </span>

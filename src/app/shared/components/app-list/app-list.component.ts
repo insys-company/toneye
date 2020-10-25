@@ -10,24 +10,14 @@ import { FilterSettings } from '../app-filter/filter-settings';
 import _ from 'underscore';
 
 export class AppListComponent<TModel extends IModel> implements OnInit, OnDestroy {
-  /** For subs  */
+  /**
+   * For subs 
+   */
   private subs: Subscription[] = [];
   /**
-   * Для отписок на запросы
+   * For subscribers
    */
   public _unsubscribe: Subject<void> = new Subject();
-  /**
-   * Params
-   */
-  public params: SimpleDataFilter = new SimpleDataFilter();
-  /**
-   * Data for view
-   */
-  public generalViewerData: Array<ViewerData>;
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
   /**
    * For skeleton animation
    */
@@ -37,14 +27,31 @@ export class AppListComponent<TModel extends IModel> implements OnInit, OnDestro
    */
   public isAditionalInfoOpen: boolean;
   /**
-   * Flag for loading data of General Viewer
+   * Flag for loading animation in Viewers
    */
   public viewersLoading: boolean;
+  /**
+   * Data for view
+   */
+  public generalViewerData: Array<ViewerData>;
   /**
    * Flag for loading data of Tabs Viewer
    */
   public tableViewersLoading: boolean;
+  /**
+   * Data for view
+   */
+  public tableViewerData: Array<TabViewerData>;
+  /**
+   * For DOM elements
+   */
+  public disabled: boolean;
 
+
+  /**
+   * Params
+   */
+  public params: SimpleDataFilter = new SimpleDataFilter();
   /** Array of ... */
   public data: TModel[] = [];
 
@@ -56,7 +63,7 @@ export class AppListComponent<TModel extends IModel> implements OnInit, OnDestro
   /**
    * Filter settings
    */
-  get filterSettings(): FilterSettings {
+  public get filterSettings(): FilterSettings {
     return this._service._filterSettings;
   }
 
@@ -124,13 +131,16 @@ export class AppListComponent<TModel extends IModel> implements OnInit, OnDestro
       this._service.destroy();
     }
 
-    this.params = null;
-    this.generalViewerData = null;
-    this.tableViewerData = null;
     this.skeletonArrayForGeneralViewer = null;
     this.isAditionalInfoOpen = null;
-    this.viewersLoading =  null;
+    this.viewersLoading = null;
+    this.generalViewerData = null;
+    // this.aditionalViewerData = null;
     this.tableViewersLoading = null;
+    this.tableViewerData = null;
+    this.disabled = null;
+
+    this.params = null;
     this.data = null;
     this.total = null;
   }

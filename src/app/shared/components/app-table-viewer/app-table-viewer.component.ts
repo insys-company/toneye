@@ -157,7 +157,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * See more event
    */
-  public onSeeMore(): void {
+  public onLoadMore(): void {
     this.isTabsHeaderMode
       ? this.moreEvent.next(this.selectedTabIndex) // For redirect
         : this.moreEvent.next(null); // For reques
@@ -168,7 +168,10 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * @param item Selected item from table
    */
   public onSelectItem(item: TabViewerData): void {
-    this.selectItem.next(item);
+    if (item && item.url != null && item.id != null) {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    // this.selectItem.next(item);
   }
 
   /**

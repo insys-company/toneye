@@ -1,26 +1,21 @@
 import { Injectable } from '@angular/core';
 import { TransactionDetailsServicesModule } from './transaction-details-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries, TransactionQueries } from '../../api/queries';
-import { Observable } from 'rxjs';
-import { Block, Transaction } from '../../api';
-import { map } from 'rxjs/operators';
-import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../../app-route-map';
-import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { TransactionQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
+import { Transaction } from 'src/app/api';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: TransactionDetailsServicesModule
 })
-export class TransactionDetailsService extends DetailsService<Transaction> {
+export class TransactionDetailsService extends BaseService<Transaction> {
   constructor(
     protected apollo: Apollo,
-    protected graphQueryService: TransactionQueries,
+    public graphQueryService: TransactionQueries,
     public baseFunctionsService: BaseFunctionsService,
-    private blockQueries: BlockQueries,
   ) {
-
     super(
       apollo,
       graphQueryService,
@@ -28,25 +23,5 @@ export class TransactionDetailsService extends DetailsService<Transaction> {
       (data: Transaction) => new Transaction(data),
       appRouteMap.transactions
     );
-
-  }
-
-  /**
-   * Get data
-   * @param params _id block id for query
-   */
-  public getBlock(_id: string | number): Observable<Block[]> {
-
-    const _variables = {
-      filter: {id: {eq: _id}},
-    }
-
-    return this.apollo.watchQuery<Block[]>({
-      query: this.blockQueries.getBlocks,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
   }
 }

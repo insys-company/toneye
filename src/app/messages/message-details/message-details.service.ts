@@ -1,27 +1,21 @@
 import { Injectable } from '@angular/core';
 import { MessageDetailsServicesModule } from './message-details-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
-import { TransactionQueries, MessageQueries } from '../../api/queries';
-import { Observable } from 'rxjs';
-import { Message, Transaction } from '../../api';
-import { map } from 'rxjs/operators';
-import { takeUntil } from 'rxjs/operators';
-import { appRouteMap } from '../../app-route-map';
-import { DetailsService } from 'src/app/shared/components/app-details/app-details.service';
+import { MessageQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
+import { Message } from 'src/app/api';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: MessageDetailsServicesModule
 })
-export class MessageDetailsService extends DetailsService<Message> {
-
+export class MessageDetailsService extends BaseService<Message> {
   constructor(
     protected apollo: Apollo,
-    protected graphQueryService: MessageQueries,
+    public graphQueryService: MessageQueries,
     public baseFunctionsService: BaseFunctionsService,
-    private transactionQueries: TransactionQueries,
   ) {
-
     super(
       apollo,
       graphQueryService,
@@ -29,26 +23,21 @@ export class MessageDetailsService extends DetailsService<Message> {
       (data: Message) => new Message(data),
       appRouteMap.messages
     );
-
   }
 
   /**
-   * Get data
-   * @param _id Id of model
-   * @param isInMsg for query
+   * Get variables
+   * @param _id Id for query
    */
-  public getTransaction(_id: string | number, isInMsg: boolean = false): Observable<Transaction[]> {
+  public getVariablesForInMsgs(_id: string | number): object {
+    return {filter: {in_msg: { eq: _id}}};
+  }
 
-    const _variables = {
-      filter: isInMsg ? {in_msg: { eq: _id}} : {out_msgs: {any: {eq: _id}}},
-    }
-
-    return this.apollo.watchQuery<Transaction[]>({
-      query: this.transactionQueries.getTransaction,
-      variables: _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.transactions]))
+  /**
+   * Get variables
+   * @param _id Id for query
+   */
+  public getVariablesForOutMsgs(_id: string | number): object {
+    return {filter: {out_msgs: {any: {eq: _id}}}};
   }
 }

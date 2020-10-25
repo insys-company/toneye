@@ -1,0 +1,42 @@
+<div class="block-page page">
+  <!-- Page header -->
+  <div class="block-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Validator details</h1>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="block-page__content block-content page-details-content">
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #generalViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isGeneralInfoOpen"
+        [data]="generalViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="contract-page__page-header page-header">
+      <div class="page-header__header">
+        <h1>Signed masterchain blocks</h1>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="blocks-page__content blocks-content page-list-content hide-filters">
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          footerPlaceholder="Load 25 more"
+          [skeletalAnimation]="tableViewersLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onLoadMore($event)">
+        </app-table-viewer>
+      </div>
+    </div>
+  </div>
+
+</div>

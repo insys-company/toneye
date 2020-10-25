@@ -1,0 +1,112 @@
+@import './../../../scss/abstracts/colors';
+
+.app-viewer__body-wrapper {
+  transition: all .3s ease;
+}
+
+.app-viewer {
+
+  .app-viewer-validators__body-wrapper {
+    display: flex;
+    flex-direction: row;
+    .app-viewer__body-wrapper {
+      flex: 1;
+      &:not(:last-child) {
+        margin-right: 40px;
+      }
+
+      &:first-child {
+        border-right: 1px solid $explorer--base__gray-light;
+      }
+    }
+  }
+
+  .arrows {
+    position: relative;
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 5px;
+      transition: all .3s ease;
+      height: 0px;
+      width: 0px;
+      background-color: $explorer--base__black;
+      right: 40px;
+      border-radius: 4px 0 0 4px;
+      transition: all .3s ease;
+      opacity: 0;
+    }
+
+    &::before {
+      top: 18.5px;
+      -moz-transform: rotate(-45deg);
+      -o-transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      transform: rotate(-45deg);
+    }
+
+    &::after {
+      bottom: 18.5px;
+      -moz-transform: rotate(45deg);
+      -o-transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+  }
+
+  &--opened {
+
+    .app-viewer-validators__body-wrapper {
+      .app-viewer__body-wrapper {
+        &:not(:last-child) {
+          margin-right: 40px;
+        }
+      }
+    }
+
+    .arrows {
+      &::before,
+      &::after {
+          height: 2px;
+          width: 8px;
+          opacity: 1;
+      }
+
+    }
+
+  }
+
+}
+
+@media screen and (max-width: 959px) {
+
+  .app-viewer {
+
+    .app-viewer-validators__body-wrapper {
+      flex-direction: column !important;
+      .app-viewer__body-wrapper {
+        &:not(:last-child) {
+          margin-right: 0 !important;
+          margin-bottom: 20px;
+        }
+  
+        &:first-child {
+          border-right: none;
+        }
+      }
+
+      .arrows {
+        // position: unset !important;
+        &::before,
+        &::after {
+          height: 0px  !important;
+          width: 0px !important;
+          opacity: 0 !important;
+        }
+      }
+    }
+  }
+
+}

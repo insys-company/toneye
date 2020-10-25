@@ -1,13 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Account, TabViewerData, DataConfig } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ContractDetailsService } from './contract-details.service';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { takeUntil } from 'rxjs/operators';
-import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-details.component';
-import { appRouteMap } from 'src/app/app-route-map';
-import _ from 'underscore';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonQueries } from 'src/app/api/queries';
+import { Account } from 'src/app/api';
+import { takeUntil } from 'rxjs/operators';
+import { appRouteMap } from 'src/app/app-route-map';
 
 @Component({
   selector: 'app-contract-details',
@@ -16,11 +15,11 @@ import { CommonQueries } from 'src/app/api/queries';
   animations: [ smoothDisplayAfterSkeletonAnimation ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ContractDetailsComponent extends AppDetailsComponent<Account> implements OnInit, OnDestroy {
+export class ContractDetailsComponent extends BaseComponent<Account> implements OnInit, OnDestroy {
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(3);
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(3);
   /**
    * Accounts
    */
@@ -42,14 +41,6 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
    */
   public newContracts: number;
 
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
-  /**
-   * Flag for loading data of Tabs Viewer
-   */
-  public tableViewerLoading: boolean;
 
   /**
    * Flag for filter open\hide
@@ -73,24 +64,19 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
     protected router: Router,
     private commonQueries: CommonQueries,
   ) {
-
     super(
       changeDetection,
       service,
       route,
       router,
     );
-
   }
 
   /**
    * Initialization of the component
+   * For details component
    */
-  public ngOnInit(): void {
-
-    this.subscribeInit();
-    this.detectChanges();
-
+  public initDatails(): void {
     this.route.params
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((params: Params) => {
@@ -110,11 +96,9 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
     super.ngOnDestroy();
     this.accounts = null;
     this.totalBalance = null;
-    this.detectChanges = null;
+    this.deployedContracts = null;
     this.activeContracts = null;
     this.newContracts = null;
-    this.tableViewerData = null;
-    this.tableViewerLoading = null;
     this.isFilterOpen = null;
     this.isFilterHideBtnVisible = null;
     this.isFilterFooterVisible = null;
@@ -128,10 +112,10 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
   }
 
   /**
-   * Change tab
+   * Load more data
    * @param index Index of selected tab
    */
-  public onSeeMore(index: number): void {
+  public onLoadMore(index: number): void {
     // TODO
   }
 
@@ -141,17 +125,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
   protected getData(): void {
 
     // Get Total
-    let _variables1 = {
-      filter: {code_hash: {eq: this.modelId}},
-      orderBy: [
-        {path: 'balance', direction: 'DESC'},
-        {path: 'seq_no', direction: 'DESC'}
-      ],
-      fields: [{field: 'balance', fn: 'SUM'}],
-      limit: 50
-    }
-
-    this.service.getAggregateData(_variables1, this.commonQueries.getValidatorAggregateAccounts)
+    this._service.getAggregateData(this.service.getVariablesForBalance(this.modelId), this.commonQueries.getValidatorAggregateAccounts)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
@@ -162,14 +136,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
         console.log(error);
       });
 
-    let _variables2 = {
-      filter: {
-        code_hash: {eq: this.modelId},
-        acc_type: {eq: 1}
-      }
-    }
-
-    this.service.getAggregateData(_variables2, this.commonQueries.getValidatorAggregateAccounts)
+    this._service.getAggregateData(this.service.getVariablesForDeployedContracts(this.modelId), this.commonQueries.getValidatorAggregateAccounts)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
@@ -180,11 +147,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
         console.log(error);
       });
 
-    let _variables3 = {
-      filter: {code_hash: {eq: this.modelId}}
-    }
-
-    this.service.getAggregateData(_variables3, this.commonQueries.getValidatorAggregateAccounts)
+    this._service.getAggregateData(this.service.getVariablesForContracts(this.modelId), this.commonQueries.getValidatorAggregateAccounts)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
@@ -195,7 +158,7 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
         console.log(error);
       });
   
-    this.service.getAggregateData(_variables3, this.commonQueries.getValidatorAggregateMessages)
+    this.service.getAggregateData(this.service.getVariablesForContracts(this.modelId), this.commonQueries.getValidatorAggregateMessages)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
@@ -206,51 +169,19 @@ export class ContractDetailsComponent extends AppDetailsComponent<Account> imple
         console.log(error);
       });
 
-    this.service.getAccounts(this.modelId)
+    /** Get accounts */
+    this._service.getData(this.service.getVariablesForAccounts(this.modelId), this._service.graphQueryService['getAccounts'], appRouteMap.accounts)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Account[]) => {
 
         this.accounts = res ? res : [];
-        this.tableViewerData = this.mapAccounts(this.accounts);
+        this.tableViewerData =  this._service.mapDataForTable(this.accounts, appRouteMap.accounts, 10, this.totalBalance);
         this.viewersLoading = false;
+        this.tableViewersLoading = false;
         this.detectChanges();
 
       }, (error: any) => {
         console.log(error);
       });
-  }
-
-  /**
-   * Map list for table
-   * @param _list Array of account
-   */
-  private mapAccounts(_list: Account[]): TabViewerData[] {
-    if (!_list || !_list.length) { return []; }
-
-    let data = [];
-    data = _list.map((item: Account, i: number) => {
-
-      item.balance = item.balance && item.balance.match('x') ? String(parseInt(item.balance, 16)) : item.balance;
-
-      return new TabViewerData({
-        id: item.id,
-        url: appRouteMap.account,
-        titleLeft: item.id,
-        subtitleLeft: new DataConfig({
-          text: item.last_paid == 0 ? '' : `${item.last_paid}`,
-          type: item.last_paid == 0 ? 'string' : 'date'
-        }),
-        titleRight: new DataConfig({text: item.balance, icon: true, iconClass: 'icon-gem', type: 'number'}),
-        subtitleRight: new DataConfig({
-          text: Number(item.balance) != null
-            ? Number(((Number(item.balance)/this.totalBalance)*100).toFixed(2))
-            : 0,
-          type: 'percent'})
-      });
-    });
-
-    data = _.clone(_.first(data, 10))
-
-    return data;
   }
 }

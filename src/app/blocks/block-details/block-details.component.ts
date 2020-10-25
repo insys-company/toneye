@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, ViewerData, Transaction, MsgData, TabViewerData, DataConfig } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { BlockDetailsService } from './block-details.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TransactionQueries } from 'src/app/api/queries';
+import { Block, ViewerData, Transaction, MsgData } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
-import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-details.component';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 
@@ -13,11 +14,11 @@ import _ from 'underscore';
   styleUrls: ['./block-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlockDetailsComponent extends AppDetailsComponent<Block> implements OnInit, OnDestroy {
+export class BlockDetailsComponent extends BaseComponent<Block> implements OnInit, OnDestroy {
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(6);
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(6);
   /**
    * Value Data for view
    */
@@ -57,35 +58,19 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
    */
   public outMessages: Array<MsgData>;
 
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
-  /**
-   * Flag for loading data of Tabs Viewer
-   */
-  public tableViewerLoading: boolean;
-
-  /**
-   * Tab index
-   * (For styles and queries in parent component)
-   */
-  public selectedTabIndex: number = 0;
-
   constructor(
     protected changeDetection: ChangeDetectorRef,
     protected service: BlockDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    private transactionQueries: TransactionQueries
   ) {
-
     super(
       changeDetection,
       service,
       route,
       router,
     );
-
   }
 
   /**
@@ -102,9 +87,6 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
     this.transactions = null;
     this.inMessages = null;
     this.outMessages = null;
-    this.tableViewerData = null;
-    this.tableViewerLoading = null;
-    this.selectedTabIndex = null;
   }
 
   /**
@@ -125,12 +107,11 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
     this.inMessages = [];
     this.outMessages = [];
 
-    this.tableViewerLoading = true;
+    this.tableViewersLoading = true;
     this.tableViewerData = [];
 
     this.detectChanges();
   }
-
 
   /**
    * Redirect on previos block page
@@ -160,7 +141,8 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
   
     this.disabled = true;
 
-    this.service.getBlockBySeqNo(_seq_no, this.model.workchain_id)
+    // Get previos block
+    this.service.getData(this.service.getVariablesForBlockBySeqNo(_seq_no, this.model.workchain_id), this._service.graphQueryService['getBlocks'], appRouteMap.blocks)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
@@ -186,40 +168,40 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
    * Change tab
    * @param index Index of selected tab
    */
-  public onSeeMore(index: number): void {
-    // TODO
-  }
-
-  /**
-   * Change tab
-   * @param index Index of selected tab
-   */
   public onChangeTab(index: number): void {
 
     if (index == this.selectedTabIndex) { return; }
 
     this.selectedTabIndex = index;
-    this.tableViewerLoading = true;
+    this.tableViewersLoading = true;
     this.tableViewerData = [];
     this.detectChanges();
 
     this.tableViewerData = index == 0
-      ? this.mapTransactions(this.transactions)
+      ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
       : index == 1
-        ? this.mapMessages(this.inMessages)
-        : this.mapMessages(this.outMessages);
+        ? this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages)
+        : this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
 
-    this.tableViewerLoading = false;
+    this.tableViewersLoading = false;
     this.detectChanges();
 
+  }
+
+  /**
+   * Load more data
+   * @param index Index of selected tab
+   */
+  public onLoadMore(index: number): void {
+    // TODO
   }
 
   /**
    * Data for model from other queries
    */
   protected getData(): void {
-
-    this.service.getTransactions(this.modelId)
+    // Get transactions
+    this.service.getData(this.service.getVariablesForTransactions(this.modelId), this.transactionQueries.getTransactions, appRouteMap.transactions)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Transaction[]) => {
 
@@ -236,12 +218,12 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
         this.detectChanges();
 
         this.tableViewerData = this.selectedTabIndex == 0
-          ? this.mapTransactions(this.transactions)
+          ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
           : this.selectedTabIndex == 1
-            ? this.mapMessages(this.inMessages)
-            : this.mapMessages(this.outMessages);
+            ? this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages)
+            : this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
 
-        this.tableViewerLoading = false;
+        this.tableViewersLoading = false;
 
         this.detectChanges();
 
@@ -249,7 +231,8 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
       console.log(error);
     });
 
-    this.service.getBlockBySeqNo((this.model.seq_no + 1), this.model.workchain_id, this.model.shard)
+    // Get next block
+    this.service.getData(this.service.getVariablesForBlockBySeqNo((this.model.seq_no + 1), this.model.workchain_id, this.model.shard), this._service.graphQueryService['getBlocks'], appRouteMap.blocks)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
@@ -352,66 +335,5 @@ export class BlockDetailsComponent extends AppDetailsComponent<Block> implements
 
     // this.finalStateViewerData = [];
     // this.finalStateViewerData.push(new GeneralViewer({title: 'Destroyed', value: _model.destroyed ? 'Yes' : 'No'}));
-  }
-
-  /**
-   * Map transactions for table
-   * @param _list Array of transactions
-   */
-  protected mapTransactions(_list: Transaction[]): TabViewerData[] {
-    if (!_list || !_list.length) { return []; }
-
-    let data = [];
-    data = _list.map((t: Transaction, i: number) => {
-
-      t.balance_delta = t.balance_delta && t.balance_delta.match('x') ? String(parseInt(t.balance_delta, 16)) : t.balance_delta;
-
-      return new TabViewerData({
-        id: t.id,
-        url: appRouteMap.transaction,
-        titleLeft: t.id,
-        subtitleLeft: new DataConfig({
-          text: t.account_addr ? t.account_addr.substring(0, 6) : '',
-          type: 'string'
-        }),
-        titleRight: new DataConfig({
-          text: t.tr_type == 3 ? 'Tock' : t.tr_type == 2 ? 'Tick' : t.balance_delta,
-          icon: (t.balance_delta && t.balance_delta != '0') ? true : false,
-          iconClass: 'icon-gem',
-          textColorClass: (t.balance_delta && t.balance_delta != '0') ? '' : 'color-gray',
-          type: (t.balance_delta && t.balance_delta != '0') ? 'number' : 'string'
-        }),
-        subtitleRight: new DataConfig({text: t.now, type: 'date'})
-      });
-    });
-
-    data = _.clone(_.first(data, 10))
-
-    return data;
-  }
-
-  /**
-   * Map messages for table
-   * @param _messages Array of messages
-   */
-  private mapMessages(_messages: MsgData[]): TabViewerData[] {
-    if (!_messages || !_messages.length) { return []; }
-
-    let data = [];
-    data = _messages.map((m: MsgData, i: number) => {
-
-      // m.value = m.value && m.value.match('x') ? String(parseInt(m.value, 16)) : m.value;
-
-      return new TabViewerData({
-        id: m.in_msg.msg_id,
-        url: appRouteMap.message,
-        titleLeft: m.in_msg.msg_id,
-        titleRight: new DataConfig({text: m.msg_type_name}),
-      });
-    });
-
-    data = _.clone(_.first(data, 10))
-
-    return data;
   }
 }

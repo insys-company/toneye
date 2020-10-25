@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Transaction, Block, ViewerData } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { TransactionDetailsService } from './transaction-details.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BlockQueries } from 'src/app/api/queries';
+import { Transaction, ViewerData, Block } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
-import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-details.component';
+import { appRouteMap } from 'src/app/app-route-map';
 
 @Component({
   selector: 'app-transaction-details',
@@ -11,7 +13,7 @@ import { AppDetailsComponent } from 'src/app/shared/components/app-details/app-d
   styleUrls: ['./transaction-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransactionDetailsComponent extends AppDetailsComponent<Transaction> implements OnInit, OnDestroy {
+export class TransactionDetailsComponent extends BaseComponent<Transaction> implements OnInit, OnDestroy {
   /**
    * Storage Data for view
    */
@@ -34,15 +36,14 @@ export class TransactionDetailsComponent extends AppDetailsComponent<Transaction
     protected service: TransactionDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected blockQueries: BlockQueries,
   ) {
-
     super(
       changeDetection,
       service,
       route,
       router,
     );
-
   }
 
   /**
@@ -67,8 +68,8 @@ export class TransactionDetailsComponent extends AppDetailsComponent<Transaction
    * Data for model from other queries
    */
   protected getData(): void {
-
-    this.service.getBlock(this.model.block_id)
+    /** Get blocks */
+    this.service.getData(this._service.getVariablesForModel(this.model.block_id), this.blockQueries.getBlocks, appRouteMap.blocks)
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((blockModel: Block[]) => {
 
