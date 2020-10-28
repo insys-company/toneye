@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, SimpleChange } from '@angular/core';
 import { AppMultiselectService } from './app-multiselect.service';
 import { AppMultiselectOverlayService } from './app-multiselect-overlay/app-multiselect-overlay.service';
 import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
@@ -16,7 +16,8 @@ const DEFAULT_MATERIAL_THEME = 'outline';
   selector: 'app-multiselect',
   templateUrl: './app-multiselect.component.html',
   styleUrls: ['./app-multiselect.component.scss'],
-  providers: [ AppMultiselectService ]
+  providers: [ AppMultiselectService ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppMultiselectComponent implements OnInit, OnDestroy {
   /**
@@ -31,13 +32,13 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Блокировщик для поля
    * @type {boolean}
    */
-  @Input() disabled: boolean;
+  @Input() public disabled: boolean;
   /**
    * Обязательность селекта
    * Для использования в форме
    * @type {boolean}
    */
-  @Input() required: boolean;
+  @Input() public required: boolean;
   /**
    * Простой фильтр - фильтрация списка производится
    * путем поиска строки, которая начинается на `введенные символы`
@@ -45,54 +46,64 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * входят введенные символы не зависимо от их позиции
    * @type {boolean}
    */
-  @Input() simpleFilter: boolean;
+  @Input() public simpleFilter: boolean;
 
   /**
    * Флаг включения Label для поля
    * @type {boolean}
    */
-  @Input() labelVisible: boolean;
+  @Input() public labelVisible: boolean;
   /**
    * Label для поля, если включена
    * @type {string}
    */
-  @Input() label: string;
+  @Input() public label: string;
   /**
    * Имя для инпута
    * @type {string}
    */
-  @Input() inputName: string;
+  @Input() public inputName: string;
   /**
    * Заголовок поля
    * @type {string}
    */
-  @Input() placeholder: string;
+  @Input() public placeholder: string;
   /**
    * Тема материала
    * @type {string}
    */
-  @Input() materialTheme?: MaterialType;
+  @Input() public materialTheme?: MaterialType;
   /**
    * Доп класс для стилизации
    * @type {string}
    */
-  @Input() styleClass?: string;
+  @Input() public styleClass?: string;
   /**
    * Класс для тени
    * @type {string}
    */
-  @Input() shadowStyleClass?: string;
+  @Input() public shadowStyleClass?: string;
   /**
    * Включение иконки отчистки селекта в single режиме
    * Появится вместо стрелочки
    * @type {string}
    */
-  @Input() singleSelectClearingEnable?: boolean;
+  @Input() public singleSelectClearingEnable?: boolean;
+
+  /**
+   * For prefix icon
+   */
+  @Input() public isPrefixIconVisible: boolean = true;
+  /**
+   * For prefix icon
+   */
+  @Input() public prefixIconClass: string;
+
   /**
    * Для окраски текста в селекте
    * @type {string}
    */
-  @Input() inputTextColorClass: string;
+  @Input() public inputTextColorClass: string;
 
   /** ДЛЯ ОТКРЫВАЮЩЕЙСЯ ПАНЕЛИ СЕЛЕКТА */
 
@@ -100,97 +111,97 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Размер списка
    * @type {number}
    */
-  @Input() overlaySize: number;
+  @Input() public overlaySize: number;
   /**
    * Список элементов для выбора
    * @type {any[]}
    */
-  @Input() options: any[];
+  @Input() public options: any[];
   /**
    * Список элементов которые выбраны
    * @type {any[]}
    */
-  @Input() selectedOptions: any[];
+  @Input() public selectedOptions: any[];
   /**
    * Имя, которое будет отображаться в списке
    * @type {string}
    */
-  @Input() displayName: string;
+  @Input() public displayName: string;
   /**
    * Поле для сортировки списков
    * @type {string}
    */
-  @Input() sortField: string;
+  @Input() public sortField: string;
   /**
    * Включение поиска
    * @type {boolean}
    */
-  @Input() searchEnable: boolean;
+  @Input() public searchEnable: boolean;
   /**
    * Для поля поиска заголовок
    * @type {string}
    */
-  @Input() searchPlaceholder: string;
+  @Input() public searchPlaceholder: string;
   /**
    * Мультирежим
    * @type {boolean}
    */
-  @Input() multiple: boolean;
+  @Input() public multiple: boolean;
   /**
    * Текст для случая когда не найдено ничего по поиску
    * @type {string}
    */
-  @Input() notFoundTitle: string;
+  @Input() public notFoundTitle: string;
   /**
    * Включение лимита на выбор опций
    * @type {boolean}
    */
-  @Input() optionsLimitEnable: boolean;
+  @Input() public optionsLimitEnable: boolean;
   /**
    * Лимит на выбор опций
    * @type {number}
    */
-  @Input() optionsLimit: number;
+  @Input() public optionsLimit: number;
   /**
    * Включение поиска по запросам к серверу
    * @type {boolean}
    */
-  @Input() serverSideSearchEnable: boolean;
+  @Input() public serverSideSearchEnable: boolean;
   /**
    * Эндпоинт для поиска
    * @type {string}
    */
-  @Input() searchEndpoint: string;
+  @Input() public searchEndpoint: string;
   /**
    * Параметр, который будет отправляться на сервер при поиске
    * например search=example
    * По умолчанию search
    * @type {string}
    */
-  @Input() searchParamNameForServerSideSearching: string;
+  @Input() public searchParamNameForServerSideSearching: string;
   /**
    * Тултип на опциях
    * @type {boolean}
    */
-  @Input() tooltipVisible: boolean;
+  @Input() public tooltipVisible: boolean;
 
   /**
    * Чекбокс Select All в листе
    * @type {boolean}
    */
-  @Input() selectAll: boolean;
+  @Input() public selectAll: boolean;
   /**
    * Наименование - чекбокса Select All в листе
    * @type {string}
    */
-  @Input() selectAllPlaceholder: string;
+  @Input() public selectAllPlaceholder: string;
 
 
   /**
    * Доп класс для панели
    * @type {string}
    */
-  @Input() panelClass?: string;
+  @Input() public panelClass?: string;
 
   /**
    * Событие генерируемое при выборе конкретного элемента
@@ -226,13 +237,13 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * фокус на селекте
    * @type {boolean}
    */
-  public multiselectFocused: boolean;
+  public focused: boolean;
   /**
    * Для проверки валидности
    * при использовании в форме
    * @type {boolean}
    */
-  get valid(): boolean {
+  public get valid(): boolean {
     if (this.required && !this.disabled) {
       return this.checkArrayLength(this.selectedOptions);
     }
@@ -243,14 +254,14 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * в состоянии, когда элементы выбраны
    * @type {boolean}
    */
-  get isDirty(): boolean {
+  public get isDirty(): boolean {
     return this.checkArrayLength(this.selectedOptions);
   }
   /**
    * Имя первого выбранного элемента
    * @type {string}
    */
-  get firstSelectedOptionName(): string {
+  public get firstSelectedOptionName(): string {
     if (this.selectedAll) { return 'All'; }
     return this.checkArrayLength(this.selectedOptions) ? _.first(this.selectedOptions)[this.displayName] : null;
   }
@@ -258,7 +269,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Имя первого выбранного option
    * @type {string}
    */
-  set firstSelectedOptionName(name: string) {
+  public set firstSelectedOptionName(name: string) {
     this.firstSelectedOptionName = name;
   }
   /**
@@ -267,7 +278,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Появляется только когда выбрано более 1ого элемента
    * @type {boolean}
    */
-  get setShowClassForMultipleText() {
+  public get setShowClassForMultipleText() {
     if (!this.multiple || this.selectedAll) { return false; }
 
     return this.checkArrayLength(this.selectedOptions) && this.selectedOptions.length > 1;
@@ -276,7 +287,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Флаг при всех выбранных элементах
    * @type {string}
    */
-  get selectedAll(): boolean {
+  public get selectedAll(): boolean {
     if (!this.multiple) { return false; }
 
     return this.checkArrayLength(this.selectedOptions) && this.selectedOptions.length === this.options.length;
@@ -286,7 +297,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Поворачивает ее вверх если панель открыта
    * @type {boolean}
    */
-  get setUpClassForArrowIcon() {
+  public get setUpClassForArrowIcon() {
     return this.overlayRef && this.overlayRef.hasAttached();
   }
   /**
@@ -294,14 +305,14 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Скрывает ее
    * @type {boolean}
    */
-  get setHideClassForArrowIcon() {
+  public get setHideClassForArrowIcon() {
     return this.setShowClassForClearIcon;
   }
   /**
    * Устанавливает класс для стилизации кнопки крестика
    * @type {boolean}
    */
-  get setShowClassForClearIcon(): boolean {
+  public get setShowClassForClearIcon(): boolean {
     return this.checkArrayLength(this.selectedOptions)
       && !this.setUpClassForArrowIcon && (this.multiple || this.singleSelectClearingEnable);
   }
@@ -309,6 +320,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
   constructor(
     private service: AppMultiselectService,
     private overlayService: AppMultiselectOverlayService,
+    private changeDetection: ChangeDetectorRef
   ) {
     this.overlaySubs = [];
 
@@ -373,10 +385,19 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Change data and update
+   * @param changes Input data from parent
+   */
+  public ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+
+    this.changeDetection.detectChanges();
+  }
+
+  /**
    * Инициализация
    * @returns {void}
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.disabled = this.disabled != null ? this.disabled : false;
     this.required = this.required != null ? this.required : false;
     this.simpleFilter = this.simpleFilter != null ? this.simpleFilter : false;
@@ -417,7 +438,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    * Уничтожение компонента
    * @returns {void}
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.overlayUnsubscribe();
 
     this.disabled = null;
@@ -454,11 +475,16 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.panelClass = null;
   }
 
+  // ngAfterViewChecked(): void {
+  //   console.log('f');
+  //   this.changeDetection.detectChanges();
+  // }
+
   /**
    * Метод открытия overlay
    * @returns {void}
    */
-  onOpenPanel(): void {
+  public onOpenPanel(): void {
 
     if (this.disabled || this.overlayRef && this.overlayRef.hasAttached()) {
       this.closePanel();
@@ -523,7 +549,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    *
    * @returns {void}
    */
-  onDeleteOptions(clickEvent?: Event): void {
+  public onDeleteOptions(clickEvent?: Event): void {
     /** Прекращение дальнейшей передачи текущего события */
     if (clickEvent) { clickEvent.stopPropagation(); }
 
@@ -538,7 +564,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
    *
    * @returns {boolean} результат - удовлетворяет ли массив условию
    */
-  checkArrayLength(array: any[]): boolean {
+  public checkArrayLength(array: any[]): boolean {
     return (array && array.length) ? true : false;
   }
 
@@ -606,6 +632,8 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.overlaySubs.push(optionSub);
     this.overlaySubs.push(optionsSub);
     this.overlaySubs.push(panelCloseSub);
+
+    this.changeDetection.detectChanges();
   }
 
   /**
@@ -617,9 +645,11 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.service.closePanel();
     this.overlayUnsubscribe();
 
-    setTimeout(() => {
-      if (this.multiselectInput) { this.multiselectInput.nativeElement.focus(); }
-    }, 0); 
+    this.changeDetection.detectChanges();
+
+    // setTimeout(() => {
+    //   if (this.multiselectInput) { this.multiselectInput.nativeElement.focus(); }
+    // }, 0); 
   }
 
   /**

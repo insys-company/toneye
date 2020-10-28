@@ -5,6 +5,7 @@ export class FilterSettings {
   filterByTime: boolean;
   filterByAbort: boolean;
   filterByMinMax: boolean;
+  filterByDate: boolean;
 
   constructor(data?: any) {
     if (data) {

@@ -20,17 +20,8 @@ export class ValidatorsService extends BaseService<any> {
       graphQueryService,
       baseFunctionsService,
       (data: any) => data,
-      appRouteMap.blocks, // на валидаторах работа с мастер блоком
-      null,
-      () => {
-        // this._filterSettings = new FilterSettings({
-        //   filterVisible: true,
-        //   filterByCountry: true,
-        //   filterByStatus: true,
-        //   filterBySearch: true,
-        //   enableDefaultStatus: true,
-        // });
-      }
+      appRouteMap.validators,
+      appRouteMap.validator
     );
   }
 }

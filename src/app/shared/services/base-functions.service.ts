@@ -8,6 +8,45 @@ import { appRouteMap } from 'src/app/app-route-map';
 export class BaseFunctionsService {
 
   /**
+   * Get average time
+   * @param _list Array of items
+   */
+  public getAverageTime(_list: any[], fieldName: string): number {
+    if (!_list || !_list.length) { return 0; }
+
+    let averageTime = 0;
+
+    _list.forEach((item: any, i: number) => {
+      if (_list[i+1]) {
+        averageTime += item[fieldName] - _list[i+1][fieldName];
+      }
+    });
+
+    averageTime = averageTime/_list.length;
+
+    return Number(averageTime.toFixed(1));
+  }
+
+  /**
+   * Get base16
+   * @param num Number
+   */
+  public decimalToHex(num: number | string): string {
+    num = num != null && num != '' ?  Number(num) : 0;
+
+    var hex = (num*1000000000).toString(16);
+
+    return `0x${hex}`;
+  }
+
+  /**
+   * Method for ngFor optimization (Skeleton list)
+   * @param index Item index in ngFor
+   * @param item Item in ngFor
+   */
+  public identifySkeleton(index: number, item: number): number { return item; }
+
+  /**
    * Get account format for common table
    * @param _item Item For maping
    * @param totalBalance For percent

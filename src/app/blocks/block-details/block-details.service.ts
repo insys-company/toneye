@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { BlockQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Block } from 'src/app/api';
+import { Block, SimpleDataFilter, FilterSettings } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
@@ -21,7 +21,19 @@ export class BlockDetailsService extends BaseService<Block> {
       graphQueryService,
       baseFunctionsService,
       (data: Block) => new Block(data),
-      appRouteMap.blocks
+      appRouteMap.blocks,
+      appRouteMap.block,
+      () => {
+        this._filterSettings = new FilterSettings({
+          filterChain: false,
+          filterExtInt: false,
+          filterByShard: false,
+          filterByTime: false,
+          filterByAbort: true,
+          filterByMinMax: true,
+          filterByDate: true,
+        });
+      }
     );
   }
 
@@ -29,9 +41,36 @@ export class BlockDetailsService extends BaseService<Block> {
    * Get variables
    * @param _id Id for query
    */
-  public getVariablesForTransactions(_id: string | number): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, _id: string): object {
+    params = params ? params : new SimpleDataFilter({});
+
+    let _balance_delta = params.min != null || params.max != null
+      ? {
+        ge: params.min != null ? this.baseFunctionsService.decimalToHex(params.min) : undefined,
+        le: params.max != null ? this.baseFunctionsService.decimalToHex(params.max) : undefined
+      }
+      : undefined;
+
+    let _now = params.fromDate != null || params.toDate != null
+      ? { ge: params.fromDate, le: params.toDate }
+      : undefined;
+
+    let _workchain_id = params.chain != null
+      ? { eq:  Number(params.chain) }
+      : undefined;
+
+    let _aborted = params.aborted != null
+      ? { eq:  Boolean(params.aborted) }
+      : undefined;
+
     return {
-      filter: {block_id: { eq: _id}},
+      filter: {
+        block_id: {eq: _id},
+        aborted: _aborted,
+        workchain_id: _workchain_id,
+        balance_delta: _balance_delta,
+        now: _now,
+      },
       orderBy: [
         {path: 'now', direction: 'DESC'},
         {path: 'account_addr', direction: 'DESC'},

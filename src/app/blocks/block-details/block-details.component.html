@@ -93,7 +93,15 @@
       <!-- Sticky block for desctop -->
       <div class="page-list-content__filters-sticky-position">
         <div class="page-list-content__component-wrapper">
-          <app-filter #filter class="page-list-content__component"></app-filter>
+          <app-filter #filter class="page-list-content__component"
+            [minMaxPlaceholder]="'With any tons number'"
+            [datePlaceholder]="'All time'"
+            [isFilterOpen]="isGeneralInfoOpen"
+            [settings]="filterSettings"
+            [skeletonArray]="skeletonArrayForFilter"
+            [skeletalAnimation]="filterLoading"
+            [params]="params">
+          </app-filter>
         </div>
       </div>
 

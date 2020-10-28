@@ -1,97 +1,119 @@
 import { Injectable } from '@angular/core';
 import { BlocksServicesModule } from './blocks-services.module';
+import { BaseService } from 'src/app/shared/components/app-base/app-base.service';
 import { Apollo } from 'apollo-angular';
-import { BlockQueries, CommonQueries, MessageQueries, TransactionQueries } from '../../api/queries';
-import { Observable, Subject } from 'rxjs';
-import { Block, Message, Transaction, QueryOrderBy } from '../../api';
-import { map } from 'rxjs/operators';
-// import 'rxjs/add/operator/map';
-import { takeUntil } from 'rxjs/operators';
+import { MessageQueries } from '../../api/queries';
+import { BaseFunctionsService } from 'src/app/shared/services';
+import { Block, FilterSettings, SimpleDataFilter } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: BlocksServicesModule
 })
-export class BlocksService {
-  protected _unsubscribe = new Subject();
-
+export class BlocksService extends BaseService<Block> {
   constructor(
-    private apollo: Apollo,
-    private blockQueries: BlockQueries,
-    private commonQueries: CommonQueries,
-    private messageQueries: MessageQueries,
-    private transactionQueries: TransactionQueries,
+    protected apollo: Apollo,
+    public graphQueryService: MessageQueries,
+    public baseFunctionsService: BaseFunctionsService,
   ) {
-    // TODO
-  }
-
-  ngUnsubscribe(): void {
-    this._unsubscribe.next();
-    this._unsubscribe.complete();
+    super(
+      apollo,
+      graphQueryService,
+      baseFunctionsService,
+      (data: Block) => new Block(data),
+      appRouteMap.blocks,
+      appRouteMap.block,
+      () => {
+        this._filterSettings = new FilterSettings({
+          filterChain: true,
+          filterExtInt: false,
+          filterByShard: true,
+          filterByTime: false,
+          filterByAbort: false,
+          filterByMinMax: true,
+          filterByDate: true,
+        });
+      }
+    );
   }
 
   /**
-   * Get master block for
-   *
-   * prev_key_block_seqno
-   * seq_no and
-   * master
-   * 
-   * return one block
+   * Get variables
+   * @param node_id Id for query
    */
-  getMasterBlock(): Observable<Block[]> {
-    return this.apollo.watchQuery<Block[]>({
-      query: this.blockQueries.getMasterBlock,
-      // static for master
-      variables: {
-        filter: {workchain_id: {eq: -1}},
-        orderBy: [{path: "seq_no", direction: "DESC"}],
-        limit: 1,
+  public getVariablesForAggregateData(params: SimpleDataFilter, gen_utime: number): object {
+    params = params ? params : new SimpleDataFilter({});
+
+    let _tr_count = params.min != null || params.max != null
+      ? {
+        ge: params.min != null ? Number(params.min) : undefined,
+        le: params.max != null ? Number(params.max) : undefined
+      }
+      : undefined;
+
+    let _workchain_id = params.chain != null
+      ? { eq:  Number(params.chain) }
+      : undefined;
+
+    let _gen_utime = gen_utime != null || params.fromDate != null || params.toDate != null
+      ? {
+        ge: (params.fromDate != null && (Number(params.fromDate) >= Number(gen_utime)) ? params.fromDate : gen_utime),
+        le: params.toDate
+      }
+      : undefined;
+
+    let _shard = params.shard != null
+      ? { eq: params.shard }
+      : undefined;
+
+    return {
+      filter: {
+        workchain_id: _workchain_id,
+        gen_utime: _gen_utime,
+        shard: _shard,
+        tr_count: _tr_count
+      }
+    };
+  }
+
+  /**
+   * Variables for blocks
+   * @param params Filter params
+   */
+  public getVariablesForBlocks(params: SimpleDataFilter): object {
+    params = params ? params : new SimpleDataFilter({});
+
+    let _tr_count = params.min != null || params.max != null
+      ? {
+        ge: params.min != null ? Number(params.min) : undefined,
+        le: params.max != null ? Number(params.max) : undefined
+      }
+      : undefined;
+
+    let _workchain_id = params.chain != null
+      ? { eq:  Number(params.chain) }
+      : undefined;
+
+    let _gen_utime = params.fromDate != null || params.toDate != null
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
+      : undefined;
+
+    let _shard = params.shard != null
+      ? { eq: params.shard }
+      : undefined;
+
+    return {
+      filter: {
+        workchain_id: _workchain_id,
+        gen_utime: _gen_utime,
+        shard: _shard,
+        tr_count: _tr_count
       },
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
-  }
-
-  /**
-   * Get general information
-   *
-   * queries:
-   * getAccountsCount
-   * aggregateTransactions
-   * getAccountsTotalBalance
-   */
-  getGeneralData(): Observable<any>{
-    return this.apollo.watchQuery<any>({
-      query: this.commonQueries.getAggregateBlocks,
-      variables: {
-        filter: {gen_utime: {ge: 1602995420}},
-      },
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data))
-  }
-
-  /**
-   * Get block list
-   * @param params Variables by filters for query
-   */
-  getBlocks(params?: any): Observable<Block[]> {
-
-    const _variables = {
-      filter: {},
       orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-      limit: 50,
-    }
-
-    return this.apollo.watchQuery<Block[]>({
-      query: this.blockQueries.getBlocks,
-      variables: params ? params : _variables,
-      errorPolicy: 'all'
-    })
-    .valueChanges
-    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
+      limit: 50
+    };
   }
 }

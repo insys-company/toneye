@@ -1,8 +1,10 @@
-import { Component, OnChanges, OnInit, OnDestroy, Input, ChangeDetectorRef, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnChanges, OnInit, OnDestroy, Input, ChangeDetectorRef, SimpleChange, ChangeDetectionStrategy, AfterViewChecked } from '@angular/core';
+import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { AppFilterService } from './app-filter.service';
-import { ListItem, SimpleDataFilter } from 'src/app/api';
+import { ListItem, SimpleDataFilter, FilterSettings, Block, BlockMasterShardHashes } from 'src/app/api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FilterSettings } from './filter-settings';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 /**
  * This component displays filters on list pages.
@@ -11,10 +13,15 @@ import { FilterSettings } from './filter-settings';
   selector: 'app-filter',
   templateUrl: './app-filter.component.html',
   styleUrls: ['./app-filter.component.scss'],
-  // animations: [ smoothDisplayAfterSkeletonAnimation ],
+  animations: [ smoothDisplayAfterSkeletonAnimation ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
+export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, OnDestroy {
+  /**
+   * For subscribers
+   */
+  public _unsubscribe: Subject<void> = new Subject<void>();
+  
   /**
    * Data for view
    */
@@ -26,12 +33,7 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * Filter settings
    */
-  @Input() settings: FilterSettings = new FilterSettings();
-
-  /**
-   * Shard list
-   */
-  @Input() public shards: ListItem[] = [];
+  @Input() public settings: FilterSettings = new FilterSettings();
 
   /**
    * For skeleton animation
@@ -50,17 +52,50 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Flag for footer
    */
   @Input() public isFilterFooterVisible: boolean = true;
-  
 
   /**
    * Url params
    */
-  public params: SimpleDataFilter = new SimpleDataFilter({});
+  @Input() public params: SimpleDataFilter = new SimpleDataFilter({});
 
+  /**
+   * Для поля
+   */
+  @Input() public minMaxPlaceholder: string;
+  /**
+   * Для поля
+   */
+  @Input() public minPlaceholder: string;
+  /**
+   * Для поля
+   */
+  @Input() public maxPlaceholder: string;
+
+  /**
+   * Для поля
+   */
+  @Input() public datePlaceholder: string;
+  /**
+   * Для поля
+   */
+  @Input() public fromPlaceholder: string;
+  /**
+   * Для поля
+   */
+  @Input() public toPlaceholder: string;
+
+  /**
+   * Shard list
+   */
+  public shards: ListItem[] = [];
   /**
    * Selected shards list
    */
   public selectedShards: ListItem[] = [];
+  /**
+   * Init
+   */
+  public shardsInit: boolean;
 
   /**
    * Chain list
@@ -70,6 +105,10 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Selected chain list
    */
   public selectedChains: ListItem[] = [];
+  /**
+   * Init
+   */
+  public chainsInit: boolean;
 
   /**
    * ExtInt list
@@ -79,6 +118,41 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Selected extint list
    */
   public selectedExtInt: ListItem[] = [];
+  /**
+   * Init
+   */
+  public extIntInit: boolean;
+
+  /**
+   * ExtInt list
+   */
+  public aborted: ListItem[] = [];
+  /**
+   * Selected extint list
+   */
+  public selectedAborted: ListItem[] = [];
+  /**
+   * Init
+   */
+  public abortedInit: boolean;
+
+  /**
+   * Min
+   */
+  public min: string;
+  /**
+   * Max
+   */
+  public max: string;
+
+  /**
+   * From date
+   */
+  public fromDate: string;
+  /**
+   * To date
+   */
+  public toDate: string;
 
   /**
    * For button in info
@@ -87,9 +161,26 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
     return !this.isFilterOpen ? 'Show' : 'Hide';
   }
 
+  /**
+   * For button in info
+   */
+  public get filterSetCount(): number {
+    if (!this.settings && !this.params) { return 0 }
+
+    let count = 0;
+
+    count = this.settings.filterChain && this.params.chain != null ? count += 1 : count;
+    count = this.settings.filterByShard && this.params.shard != null ? count += 1 : count;
+    count = this.settings.filterExtInt && this.params.ext_int != null ? count += 1 : count;
+    count = this.settings.filterByMinMax && (this.params.min != null || this.params.max != null) ? count += 1 : count;
+    count = this.settings.filterByAbort && this.params.aborted != null ? count += 1 : count;
+
+    return count;
+  }
+
   constructor(
     private changeDetection: ChangeDetectorRef,
-    private appFilterService: AppFilterService,
+    private service: AppFilterService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -103,26 +194,103 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Change data and update
    * @param changes Input data from parent
    */
-  ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
-    // this.detectChanges();
+  public ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+    if (this.settings) {
+      if (this.settings.filterChain) {
+        this.getChains(this.params ? this.params.chain : null);
+      }
+      if (this.settings.filterExtInt) {
+        this.getExtInt(this.params ? this.params.ext_int : null);
+      }
+      if (this.settings.filterByShard) {
+        this.getShards(this.params ? this.params.shard : null);
+      }
+      if (this.settings.filterByAbort) {
+        this.getAbortFilter(this.params ? this.params.aborted : null);
+      }
+      if (this.settings.filterByMinMax) {
+        this.getMinMax(this.params ? { min: this.params.min, max: this.params.max } : { min: null, max: null})
+      }
+      if (this.settings.filterByDate) {
+        this.getDate(this.params ? { from: this.params.fromDate, to: this.params.toDate } : { from: null, to: null})
+      }
+
+      console.log(this.params);
+      // this.detectChanges();
+    }
   }
 
   /**
    * Initialization of the component
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
+    this.service.init();
+
+    console.log(this.params);
+
+    // this.route.queryParams
+    //   .pipe(takeUntil(this._unsubscribe))
+    //   .subscribe((queryParams: Params) => {
+
+    //     this.params = this.baseFunctionsService.getFilterParams(queryParams, this.params);
+
+    //     console.log(this.params);
+
+    //     this.detectChanges();
+
+    //   });
+  }
+
+  /**
+   * After children check
+   */
+  public ngAfterViewChecked(): void {
+    console.log('f');
     this.detectChanges();
-    // TODO
   }
 
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
+    this.unsubscribe();
+    this._unsubscribe = null;
+
+    if (this.service) {
+      this.service.destroy();
+    }
+
     this.data = null;
-    this.skeletonArray = null;
     this.skeletalAnimation = null;
+    this.skeletonArray = null;
+    this.settings = null;
+    this.shards = null;
     this.isFilterOpen = null;
+    this.isFilterHideBtnVisible = null;
+    this.isFilterFooterVisible = null;
+    this.params = null;
+    this.selectedShards = null;
+    this.chains = null;
+    this.selectedChains = null;
+    this.extInt = null;
+    this.selectedExtInt = null;
+    this.aborted = null;
+    this.selectedAborted = null;
+
+    this.shardsInit = null;
+    this.chainsInit = null;
+    this.extIntInit = null;
+    this.abortedInit = null;
+  }
+
+  /**
+   * unsubscribe from qeries of the component
+   */
+  public unsubscribe(): void {
+    if (this._unsubscribe) {
+      this._unsubscribe.next();
+      this._unsubscribe.complete();
+    }
   }
 
   /**
@@ -130,28 +298,45 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * @param index Item index in ngFor
    * @param item Item in ngFor
    */
-  identifySkeleton(index: number, item: number): number { return item; }
+  public identifySkeleton(index: number, item: number): number { return item; }
+
+  /**
+   * Reset filter
+   */
+  public onResetFilter(): void {
+    this.selectedChains = [];
+    this.selectedExtInt = [];
+    this.selectedShards = [];
+    this.selectedAborted = [];
+    this.min = null;
+    this.max = null;
+    this.fromDate = null;
+    this.toDate = null;
+    this.params = new SimpleDataFilter({});
+    this.redirect();
+  }
 
   /**
    * Show/Hide filter
    */
-  onShowOrHide(): void {
+  public onShowOrHide(): void {
     this.isFilterOpen = !this.isFilterOpen;
-    this.detectChanges();
+    // this.detectChanges();
   }
 
   /**
    * Изменение идентификатора
    * @param item Выбранный элемент
    */
-  onSelectChain(item: ListItem): void {
+  public onSelectChain(item: ListItem): void {
     if (!item) { // null передается при сбросе
-      this.params.chains = null;
+      this.params.chain = null;
     } else {
       const index = this.selectedChains.indexOf(item);
-      this.params.chains = index > -1 ? item.id : null;
+      this.params.chain = index > -1 ? item.id : null;
     }
 
+    // this.detectChanges();
     this.redirect();
   }
 
@@ -159,14 +344,15 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Изменение идентификатора
    * @param item Выбранный элемент
    */
-  onSelectExtint(item: ListItem): void {
+  public onSelectExtint(item: ListItem): void {
     if (!item) { // null передается при сбросе
-      this.params.extint = null;
+      this.params.ext_int = null;
     } else {
       const index = this.selectedExtInt.indexOf(item);
-      this.params.extint = index > -1 ? item.id : null;
+      this.params.ext_int = index > -1 ? item.id : null;
     }
 
+    // this.detectChanges();
     this.redirect();
   }
 
@@ -174,7 +360,7 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Изменение идентификатора
    * @param item Выбранный элемент
    */
-  onSelectShard(item: ListItem): void {
+  public onSelectShard(item: ListItem): void {
     if (!item) { // null передается при сбросе
       this.params.shard = null;
     } else {
@@ -182,6 +368,23 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
       this.params.shard = index > -1 ? item.id : null;
     }
 
+    // this.detectChanges();
+    this.redirect();
+  }
+
+  /**
+   * Изменение идентификатора
+   * @param item Выбранный элемент
+   */
+  public onSelectAborted(item: ListItem): void {
+    if (!item) { // null передается при сбросе
+      this.params.aborted = null;
+    } else {
+      const index = this.selectedAborted.indexOf(item);
+      this.params.aborted = index > -1 ? item.id : null;
+    }
+
+    // this.detectChanges();
     this.redirect();
   }
 
@@ -189,16 +392,36 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * Изменение фильтра aborted
    * @param check Состояние выбранное
    */
-  onChangeAbortedFilter(check: boolean): void {
+  public onChangeAbortedFilter(check: boolean): void {
     // TODO
   }
 
-  onSelectDate(): void {
-    // TODO
+  /**
+   * Get params from child component
+   * @param obj Obj with from to
+   */
+  public onSelectDate(obj: { from: string, to: string }): void {
+    this.fromDate = obj.from != null ? obj.from : null;
+    this.toDate = obj.to != null ? obj.to : null;
+    this.params.fromDate = this.fromDate != null ? this.fromDate : null;
+    this.params.toDate = this.toDate != null ? this.toDate : null;
+
+    // this.detectChanges();
+    this.redirect();
   }
 
-  onSelectMinMax(): void {
-    // TODO
+  /**
+   * Get params from child component
+   * @param obj Obj with min max
+   */
+  public onSelectMinMax(obj: { min: string, max: string }): void {
+    this.min = obj.min != null ? obj.min : null;
+    this.max = obj.max != null ? obj.max : null;
+    this.params.min = this.min != null ? this.min : null;
+    this.params.max = this.max != null ? this.max : null;
+
+    // this.detectChanges();
+    this.redirect();
   }
 
   /**
@@ -207,8 +430,166 @@ export class AppFilterComponent implements OnChanges, OnInit, OnDestroy {
    * (если селект не с мультивыбором, то в массива всехда один элемент)
    * @param arrayName Имя массива выбранных элементов
    */
-  updateSelectedItems(selectedItems: any[], arrayName: string): void {
+  public updateSelectedItems(selectedItems: any[], arrayName: string): void {
     this[arrayName] = selectedItems ? selectedItems : [];
+  }
+
+  /**
+   * Get list
+   * @param id Id of selected item
+   */
+  private getChains(id?: string): void {
+
+    if (!this.chainsInit) {
+      this.chains = this.service.getChains();
+      this.selectedChains = [];
+    }
+
+    // Поиск выбранных
+    if (id) {
+      let item = this.chains.find(s => s.id === id);
+
+      if (item) {
+        this.selectedChains.push(item);
+      }
+
+      item = null;
+    }
+
+    this.chainsInit = true;
+  }
+
+  /**
+   * Get list
+   * @param id Id of selected item
+   */
+  private getExtInt(id?: string): void {
+
+    if (!this.extIntInit) {
+      this.extInt = this.service.getExtInt();
+      this.selectedExtInt = [];
+    }
+
+    // Поиск выбранных
+    if (id) {
+      let item = this.extInt.find(s => s.id === id);
+
+      if (item) {
+        this.selectedExtInt.push(item);
+      }
+
+      item = null;
+    }
+
+    this.extIntInit = true;
+  }
+
+  /**
+   * Get list
+   * @param id Id of selected item
+   */
+  private getShards(id?: string): void {
+
+    if (!this._unsubscribe) {
+      this._unsubscribe = new Subject<void>();
+    }
+    
+    if (this.shardsInit) {
+      // Поиск выбранных
+      if (id && this.shards.length) {
+        let item = this.shards.find(s => s.id === id);
+
+        if (item) {
+          this.selectedShards.push(item);
+        }
+
+        item = null;
+      }
+      return;
+    }
+
+    this.service.getShards()
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Block[]) => {
+
+        this.shards = res && res[0] && res[0].master ? this.mapShards(res[0].master.shard_hashes) : [];
+        this.selectedShards = [];
+
+        // Поиск выбранных
+        if (id && this.shards.length) {
+          let item = this.shards.find(s => s.id === id);
+
+          if (item) {
+            this.selectedShards.push(item);
+          }
+
+          item = null;
+        }
+
+        this.shardsInit = true;
+
+      }, (error: any) => {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Get list
+   * @param id Id of selected item
+   */
+  private getAbortFilter(id?: string): void {
+
+    if (!this.abortedInit) {
+      this.aborted = this.service.getAbortFilter();
+      this.selectedAborted = [];
+    }
+
+    // Поиск выбранных
+    if (id) {
+      let item = this.aborted.find(s => s.id === id);
+
+      if (item) {
+        this.selectedAborted.push(item);
+      }
+
+      item = null;
+    }
+
+    this.abortedInit = true;
+  }
+
+  /**
+   * Set params
+   * @param obj Obj with min max
+   */
+  private getDate(obj: { from: string, to: string }): void {
+    this.fromDate = obj.from != null ? obj.from : null;
+    this.toDate = obj.to != null ? obj.to : null;
+  }
+
+  /**
+   * Set params
+   * @param obj Obj with min max
+   */
+  private getMinMax(obj: { min: string, max: string }): void {
+    this.min = obj.min != null ? obj.min : null;
+    this.max = obj.max != null ? obj.max : null;
+  }
+
+  /**
+   * Map shard list
+   * @param shard_hashes List of Shards
+   */
+  private mapShards(shard_hashes: Array<BlockMasterShardHashes>): ListItem[] {
+    if (!shard_hashes || !shard_hashes.length) { return []; }
+
+    let list: ListItem[] = [];
+
+    shard_hashes.forEach((sh) => {
+      list.push(new ListItem({ id: sh.shard, name: sh.shard }));
+    });
+
+    return list;
   }
 
   /**

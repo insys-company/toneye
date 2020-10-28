@@ -3,8 +3,8 @@ import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ContractDetailsService } from './contract-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { CommonQueries } from 'src/app/api/queries';
-import { Account } from 'src/app/api';
+import { CommonQueries, AccountQueries } from 'src/app/api/queries';
+import { Account, ItemList } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 
@@ -20,10 +20,6 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(3);
-  /**
-   * Accounts
-   */
-  public accounts: Array<Account>;
   /**
    * Account's balance
    */
@@ -63,6 +59,7 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
     protected route: ActivatedRoute,
     protected router: Router,
     private commonQueries: CommonQueries,
+    private accountQueries: AccountQueries,
   ) {
     super(
       changeDetection,
@@ -82,8 +79,7 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
       .subscribe((params: Params) => {
         this.modelId = params['id'] != null ? params['id'].trim() : null;
 
-        // Get aditional data
-        this.getData();
+        this.initList();
 
       })
       .unsubscribe();
@@ -94,7 +90,6 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.accounts = null;
     this.totalBalance = null;
     this.deployedContracts = null;
     this.activeContracts = null;
@@ -120,49 +115,75 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
   }
 
   /**
+   * Получение данных
+   */
+  protected refreshData(): void {
+    this.getData();
+  }
+
+  /**
    * Data for model from other queries
    */
   protected getData(): void {
 
-    // Get Total
-    this._service.getAggregateData(this.service.getVariablesForBalance(this.modelId), this.commonQueries.getValidatorAggregateAccounts)
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    // get by balance
+    this._service.getAggregateData(
+      this.service.getVariablesForAggregateAccounts(this.params, String(this.modelId), true),
+      this.commonQueries.getValidatorAggregateAccounts
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
-        this.totalBalance = res.aggregateAccounts[0] ? Number(res.aggregateAccounts[0]): 0;
+        this.totalBalance = res && res.aggregateAccounts[0] ? Number(res.aggregateAccounts[0]): 0;
         this.detectChanges();
 
       }, (error: any) => {
         console.log(error);
       });
 
-    this._service.getAggregateData(this.service.getVariablesForDeployedContracts(this.modelId), this.commonQueries.getValidatorAggregateAccounts)
+    // Get by type
+    this._service.getAggregateData(
+      this.service.getVariablesForAggregateAccounts(this.params, String(this.modelId), false, true),
+      this.commonQueries.getValidatorAggregateAccounts
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
-        this.deployedContracts = res.aggregateAccounts[0] ? Number(res.aggregateAccounts[0]): 0;
+        this.deployedContracts = res && res.aggregateAccounts[0] ? Number(res.aggregateAccounts[0]): 0;
         this.detectChanges();
 
       }, (error: any) => {
         console.log(error);
       });
 
-    this._service.getAggregateData(this.service.getVariablesForContracts(this.modelId), this.commonQueries.getValidatorAggregateAccounts)
+    // Get by hash only
+    this._service.getAggregateData(
+      this.service.getVariablesForAggregateAccounts(this.params, String(this.modelId)),
+      this.commonQueries.getValidatorAggregateAccounts
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
-        this.activeContracts = res.aggregateAccounts[0] ? Number(res.aggregateAccounts[0]): 0;
+        this.activeContracts = res && res.aggregateAccounts[0] ? Number(res.aggregateAccounts[0]): 0;
         this.detectChanges();
 
       }, (error: any) => {
         console.log(error);
       });
   
-    this.service.getAggregateData(this.service.getVariablesForContracts(this.modelId), this.commonQueries.getValidatorAggregateMessages)
+    // Get message
+    this._service.getAggregateData(
+      this.service.getVariablesForAggregateMessages(this.params, String(this.modelId)),
+      this.commonQueries.getAggregateMessages
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: any) => {
 
-        this.newContracts = res.aggregateMessages[0] ? Number(res.aggregateMessages[0]): 0;
+        this.newContracts = res && res.aggregateMessages[0] ? Number(res.aggregateMessages[0]): 0;
         this.detectChanges();
 
       }, (error: any) => {
@@ -170,18 +191,47 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
       });
 
     /** Get accounts */
-    this._service.getData(this.service.getVariablesForAccounts(this.modelId), this._service.graphQueryService['getAccounts'], appRouteMap.accounts)
+    this._service.getData(
+      this.service.getVariablesForAggregateAccounts(this.params, String(this.modelId), false, false, true),
+      this.accountQueries.getAccounts,
+      appRouteMap.accounts
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Account[]) => {
 
-        this.accounts = res ? res : [];
-        this.tableViewerData =  this._service.mapDataForTable(this.accounts, appRouteMap.accounts, 10, this.totalBalance);
-        this.viewersLoading = false;
-        this.tableViewersLoading = false;
-        this.detectChanges();
+        this.processData(res ? res : []);
 
       }, (error: any) => {
         console.log(error);
       });
+  }
+
+  /**
+   * Get general data
+   * @param _data Account
+   */
+  private processData(_data: Account[]): void {
+
+    /** Accounts */
+    this.data = new ItemList({
+      data: _data ? _data : [],
+      page: 0,
+      pageSize: 25,
+      total: _data ? _data.length : 0
+    });
+
+    this.viewersLoading = false;
+
+    this.detectChanges();
+
+    this.tableViewerData =  this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 10, this.totalBalance);
+        
+    this.detectChanges();
+
+    this.tableViewersLoading = false;
+
+    this.filterLoading = false;
+
+    this.detectChanges();
   }
 }

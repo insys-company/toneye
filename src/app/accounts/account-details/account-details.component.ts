@@ -2,11 +2,12 @@ import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRe
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { AccountDetailsService } from './account-details.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MessageQueries, TransactionQueries } from 'src/app/api/queries';
 import { Account, Message, ViewerData, Transaction } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import _ from 'underscore';
 
 @Component({
   selector: 'app-account-details',
@@ -17,6 +18,10 @@ import { appRouteMap } from 'src/app/app-route-map';
 })
 export class AccountDetailsComponent extends BaseComponent<Account> implements OnInit, OnDestroy {
   /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
+  /**
    * Account's transactions
    */
   public transactions: Array<Transaction>;
@@ -24,6 +29,13 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    * Account's in_msg_descr
    */
   public messages: Array<Message>;
+
+  /**
+   * Single request for messages by params
+   */
+  public get isSingleQuery(): boolean {
+    return this.params && this.params.msg_direction != null ? true : false
+  }
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -39,6 +51,65 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       route,
       router,
     );
+  }
+
+  /**
+   * Initialization of the component
+   * For details component
+   */
+  public initDatails(): void {
+    this.route.params
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((params: Params) => {
+        this.modelId = params['id'] != null ? params['id'].trim() : null;
+
+        this._service.getModel(this.modelId)
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((_model: Account[]) => {
+
+            if (!_model[0]) {
+              this.router.navigate([`/${this._service.parentPageName}`]);
+              this._unsubscribe.next();
+              this._unsubscribe.complete();
+              return;
+            }
+  
+            this.model = this._service.factoryFunc(_model[0]);
+
+            this.model.balance = this.model.balance && this.model.balance.match('x') ? String(parseInt(this.model.balance, 16)) : this.model.balance;
+            this.model.last_trans_lt = this.model.last_trans_lt && this.model.last_trans_lt.match('x') ? String(parseInt(this.model.last_trans_lt, 16)) : this.model.last_trans_lt;
+
+            // Get aditional data
+            this.initList();
+
+          }, (error: any) => {
+            console.log(error);
+          });
+
+      })
+      .unsubscribe();
+  }
+
+  /**
+   * Initialization of the component
+   * For list component
+   */
+  public initList(): void {
+    this.route.queryParams
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((queryParams: Params) => {
+
+        this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
+
+        this.detectChanges();
+
+        if (this.initComplete) {
+          this.refreshData();
+        }
+
+      });
+
+    this.initMethod();
   }
 
   /**
@@ -106,46 +177,215 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   }
 
   /**
+   * First intit
+   */
+  protected initMethod(): void {
+    this.getFirstData();
+  }
+
+  /**
+   * Получение данных
+   */
+  protected refreshData(): void {
+    this.getData();
+  }
+
+  /**
    * Data for model from other queries
    */
   protected getData(): void {
 
-    this.model.balance = this.model.balance && this.model.balance.match('x') ? String(parseInt(this.model.balance, 16)) : this.model.balance;
-    this.model.last_trans_lt = this.model.last_trans_lt && this.model.last_trans_lt.match('x') ? String(parseInt(this.model.last_trans_lt, 16)) : this.model.last_trans_lt;
+    this.tableViewersLoading = true;
+    this.detectChanges();
 
-    // Get transactions
-    this.service.getData(this.service.getVariablesForTransactions(this.modelId), this.transactionQueries.getTransactions, appRouteMap.transactions)
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe((t: Transaction[]) => {
 
-        // Get messages
-        this.service.getData(this.service.getVariablesForMessages(this.modelId), this.messageQueries.getMessages, appRouteMap.messages)
+    if (this.selectedTabIndex == 0) {
+      // Get transactions
+      this.service.getData(
+        this.service.getVariablesForTransactions(this.params, String(this.modelId)),
+        this.transactionQueries.getTransactions,
+        appRouteMap.transactions
+      )
         .pipe(takeUntil(this._unsubscribe))
-        .subscribe((m: Message[]) => {
+        .subscribe((t: Transaction[]) => {
 
           this.transactions = t ? t : [];
-          this.messages = m ? m : [];
-
-          this.mapDataForViews(this.model);
-          this.viewersLoading = false;
-
+          this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
+          this.tableViewersLoading = false;
           this.detectChanges();
 
-          this.tableViewerData = this.selectedTabIndex == 0
-            ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-            : this._service.mapDataForTable(this.messages, appRouteMap.messages);
+      }, (error: any) => {
+        console.log(error);
+      });
+    }
+    else if (this.selectedTabIndex == 1) {
 
+
+      if (this.isSingleQuery) {
+
+        // Get messages
+        this.service.getData(
+          this.service.getVariablesForMessages(this.params, String(this.modelId)),
+          this.messageQueries.getMessages,
+          appRouteMap.messages
+        )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((m: Message[]) => {
+          
+          this.messages = m ? m : [];
+          this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
           this.tableViewersLoading = false;
-
           this.detectChanges();
 
         }, (error: any) => {
           console.log(error);
         });
 
+      }
+      else {
+
+        this._service.getData(
+          this.service.getVariablesForMessages(this.params, String(this.modelId), true),
+          this.messageQueries.getMessages
+        )
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((srcData: Message[]) => {
+    
+            srcData = srcData ? srcData : [];
+  
+            this._service.getData(
+              this.service.getVariablesForMessages(this.params, String(this.modelId), false),
+              this.messageQueries.getMessages
+            )
+              .pipe(takeUntil(this._unsubscribe))
+              .subscribe((dstData: Message[]) => {
+  
+                dstData = dstData ? dstData : [];
+  
+                // Объединение двух массивов и сортировка
+                let _data = srcData.concat(dstData);
+  
+                _data = (_.sortBy(_data, 'created_at')).reverse();
+
+                this.messages = _data ? _data : [];
+                this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+                this.tableViewersLoading = false;
+                this.detectChanges();
+        
+              }, (error: any) => {
+                console.log(error);
+              });
+    
+          }, (error: any) => {
+            console.log(error);
+          });
+
+      }
+
+
+    }
+
+  }
+
+  /**
+   * Data for model from other queries
+   */
+  protected getFirstData(): void {
+
+    this.mapDataForViews(this.model);
+    this.viewersLoading = false;
+
+    this.detectChanges();
+
+    // Get transactions
+    this.service.getData(
+      this.service.getVariablesForTransactions(this.params, String(this.modelId)),
+      this.transactionQueries.getTransactions,
+      appRouteMap.transactions
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((t: Transaction[]) => {
+
+        this.transactions = t ? t : [];
+
+        if (this.isSingleQuery) {
+
+          // Get messages
+          this.service.getData(
+            this.service.getVariablesForMessages(this.params, String(this.modelId)),
+            this.messageQueries.getMessages,
+            appRouteMap.messages
+          )
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((m: Message[]) => {
+            
+            this.messages = m ? m : [];
+
+            this.tableViewerData = this.selectedTabIndex == 0
+              ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
+              : this._service.mapDataForTable(this.messages, appRouteMap.messages);
+
+            this.tableViewersLoading = false;
+            this.filterLoading = false;
+            this.initComplete = true;
+            this.detectChanges();
+  
+          }, (error: any) => {
+            console.log(error);
+          });
+  
+        }
+        else {
+  
+          this._service.getData(
+            this.service.getVariablesForMessages(this.params, String(this.modelId), true),
+            this.messageQueries.getMessages
+          )
+            .pipe(takeUntil(this._unsubscribe))
+            .subscribe((srcData: Message[]) => {
+      
+              srcData = srcData ? srcData : [];
+    
+              this._service.getData(
+                this.service.getVariablesForMessages(this.params, String(this.modelId), false),
+                this.messageQueries.getMessages
+              )
+                .pipe(takeUntil(this._unsubscribe))
+                .subscribe((dstData: Message[]) => {
+    
+                  dstData = dstData ? dstData : [];
+    
+                  // Объединение двух массивов и сортировка
+                  let _data = srcData.concat(dstData);
+    
+                  _data = (_.sortBy(_data, 'created_at')).reverse();
+  
+                  this.messages = _data ? _data : [];
+
+                  this.tableViewerData = this.selectedTabIndex == 0
+                    ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
+                    : this._service.mapDataForTable(this.messages, appRouteMap.messages);
+
+                  this.tableViewersLoading = false;
+                  this.filterLoading = false;
+                  this.initComplete = true;
+                  this.detectChanges();
+          
+                }, (error: any) => {
+                  console.log(error);
+                });
+      
+            }, (error: any) => {
+              console.log(error);
+            });
+  
+        }
+
+
     }, (error: any) => {
       console.log(error);
     });
+
   }
 
   /**

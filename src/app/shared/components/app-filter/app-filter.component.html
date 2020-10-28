@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="app-viewer__header-wrapper">
     <div class="app-viewer__header">
-      <span>Filters</span>
+      <span>Filters {{filterSetCount ? '(' + filterSetCount + ' set)' : ''}}</span>
     </div>
     <div *ngIf="isFilterHideBtnVisible" class="app-viewer__btn" (click)="onShowOrHide()">
       <span class="color-blue link">
@@ -17,10 +17,10 @@
     </div>
   </div>
   <!-- Data -->
-  <!-- <div  class="app-viewer__body-wrapper">
-    <div class="app-viewer__body-item">
-        <app-multiselect
-        [placeholder]="'Chains'"
+  <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
+    <div *ngIf="settings?.filterChain" class="app-viewer__body-item no-hover">
+      <app-multiselect
+        [placeholder]="'All chains'"
 
         [options]="chains"
         [selectedOptions]="selectedChains"
@@ -29,6 +29,8 @@
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
         [shadowStyleClass]="''"
+        [prefixIconClass]="'chain'"
+
         [singleSelectClearingEnable]="true"
   
         (optionSelected)="onSelectChain($event)"
@@ -36,8 +38,8 @@
       </app-multiselect>
     </div>
 
-    <div class="app-viewer__body-item">
-        <app-multiselect
+    <div *ngIf="settings?.filterExtInt" class="app-viewer__body-item no-hover">
+      <app-multiselect
         [placeholder]="'Ext+Int'"
   
         [options]="extInt"
@@ -47,6 +49,8 @@
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
         [shadowStyleClass]="''"
+        [prefixIconClass]="'extint'"
+
         [singleSelectClearingEnable]="true"
   
         (optionSelected)="onSelectExtint($event)"
@@ -54,13 +58,91 @@
       </app-multiselect>
     </div>
 
-  </div> -->
+    <div *ngIf="settings?.filterByShard" class="app-viewer__body-item no-hover">
+      <app-multiselect
+        [placeholder]="'All shards'"
+  
+        [options]="shards"
+        [selectedOptions]="selectedShards"
+
+        [searchEnable]="true"
+        [panelClass]="'app-filters__multiselect-panel'"
+        [styleClass]="'app-filters__multiselect'"
+        [shadowStyleClass]="''"
+        [prefixIconClass]="'shard'"
+
+        [singleSelectClearingEnable]="true"
+  
+        (optionSelected)="onSelectShard($event)"
+        (selectedOptionsChange)="updateSelectedItems($event, 'selectedShards')">
+      </app-multiselect>
+    </div>
+
+    <div *ngIf="settings?.filterByAbort" class="app-viewer__body-item no-hover">
+      <app-multiselect
+        [placeholder]="'Aborted and not'"
+  
+        [options]="aborted"
+        [selectedOptions]="selectedAborted"
+  
+        [searchEnable]="true"
+        [panelClass]="'app-filters__multiselect-panel'"
+        [styleClass]="'app-filters__multiselect'"
+        [shadowStyleClass]="''"
+        [prefixIconClass]="'abort'"
+
+        [singleSelectClearingEnable]="true"
+  
+        (optionSelected)="onSelectAborted($event)"
+        (selectedOptionsChange)="updateSelectedItems($event, 'selectedAborted')">
+      </app-multiselect>
+    </div>
+
+    <!-- <div *ngIf="settings?.filterByDate" class="app-viewer__body-item no-hover">
+      <app-datepicker
+        [placeholder]="datePlaceholder"
+        [fromDate]="fromDate"
+        [toDate]="toDate"
+        [fromPlaceholder]="fromPlaceholder"
+        [toPlaceholder]="toPlaceholder"
+        [panelClass]="'app-filters__multiselect-panel'"
+        [styleClass]="'app-filters__multiselect'"
+        [shadowStyleClass]="''"
+        [prefixIconClass]="'date'"
+
+        [singleSelectClearingEnable]="true"
+  
+        (periodSelected)="onSelectDate($event)">
+      </app-datepicker>
+    </div> -->
+
+    <div *ngIf="settings?.filterByMinMax" class="app-viewer__body-item no-hover">
+      <app-minmax
+        [placeholder]="minMaxPlaceholder"
+        [min]="min"
+        [max]="max"
+        [minPlaceholder]="minPlaceholder"
+        [maxPlaceholder]="maxPlaceholder"
+        [panelClass]="'app-filters__multiselect-panel'"
+        [styleClass]="'app-filters__multiselect'"
+        [shadowStyleClass]="''"
+        [prefixIconClass]="'gem'"
+
+        [singleSelectClearingEnable]="true"
+  
+        (periodSelected)="onSelectMinMax($event)">
+      </app-minmax>
+    </div>
+
+  </div>
 
   <!-- Footer line -->
   <div *ngIf="isFilterFooterVisible" class="app-viewer__footer-line"></div>
 
   <!-- Footer -->
   <div *ngIf="isFilterFooterVisible" class="app-viewer__footer-wrapper">
-    <div class="app-viewer__body-item-block skeleton skeleton-filter-bg skeleton--block w-40"></div>
+    <div *ngIf="skeletalAnimation" class="app-viewer__body-item-block skeleton skeleton-filter-bg skeleton--block w-40"></div>
+
+    <button *ngIf="!skeletalAnimation" @smoothDisplayAnimation type="button" mat-stroked-button disableRipple (click)="onResetFilter()">Clear all</button>
   </div>
 </div>

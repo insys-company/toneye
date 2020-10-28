@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Account, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { AccountsService } from './accounts.service';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router, Params } from '@angular/router';
+import { CommonQueries, MessageQueries, AccountQueries } from 'src/app/api/queries';
+import { ViewerData, TabViewerData, ItemList, Account } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
-import _ from 'underscore';
 import { appRouteMap } from 'src/app/app-route-map';
+import _ from 'underscore';
 
 @Component({
   selector: 'app-accounts',
@@ -13,34 +14,15 @@ import { appRouteMap } from 'src/app/app-route-map';
   styleUrls: ['./accounts.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AccountsComponent implements OnInit, OnDestroy {
+export class AccountsComponent extends BaseComponent<Account> implements OnInit, AfterViewChecked, OnDestroy {
   /**
-   * Для отписок на запросы
+   * Details or list
    */
-  public unsubscribe: Subject<void> = new Subject();
-  /**
-   * Data for view
-   */
-  public generalViewerData: Array<ViewerData>;
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
+  protected listMode: boolean = true;
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(2);
-  /**
-   * Flag for loading data of General Viewer
-   */
-  public generalViewerLoading: boolean;
-  /**
-   * Flag for loading data of Tabs Viewer
-   */
-  public tableViewerLoading: boolean;
-
-  /** Array of ... */
-  public data: Account[] = [];
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
 
   /**
    * Balance
@@ -48,97 +30,135 @@ export class AccountsComponent implements OnInit, OnDestroy {
   public totalBalance: number; 
 
   constructor(
-    private changeDetection: ChangeDetectorRef,
-    private accountsService: AccountsService,
-    private router: Router,
+    protected changeDetection: ChangeDetectorRef,
+    protected _service: AccountsService,
+    protected route: ActivatedRoute,
+    protected router: Router,
+    private commonQueries: CommonQueries,
+    private accountQueries: AccountQueries,
   ) {
-    /** Disable change detection for application optimization */
-    this.changeDetection.detach();
-
-    /** Loading animation in children */
-    this.generalViewerLoading = true;
-    this.tableViewerLoading = true;
+    super(
+      changeDetection,
+      _service,
+      route,
+      router,
+    );
   }
 
   /**
    * Initialization of the component
+   * For list component
    */
-  ngOnInit(): void {
-    this.detectChanges();
-    this.init();
+  public initList(): void {
+    this.route.queryParams
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((queryParams: Params) => {
+
+        this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
+
+        this.detectChanges();
+
+        if (this.initComplete) {
+          this.refreshData();
+        }
+
+      });
+
+    this.initMethod();
   }
 
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
-    // TODO
+  public ngOnDestroy(): void {
+    super.ngOnDestroy();
+
+    this.totalBalance = null;
   }
 
+
   /**
-   * Export event
+   * Export method
    */
-  onExport(): void {
+  public onExport(): void {
     // TODO
   }
 
   /**
-   * Change tab
+   * Load more data
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onLoadMore(index: number): void {
 
-    // this.tableViewerLoading = true;
+    // // this.tableViewerLoading = true;
 
-    // this.detectChanges();
+    // // this.detectChanges();
 
-    let balance = this.data[this.data.length - 1].balance;
+    // let balance = this.data[this.data.length - 1].balance;
 
-    balance = balance && balance.match('x') ? String(parseInt(balance, 16)) : balance;
+    // balance = balance && balance.match('x') ? String(parseInt(balance, 16)) : balance;
 
-    const _variables = {
-      filter: {balance: {le: balance}},
-      orderBy: [{path: 'balance', direction: 'DESC'}],
-      limit: 25,
-    }
+    // const _variables = {
+    //   filter: {balance: {le: balance}},
+    //   orderBy: [{path: 'balance', direction: 'DESC'}],
+    //   limit: 25,
+    // }
 
-    // Get accounts
-    this.accountsService.getAccounts(_variables)
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((res: Account[]) => {
+    // // Get accounts
+    // this.accountsService.getAccounts(_variables)
+    //   .pipe(takeUntil(this.unsubscribe))
+    //   .subscribe((res: Account[]) => {
 
-        let newData = this.mapData(res);
-        this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-        // this.tableViewerLoading = false;
+    //     let newData = this.mapData(res);
+    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
+    //     // this.tableViewerLoading = false;
 
-        this.detectChanges();
+    //     this.detectChanges();
 
-        // Scroll to bottom
-        // window.scrollTo(0, document.body.scrollHeight);
+    //     // Scroll to bottom
+    //     // window.scrollTo(0, document.body.scrollHeight);
       
-      }, (error: any) => {
-        console.log(error);
-      });
+    //   }, (error: any) => {
+    //     console.log(error);
+    //   });
   }
 
   /**
-   * Init method
+   * First intit
    */
-  private init(): void {
+  protected initMethod(): void {
+    this.getAggregateData();
+  }
 
-    this.accountsService.getGeneralData()
-      .pipe(takeUntil(this.unsubscribe))
+  /**
+   * Получение данных
+   */
+  protected refreshData(): void {
+    this.getAccounts();
+  }
+
+  /**
+   * Get aggregate messages count
+   */
+  private getAggregateData(): void {
+    this._service.getAggregateData(
+      this._service.getVariablesForAggregateData(),
+      this.commonQueries.getGeneralAccountData
+    )
+      .pipe(takeUntil(this._unsubscribe))
       .subscribe((generalData: any) => {
+
+        this.generalViewerData = [];
 
         const getAccountsCount = new ViewerData({
           title: 'Accounts',
-          value: generalData.getAccountsCount ? generalData.getAccountsCount : 0,
+          value: generalData && generalData.getAccountsCount ? generalData.getAccountsCount : 0,
           isNumber: true
         });
 
         const getAccountsTotalBalance = new ViewerData({
           title: 'Coins',
-          value: generalData.getAccountsTotalBalance ? generalData.getAccountsTotalBalance : 0,
+          value: generalData && generalData.getAccountsTotalBalance ? generalData.getAccountsTotalBalance : 0,
           isNumber: true
         });
 
@@ -149,28 +169,11 @@ export class AccountsComponent implements OnInit, OnDestroy {
         this.generalViewerData.push(getAccountsCount);
         this.generalViewerData.push(getAccountsTotalBalance);
 
-        this.generalViewerLoading = false;
+        this.viewersLoading = false;
 
         this.detectChanges();
 
-
-        // Get accounts
-        this.accountsService.getAccounts()
-          .pipe(takeUntil(this.unsubscribe))
-          .subscribe((res: Account[]) => {
-
-            this.data = res ? res : [];
-
-            this.tableViewerData = this.mapData(this.data);
-
-            this.tableViewerLoading = false;
-
-            this.detectChanges();
-
-          }, (error: any) => {
-            console.log(error);
-      });
-
+        this.getAccounts();
 
       }, (error: any) => {
         console.log(error);
@@ -178,39 +181,49 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Map list for table
-   * @param _list Array of account
+   * Get account list
    */
-  private mapData(_list: Account[]): TabViewerData[] {
-    if (!_list || !_list.length) { return []; }
+  private getAccounts(): void {
 
-    let data = [];
-    data = _list.map((item: Account, i: number) => {
+    this.tableViewersLoading = true;
+    this.detectChanges();
 
-      item.balance = item.balance && item.balance.match('x') ? String(parseInt(item.balance, 16)) : item.balance;
+    this._service.getData(
+      this._service.getVariablesForAccounts(this.params),
+      this.accountQueries.getAccounts
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Account[]) => {
 
-      return new TabViewerData({
-        id: item.id,
-        url: appRouteMap.account,
-        titleLeft: item.id,
-        subtitleLeft: new DataConfig({
-          text: item.last_paid == 0 ? '' : `${item.last_paid}`,
-          type: item.last_paid == 0 ? 'string' : 'date'
-        }),
-        titleRight: new DataConfig({text: item.balance, icon: true, iconClass: 'icon-gem', type: 'number'}),
-        subtitleRight: new DataConfig({text: Number(((Number(item.balance)/this.totalBalance)*100).toFixed(2)), type: 'percent'})
+        this.processData(res ? res : []);
+
+      }, (error: any) => {
+        console.log(error);
       });
-    });
-
-    data = _.clone(_.first(data, 10))
-
-    return data;
   }
 
   /**
-   * Detect Changes
+   * Get general data
+   * @param _data Accounts
    */
-  private detectChanges(): void {
-    this.changeDetection.detectChanges();
+  private processData(_data: Account[]): void {
+
+    /** Accounts */
+    this.data = new ItemList({
+      data: _data ? _data : [],
+      page: 0,
+      pageSize: 25,
+      total: _data ? _data.length : 0
+    });
+
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 10, this.totalBalance);
+
+    this.tableViewersLoading = false;
+
+    this.filterLoading = false;
+
+    this.initComplete = true;
+
+    this.detectChanges();
   }
 }

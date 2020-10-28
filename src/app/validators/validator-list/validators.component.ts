@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ValidatorsService } from './validators.service';
@@ -15,7 +15,7 @@ import { appRouteMap } from 'src/app/app-route-map';
   animations: [ smoothDisplayAfterSkeletonAnimation ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ValidatorsComponent extends BaseComponent<any> implements OnInit, OnDestroy {
+export class ValidatorsComponent extends BaseComponent<any> implements OnInit, AfterViewChecked, OnDestroy {
   /**
    * Details or list
    */
@@ -188,7 +188,11 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, O
    * Get key of previos block
    */
   private getPrevBlockKey(): void {
-    this._service.getData(this._service.getVariablesForPrevBlockKey(), this.blockQueries.getMasterBlockPrevKey)
+    this._service.getData(
+      this._service.getVariablesForPrevBlockKey(),
+      this.blockQueries.getMasterBlockPrevKey,
+      appRouteMap.blocks
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
@@ -209,7 +213,11 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, O
    * Get config of previos block
    */
   private getPrevBlockConfig(): void {
-    this._service.getData(this._service.getVariablesForPrevBlockConfig(this.prevBlockKey), this.blockQueries.getMasterBlockConfig)
+    this._service.getData(
+      this._service.getVariablesForPrevBlockConfig(this.prevBlockKey),
+      this.blockQueries.getMasterBlockConfig,
+      appRouteMap.blocks
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 

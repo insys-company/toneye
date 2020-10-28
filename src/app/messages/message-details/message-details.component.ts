@@ -46,7 +46,11 @@ export class MessageDetailsComponent extends BaseComponent<Message> implements O
    */
   protected getData(): void {
     /** Get transaction for out msgs */
-    this.service.getData(this.service.getVariablesForOutMsgs(this.modelId), this.transactionQueries.getTransaction, appRouteMap.transactions)
+    this.service.getData(
+      this.service.getVariablesForOutMsgs(this.modelId),
+      this.transactionQueries.getTransaction,
+      appRouteMap.transactions
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((in_trasaction: Transaction[]) => {
 
@@ -57,7 +61,11 @@ export class MessageDetailsComponent extends BaseComponent<Message> implements O
         }
         else {
           /** Get transaction for in msgs */
-          this.service.getData(this.service.getVariablesForInMsgs(this.modelId), this.transactionQueries.getTransaction, appRouteMap.transactions)
+          this.service.getData(
+            this.service.getVariablesForInMsgs(this.modelId),
+            this.transactionQueries.getTransaction,
+            appRouteMap.transactions
+          )
             .pipe(takeUntil(this._unsubscribe))
             .subscribe((out_trasaction: Transaction[]) => {
 

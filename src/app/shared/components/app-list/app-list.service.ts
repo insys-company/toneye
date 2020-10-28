@@ -3,9 +3,9 @@ import { Subject, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { GraphQueryService, BaseFunctionsService } from '../../services';
 import { IModel } from '../../interfaces';
-import { FilterSettings } from '../app-filter/filter-settings';
 import { DocumentNode } from 'graphql';
 import { takeUntil, map } from 'rxjs/operators';
+import { FilterSettings } from 'src/app/api';
 
 @Injectable({
   providedIn: 'root'

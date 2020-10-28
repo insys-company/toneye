@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Message, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { MessagesService } from './messages.service';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonQueries, MessageQueries } from 'src/app/api/queries';
+import { ViewerData, TabViewerData, ItemList, Message } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
+import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
-import { appRouteMap } from '../../app-route-map';
 
 @Component({
   selector: 'app-messages',
@@ -13,127 +14,106 @@ import { appRouteMap } from '../../app-route-map';
   styleUrls: ['./messages.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessagesComponent implements OnInit, OnDestroy {
+export class MessagesComponent extends BaseComponent<Message> implements OnInit, AfterViewChecked, OnDestroy {
   /**
-   * Для отписок на запросы
+   * Details or list
    */
-  public unsubscribe: Subject<void> = new Subject();
-  /**
-   * Data for view
-   */
-  public generalViewerData: Array<ViewerData>;
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
+  protected listMode: boolean = true;
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(2);
-  /**
-   * Flag for loading data of General Viewer
-   */
-  public generalViewerLoading: boolean;
-  /**
-   * Flag for loading data of Tabs Viewer
-   */
-  public tableViewerLoading: boolean;
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
 
-  /** Array of ... */
-  public data: Message[] = [];
+  /**
+   * Single request for messages by params
+   */
+  public get isSingleQuery(): boolean {
+    return !this.params || (this.params.chain == null && this.params.ext_int != 'ext') ? true : false
+  }
 
   constructor(
-    private changeDetection: ChangeDetectorRef,
-    private messagesService: MessagesService,
-    private router: Router,
+    protected changeDetection: ChangeDetectorRef,
+    protected _service: MessagesService,
+    protected route: ActivatedRoute,
+    protected router: Router,
+    private commonQueries: CommonQueries,
+    private messageQueries: MessageQueries,
   ) {
-    /** Disable change detection for application optimization */
-    this.changeDetection.detach();
-
-    /** Loading animation in children */
-    this.generalViewerLoading = true;
-    this.tableViewerLoading = true;
+    super(
+      changeDetection,
+      _service,
+      route,
+      router,
+    );
   }
 
   /**
-   * Initialization of the component
+   * Export method
    */
-  ngOnInit(): void {
-    this.detectChanges();
-    this.init();
-  }
-
-  /**
-   * Destruction of the component
-   */
-  ngOnDestroy(): void {
+  public onExport(): void {
     // TODO
   }
 
   /**
-   * Export event
-   */
-  onExport(): void {
-    // TODO
-  }
-
-  /**
-   * Event of select
-   * @param item Selected item from table
-   */
-  public onSelectItem(item: TabViewerData): void {
-
-    if (item.id) {
-      this.router.navigate([`/${appRouteMap.message}/${item.id}`]);
-    }
-
-  }
-
-  /**
-   * Change tab
+   * Load more data
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onLoadMore(index: number): void {
+    // // this.tableViewerLoading = true;
 
-    // this.tableViewerLoading = true;
+    // // this.detectChanges();
 
-    // this.detectChanges();
+    // let date = this.data[this.data.length - 1].created_at;
 
-    let date = this.data[this.data.length - 1].created_at;
+    // const _variables = {
+    //   filter: {created_at: {le: date}},
+    //   orderBy: [{path: 'created_at', direction: 'DESC'}],
+    //   limit: 25,
+    // }
 
-    const _variables = {
-      filter: {created_at: {le: date}},
-      orderBy: [{path: 'created_at', direction: 'DESC'}],
-      limit: 25,
-    }
+    // // Get messages
+    // this.messagesService.getMessages(_variables)
+    //   .pipe(takeUntil(this.unsubscribe))
+    //   .subscribe((res: Message[]) => {
 
-    // Get messages
-    this.messagesService.getMessages(_variables)
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((res: Message[]) => {
+    //     let newData = this.mapData(res);
+    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
+    //     // this.tableViewerLoading = false;
 
-        let newData = this.mapData(res);
-        this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-        // this.tableViewerLoading = false;
+    //     this.detectChanges();
 
-        this.detectChanges();
-
-        // Scroll to bottom
-        // window.scrollTo(0, document.body.scrollHeight);
+    //     // Scroll to bottom
+    //     // window.scrollTo(0, document.body.scrollHeight);
       
-      }, (error: any) => {
-        console.log(error);
-      });
+    //   }, (error: any) => {
+    //     console.log(error);
+    //   });
   }
 
   /**
-   * Init method
+   * Получение данных
    */
-  private init(): void {
+  protected refreshData(): void {
+    this.getAggregateData();
+  }
 
-    this.messagesService.getGeneralData()
-      .pipe(takeUntil(this.unsubscribe))
+  /**
+   * Get aggregate messages count
+   */
+  private getAggregateData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this._service.getAggregateData(
+      this._service.getVariablesForAggregateData(this.params),
+      this.commonQueries.getAggregateMessages
+    )
+      .pipe(takeUntil(this._unsubscribe))
       .subscribe((generalData: any) => {
+
+        this.generalViewerData = [];
 
         const aggregateMessages = new ViewerData({
           title: 'Message count',
@@ -141,100 +121,111 @@ export class MessagesComponent implements OnInit, OnDestroy {
           isNumber: true
         });
 
-        // Get messages
-        this.messagesService.getMessages()
-          .pipe(takeUntil(this.unsubscribe))
-          .subscribe((res: Message[]) => {
+        this.generalViewerData.push(aggregateMessages);
 
-            this.data = res ? res : [];
-
-            const mps = new ViewerData({
-              title: 'MPS',
-              value: (this.getAverageTime(this.data) + ' sec').replace('.', ','),
-              isNumber: false,
-              dinamic: true
-            });
-
-            this.generalViewerData = [];
-
-            this.generalViewerData.push(aggregateMessages);
-            this.generalViewerData.push(mps);
-
-            this.generalViewerLoading = false;
-
-            this.detectChanges();
-    
-            this.tableViewerData = this.mapData(this.data);
-
-            this.tableViewerLoading = false;
-
-            this.detectChanges();
-
-          }, (error: any) => {
-            console.log(error);
-          });
-
+        this.getMessages();
 
       }, (error: any) => {
         console.log(error);
       });
+  }
+
+  /**
+   * Get message list
+   */
+  private getMessages(): void {
+
+    // Одиночный вызов сообщений
+    if (this.isSingleQuery) {
+
+      this._service.getData(
+        this._service.getVariablesForMessages(this.params),
+        this.messageQueries.getMessages
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((res: Message[]) => {
+  
+          this.processData(res);
+  
+        }, (error: any) => {
+          console.log(error);
+        });
+
+    }
+
+    // Запросы на сообщения по источникам и получателям
+    else {
+
+      this._service.getData(
+        this._service.getVariablesForMessages(this.params, true),
+        this.messageQueries.getMessages
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((srcData: Message[]) => {
+  
+          srcData = srcData ? srcData : [];
+
+          this._service.getData(
+            this._service.getVariablesForMessages(this.params, false),
+            this.messageQueries.getMessages
+          )
+            .pipe(takeUntil(this._unsubscribe))
+            .subscribe((dstData: Message[]) => {
+
+              dstData = dstData ? dstData : [];
+
+              // Объединение двух массивов и сортировка
+              let _data = srcData.concat(dstData);
+
+              _data = (_.sortBy(_data, 'created_at')).reverse();
+
+              this.processData(_data);
+      
+            }, (error: any) => {
+              console.log(error);
+            });
+  
+        }, (error: any) => {
+          console.log(error);
+        });
+
+    }
 
   }
 
   /**
-   * Get average time
-   * @param _list Array of items
+   * Get general data
+   * @param _data Messages
    */
-  private getAverageTime(_list: Message[]): number {
-    if (!_list || !_list.length) { return 0; }
+  private processData(_data: Message[]): void {
 
-    let averageTime = 0;
-
-    _list.forEach((item: Message, i: number) => {
-      if (_list[i+1]) {
-        averageTime += item.created_at - _list[i+1].created_at;
-      }
+    /** Messages */
+    this.data = new ItemList({
+      data: _data ? _data : [],
+      page: 0,
+      pageSize: 25,
+      total: _data ? _data.length : 0
     });
 
-    averageTime = averageTime/_list.length;
-
-    return Number(averageTime.toFixed(1));
-  }
-
-  /**
-   * Map messages for table
-   * @param _list Array of messages
-   */
-  private mapData(_list: Message[]): TabViewerData[] {
-    if (!_list || !_list.length) { return []; }
-
-    let data = [];
-    data = _list.map((m: Message, i: number) => {
-
-      m.value = m.value && m.value.match('x') ? String(parseInt(m.value, 16)) : m.value;
-
-      return new TabViewerData({
-        id: m.id,
-        url: appRouteMap.message,
-        titleLeft: m.id,
-        subtitleLeft: new DataConfig({
-          text: `${(!m.src || m.src == '') ? 'ext' : m.src.substring(0, 6)} -> ${(!m.dst || m.dst == '') ? 'ext' : m.dst.substring(0, 6)}`,
-          type: 'string'
-        }),
-        titleRight: new DataConfig({text: m.value, icon: true, iconClass: 'icon-gem', type: 'number'}),
-        subtitleRight: new DataConfig({text: m.created_at, type: 'date'})
-      });
+    const mps = new ViewerData({
+      title: 'MPS',
+      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'created_at') + ' sec').replace('.', ','),
+      isNumber: false,
+      dinamic: true
     });
 
-    data = _.clone(_.first(data, 10))
+    this.generalViewerData.push(mps);
 
-    return data;
-  }
+    this.viewersLoading = false;
 
-  /**
-   * Detect Changes
-   */
-  private detectChanges(): void {
-    this.changeDetection.detectChanges();
+    this.detectChanges();
+
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages, 10);
+
+    this.tableViewersLoading = false;
+
+    this.filterLoading = false;
+
+    this.detectChanges();
   }
 }

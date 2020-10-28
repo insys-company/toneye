@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { AccountQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Account } from 'src/app/api';
+import { Account, FilterSettings, SimpleDataFilter } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
@@ -21,7 +21,19 @@ export class AccountDetailsService extends BaseService<Account> {
       graphQueryService,
       baseFunctionsService,
       (data: Account) => new Account(data),
-      appRouteMap.accounts
+      appRouteMap.accounts,
+      appRouteMap.account,
+      () => {
+        this._filterSettings = new FilterSettings({
+          filterChain: false,
+          filterExtInt: false,
+          filterByShard: false,
+          filterByTime: false,
+          filterByAbort: true,
+          filterByMinMax: true,
+          filterByDate: true,
+        });
+      }
     );
   }
 
@@ -29,9 +41,36 @@ export class AccountDetailsService extends BaseService<Account> {
    * Get variables
    * @param _id Id for query
    */
-  public getVariablesForTransactions(_id: string | number): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, _id: string): object {
+    params = params ? params : new SimpleDataFilter({});
+
+    let _balance_delta = params.min != null || params.max != null
+      ? {
+        ge: params.min != null ? this.baseFunctionsService.decimalToHex(params.min) : undefined,
+        le: params.max != null ? this.baseFunctionsService.decimalToHex(params.max) : undefined
+      }
+      : undefined;
+
+    let _now = params.fromDate != null || params.toDate != null
+      ? { ge: params.fromDate, le: params.toDate }
+      : undefined;
+
+    let _workchain_id = params.chain != null
+      ? { eq:  Number(params.chain) }
+      : undefined;
+
+    let _aborted = params.aborted != null
+      ? { eq:  Boolean(params.aborted) }
+      : undefined;
+
     return {
-      filter: {account_addr: {eq: _id}},
+      filter: {
+        account_addr: {eq: _id},
+        aborted: _aborted,
+        workchain_id: _workchain_id,
+        balance_delta: _balance_delta,
+        now: _now,
+      },
       orderBy: [
         {path: 'now', direction: 'DESC'},
         {path: 'account_addr', direction: 'DESC'},
@@ -41,18 +80,88 @@ export class AccountDetailsService extends BaseService<Account> {
     };
   }
 
-  /**
-   * Get variables
-   * @param _id Id for query
-   */
-  public getVariablesForMessages(_id: string | number): object {
+  public getVariablesForMessages(params: SimpleDataFilter, _id: string, srcTypeMess: boolean = true): object {
+    params = params ? params : new SimpleDataFilter({});
+
+    let id = params.chain != null && !_id.match(`${params.chain}:`) ? {eq: null} : undefined;
+
+    let _dst: object;
+
+    let _src: object;
+
+    // Только по src
+    if (params.msg_direction == 'src' || srcTypeMess) {
+
+      _src = id
+        ? undefined
+        : { eq: _id };
+
+      _dst = id
+        ? undefined 
+        : params.ext_int == 'ext'
+          ? { eq: '' }
+          : undefined;
+
+    }
+    // Только по dst
+    else if (params.msg_direction == 'dst' || !srcTypeMess) {
+
+      _dst = id
+        ? undefined
+        : { eq: _id };
+
+        _src = id
+        ? undefined 
+        : params.ext_int == 'ext'
+          ? { eq: '' }
+          : undefined;
+    }
+
+    let _value = params.min != null || params.max != null
+      ? {
+        ge: params.min != null ? this.baseFunctionsService.decimalToHex(params.min) : undefined,
+        le: params.max != null ? this.baseFunctionsService.decimalToHex(params.max) : undefined
+      }
+      : undefined;
+
+    let _created_at = params.fromDate != null || params.toDate != null
+      ? { ge: params.fromDate, le: params.toDate }
+      : undefined;
+
+    let _msg_type = params.ext_int == 'int'
+      ? { eq: 0 }
+      : undefined;
+
     return {
-      filter: {src: {eq: _id}},
+      filter: {
+        id: id,
+        dst: _dst,
+        src: _src,
+        msg_type: _msg_type,
+        value: _value,
+        created_at: _created_at,
+      },
       orderBy: [
-        {path: 'gen_utime', direction: 'DESC'},
-        {path: 'seq_no', direction: 'DESC'}
+        {path: 'created_at', direction: 'DESC'}
       ],
       limit: 50
     };
   }
+
+  // /**
+  //  * Get variables
+  //  * @param _id Id for query
+  //  */
+  // public getVariablesForMessages(params: SimpleDataFilter, _id: string): object {
+  //   params = params ? params : new SimpleDataFilter({});
+
+  //   return {
+  //     filter: {src: {eq: _id}},
+  //     orderBy: [
+  //       {path: 'gen_utime', direction: 'DESC'},
+  //       {path: 'seq_no', direction: 'DESC'}
+  //     ],
+  //     limit: 50
+  //   };
+  // }
 }

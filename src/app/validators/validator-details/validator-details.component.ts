@@ -103,13 +103,21 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
    */
   protected getData(): void {
     // Get master block
-    this.service.getData(this.service.getVariablesForPrevBlockKey(), this._service.graphQueryService['getMasterBlockPrevKey'], appRouteMap.blocks)
+    this.service.getData(
+      this.service.getVariablesForPrevBlockKey(),
+      this._service.graphQueryService['getMasterBlockPrevKey'],
+      appRouteMap.blocks
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
         if (res && res[0]) {
 
-          this.service.getData(this.service.getVariablesForPrevBlockConfig(res[0].prev_key_block_seqno), this._service.graphQueryService['getMasterBlockConfig'], appRouteMap.blocks)
+          this.service.getData(
+            this.service.getVariablesForPrevBlockConfig(res[0].prev_key_block_seqno),
+            this._service.graphQueryService['getMasterBlockConfig'],
+            appRouteMap.blocks
+          )
             .pipe(takeUntil(this._unsubscribe))
             .subscribe((res: Block[]) => {
 
@@ -131,14 +139,20 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
               }
 
               // Aggregate Block Signatures total
-              this.service.getAggregateData(this.service.getVariablesForAggregateBlockSignaturesTotal(), this.commonQueries.getValidatorAggregateBlockSignatures)
+              this.service.getAggregateData(
+                this.service.getVariablesForAggregateBlockSignaturesTotal(),
+                this.commonQueries.getValidatorAggregateBlockSignatures
+              )
                 .pipe(takeUntil(this._unsubscribe))
                 .subscribe((agBS: any) => {
 
                   const _agBS = agBS.aggregateBlockSignatures[0];
 
                   // Aggregate Block total
-                  this.service.getAggregateData(this.service.getVariablesForAggregateBlocks(this.model.utime_until, this.model.utime_since), this.commonQueries.getAggregateBlocks)
+                  this.service.getAggregateData(
+                    this.service.getVariablesForAggregateBlocks(this.model.utime_until, this.model.utime_since),
+                    this.commonQueries.getAggregateBlocks
+                  )
                     .pipe(takeUntil(this._unsubscribe))
                     .subscribe((agB: any) => {
 
@@ -169,7 +183,11 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     });
 
     // Get signatures block list
-    this.service.getData(this.service.getVariablesForAggregateBlockSignatures(), this._service.graphQueryService['getBlocksSignatures'], appRouteMap.blocksSignatures)
+    this.service.getData(
+      this.service.getVariablesForAggregateBlockSignatures(),
+      this._service.graphQueryService['getBlocksSignatures'],
+      appRouteMap.blocksSignatures
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((sb: Block[]) => {
 
@@ -182,7 +200,11 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
         });
 
         // Get blocks with tr_count (filter by signatures blocks)
-        this.service.getData(this.service.getVariablesForFilterBlocks(ids), this._service.graphQueryService['getBlocks'], appRouteMap.blocks)
+        this.service.getData(
+          this.service.getVariablesForFilterBlocks(ids),
+          this._service.graphQueryService['getBlocks'],
+          appRouteMap.blocks
+        )
           .pipe(takeUntil(this._unsubscribe))
           .subscribe((b: Block[]) => {
 

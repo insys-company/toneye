@@ -1,246 +1,299 @@
+@import './abstracts/colors.scss';
+@import './icon.scss';
 
-// app-multiselect-overlay {
-//   width: 100%;
-// }
 
-// app-multiselect {
-//   max-width: 100%;
-// }
+app-multiselect-overlay,
+app-minmax-overlay,
+app-datepicker-overlay {
+  width: 100%;
+}
 
-// .app-multiselect {
-//   max-width: 100%;
-//   &__wrapper {
-//     max-width: 100%;
-//   }
-//     &__multiselect {
-//       max-width: 100%;
-//         .mat-form-field-flex,
-//       .mat-form-field-infix {
-//         display: flex;
-//         align-items: center;
-//       }
-//       .mat-form-field-flex,
-//       .app-multiselect__input {
-//           cursor: pointer;
-//       }
-//       .app-multiselect__input {
-//         white-space: nowrap;
-//         overflow: hidden;
-//         text-overflow: ellipsis;
-//       }
-//       .mat-form-field-suffix {
-//         // position: absolute;
-//         height: 100%;
-//         // right: 1.5em;
-//         min-width: 15px;
-//         display: flex;
-//         align-items: center;
-//         justify-content: flex-start;
-//       }
-//       .mat-form-field-infix {
-//         padding: 0.2em 1em 0.957em 0 !important;
-//       }
-//     }
-//     &__input {
+app-multiselect,
+app-minmax,
+app-datepicker {
+  max-width: 100%;
+}
+
+.app-multiselect {
+  max-width: 100%;
+  &__wrapper {
+    max-width: 100%;
+  }
+    &__multiselect {
+      max-width: 100%;
+      width: 100%;
+      border-radius: 5px;
+      transition: all .3s ease;
+      .mat-form-field-flex,
+      .mat-form-field-infix {
+        display: flex;
+        align-items: center;
+      }
+      .mat-form-field-flex,
+      .app-multiselect__input {
+          cursor: pointer;
+      }
+      .app-multiselect__input {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .mat-form-field-suffix {
+        // position: absolute;
+        height: 100%;
+        // right: 1.5em;
+        min-width: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding-bottom: 3px;
+      }
+      .mat-form-field-infix {
+        padding: 0.2em 1em 0.957em 0 !important;
+      }
+    }
+    &__input {
   
-//     }
-//     &__multiple {
-//        color: #87A2B7 !important;
-//        opacity: 0;
-//        width: 0;
-//       &--show {
-//         opacity: 1;
-//         width: auto;
-//         transition: all .3s linear;
-//       }
-//     }
+    }
+    &__multiple {
+       color: #87A2B7 !important;
+       opacity: 0;
+       width: 0;
+      &--show {
+        opacity: 1;
+        width: auto;
+        transition: all .3s linear;
+      }
+    }
 
-//     &__icon-arrow,
-//     &__icon-clear {
-//         min-width: 15px;
-//         min-height: 25px;
-//         border-radius: 50px;
-//         position: relative;
+    &__icon-prefix {
 
-//         &::before,
-//         &::after {
-//             content: '';
-//             position: absolute;
-//             border-radius: 5px;
-//             transition: all .1s linear;
-//         }
-//         &::before {
-//             -moz-transform: rotate(-45deg);
-//             -o-transform: rotate(-45deg);
-//             -webkit-transform: rotate(-45deg);
-//             transform: rotate(-45deg);
-//           }
-//           &::after {
-//             -moz-transform: rotate(45deg);
-//             -o-transform: rotate(45deg);
-//             -webkit-transform: rotate(45deg);
-//             transform: rotate(45deg);
-//           }
-//     }
+      width: 15px;
+      height: 15px;
+      background-repeat: no-repeat;
+      background-position: center center;
 
-//     &__icon-arrow {
+      &.date {
+        background-image: url($ico-calendar);
+      }
+
+      &.chain {
+        background-image: url($ico-chain);
+      }
+
+      &.shard {
+        background-image: url($ico-shard);
+      }
+
+      &.extint {
+        background-image: url($ico-ext);
+      }
+
+      &.gem {
+        background-image: url($ico-gem-filter);
+      }
+
+      &.abort {
+        background-image: url($ico-abort);
+      }
+
+      &.transaction {
+        background-image: url($ico-transactions-filter);
+      }
+    }
+
+    &__icon-arrow,
+    &__icon-clear {
+        min-width: 15px;
+        min-height: 25px;
+        border-radius: 50px;
+        position: relative;
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            border-radius: 5px;
+            transition: all .1s linear;
+        }
+        &::before {
+            -moz-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            -webkit-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+          }
+          &::after {
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            transform: rotate(45deg);
+          }
+    }
+
+    &__icon-arrow {
   
 
-//       &::before,
-//       &::after {
-//         top: 50%;
-//             width: 8px;
-//             height: 2px;
-//           background-color: $base-color_dark;
-//       }
-//       &::before {
-//         right: 0;
+      &::before,
+      &::after {
+        top: 50%;
+        width: 8px;
+        height: 2px;
+        background-color: $explorer--base__green-dark;
+      }
+      &::before {
+        right: 0;
 
-//       }
-//       &::after {
-//         right: 5px;
+      }
+      &::after {
+        right: 5px;
 
-//       }
+      }
   
-//       &--up {
-//         &::before {
-//           -moz-transform: rotate(45deg);
-//           -o-transform: rotate(45deg);
-//           -webkit-transform: rotate(45deg);
-//           transform: rotate(45deg);
-//         } 
-//         &::after {
-//           -moz-transform: rotate(-45deg);
-//           -o-transform: rotate(-45deg);
-//           -webkit-transform: rotate(-45deg);
-//           transform: rotate(-45deg);
-//         }
-//       }
-//       &--active {        
-//         &::before,
-//         &::after {
-//           background-color: $base-color_white !important;
-//         }
-//       }
-//       &--hide {
-//         display: none !important;
-//       }
-//     }
-//     &__icon-clear {
-//         width: 30px;
-//         height: 40px;
-//         &::before,
-//         &::after {
-//             top: 50%;
-//             right: 0;
-//             height: 1px;
-//             width: 80%;
-//             background-color: #607993;
-//         }
-//         display: none;
-//       &--show {
-//         display: block;
-//       }
-//     }
-// }
+      &--up {
+        &::before {
+          -moz-transform: rotate(45deg);
+          -o-transform: rotate(45deg);
+          -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+        } 
+        &::after {
+          -moz-transform: rotate(-45deg);
+          -o-transform: rotate(-45deg);
+          -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+        }
+      }
+      &--active {        
+        &::before,
+        &::after {
+          background-color: $explorer--base__white !important;
+        }
+      }
+      &--hide {
+        display: none !important;
+      }
+    }
+    &__icon-clear {
+        width: 20px;
+        height: 20px;
 
-// .app-multiselect__multiselect.mat-form-field-appearance-outline.mat-form-field-disabled {
-//   cursor: default !important;
-//   pointer-events: none !important;
-// }
+        background-image: url($ico-search-clear-filter);
+        background-repeat: no-repeat;
+        background-position: center;
 
-// .mat-form-field-appearance-outline:not(.mat-form-field-disabled).app-multiselect__multiselect.app-multiselect__multiselect--selected:not(.app-multiselect__multiselect--focused) {
-//   .app-multiselect__input.green {
-//     color: #1FA175 !important;
-//   }
-//   .app-multiselect__input.red {
-//     color: #FF506D !important;
-//   }
-// }
 
-// .app-multiselect-panel {
-//     &__search {
-//       .mat-form-field-wrapper {
-//         padding: 0 !important;
-//       }
-//       .mat-form-field-underline {
-//         display: none !important;
-//       }
+        // &::before,
+        // &::after {
+        //     top: 50%;
+        //     right: 0;
+        //     height: 1px;
+        //     width: 80%;
+        //     background-color: #607993;
+        // }
+        display: none;
+      &--show {
+        display: block;
+      }
+    }
+}
 
-//       .mat-form-field-label-wrapper {
-//         padding: 0 !important;
-//         top: 0 !important;
-//       }
+.app-multiselect__multiselect.mat-form-field-appearance-outline.mat-form-field-disabled {
+  cursor: default !important;
+  pointer-events: none !important;
+}
 
-//       .mat-form-field-flex {
-//         display: flex;
-//         align-items: flex-end;
-//         padding: .8em 0;
-//       }
+.mat-form-field-appearance-outline:not(.mat-form-field-disabled).app-multiselect__multiselect.app-multiselect__multiselect--selected:not(.app-multiselect__multiselect--focused) {
+  .app-multiselect__input.green {
+    color: #1FA175 !important;
+  }
+  .app-multiselect__input.red {
+    color: #FF506D !important;
+  }
+}
 
-//       .mat-form-field-infix,
-//       .mat-form-field-label {
-//         padding: 0 !important;
-//         top: 0 !important;
-//         bottom: 0 !important;
-//         border: none !important;
-//       }
+.app-multiselect-panel {
+    &__search {
+      .mat-form-field-wrapper {
+        padding: 0 !important;
+      }
+      .mat-form-field-underline {
+        display: none !important;
+      }
 
-//       .mat-form-field-prefix,
-//       .mat-form-field-suffix {
-//         min-width: 20px;
-//         min-height: 20px;
-//       }
+      .mat-form-field-label-wrapper {
+        padding: 0 !important;
+        top: 0 !important;
+      }
 
-//       .mat-form-field-prefix {
-//           margin-right: 5px;
-//       }
+      .mat-form-field-flex {
+        display: flex;
+        align-items: flex-end;
+        padding: .8em 0;
+      }
+
+      .mat-form-field-infix,
+      .mat-form-field-label {
+        padding: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        border: none !important;
+      }
+
+      .mat-form-field-prefix,
+      .mat-form-field-suffix {
+        min-width: 20px;
+        min-height: 20px;
+      }
+
+      .mat-form-field-prefix {
+          margin-right: 5px;
+      }
   
-//     }
+    }
 
-//     &__select-all {
+    &__select-all {
       
-//     }
+    }
 
-//     &__option {
-//         mat-checkbox {
-//             width: 100% !important;
-//             height: 100% !important;
-//             display: flex !important;
-//             align-items: center !important;
-//             .mat-checkbox-layout,
-//             .mat-checkbox-layout .mat-checkbox-label {
-//               white-space: nowrap;
-//               overflow: hidden;
-//               text-overflow: ellipsis;
-//               font-weight: normal !important;
-//             }
-//             .mat-checkbox-layout {
-//               height: 100% !important;
-//               width: 100%;
-//               display: flex !important;
-//               align-items: center !important;
-//             }
-//             .mat-checkbox-inner-container {
-//               margin-top: unset !important;
-//               margin-bottom: unset !important;
-//               margin-left: unset !important;
-//               margin-right: 10px !important;
-//               width: 15px !important;
-//               height: 15px !important;
-//               .mat-ripple.mat-checkbox-ripple {
-//                 display: none !important;
-//               }
-//             }
-//           }
-//     }
-// }
+    &__option {
+        mat-checkbox {
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            .mat-checkbox-layout,
+            .mat-checkbox-layout .mat-checkbox-label {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              font-weight: normal !important;
+            }
+            .mat-checkbox-layout {
+              height: 100% !important;
+              width: 100%;
+              display: flex !important;
+              align-items: center !important;
+            }
+            .mat-checkbox-inner-container {
+              margin-top: unset !important;
+              margin-bottom: unset !important;
+              margin-left: unset !important;
+              margin-right: 10px !important;
+              width: 15px !important;
+              height: 15px !important;
+              .mat-ripple.mat-checkbox-ripple {
+                display: none !important;
+              }
+            }
+          }
+    }
+}
 
-// // option для фильтра чуть уменьшены
-// .app-multiselect-panel.app-filters__multiselect-panel {
-//   .app-multiselect-panel__search {
-//     .mat-form-field-flex {
-//       padding: .5em 0 !important;
-//     }
-//   }
-// }
+// option для фильтра чуть уменьшены
+.app-multiselect-panel.app-filters__multiselect-panel {
+  .app-multiselect-panel__search {
+    .mat-form-field-flex {
+      padding: .5em 0 !important;
+    }
+  }
+}

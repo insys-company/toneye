@@ -8,24 +8,6 @@
       <mat-slide-toggle>Autoupdate</mat-slide-toggle>
     </div>
   </div>
-
-  
-  <!-- <div class="contracts-page__content contracts-content page-list-content">
-    <div style="display: flex;flex-direction: column;">
-      <span style="margin-right: 5px;">Click here! -></span> 
-      <a class="color-blue link" routerLink="/contract/e2b60b6b602c10ced7ea8ede4bdf96342c97570a3798066f3fb50a4b2b27a208">
-        e2b60b6b602c10ced7ea8ede4bdf96342c97570a3798066f3fb50a4b2b27a208
-      </a>
-  
-      <span style="margin-right: 5px;">or here! -></span> 
-      <a class="color-blue link" routerLink="/contract/80d6c47c4a25543c9b397b71716f3fae1e2c5d247174c52e2c19bd896442b105">
-        80d6c47c4a25543c9b397b71716f3fae1e2c5d247174c52e2c19bd896442b105
-      </a>
-    </div>
-
-  </div> -->
-
-
   <!-- Page content -->
   <div class="contracts-page__content contracts-content page-list-content">
     <div class="page-list-content__filters">
@@ -41,7 +23,15 @@
           </app-general-viewer>
         </div>
         <div class="page-list-content__component-wrapper">
-          <app-filter #filter class="page-list-content__component"></app-filter>
+          <app-filter #filter class="page-list-content__component"
+            [minMaxPlaceholder]="'With any tons number'"
+            [datePlaceholder]="'Any active period'"
+            [isFilterOpen]="isGeneralInfoOpen"
+            [settings]="filterSettings"
+            [skeletonArray]="skeletonArrayForFilter"
+            [skeletalAnimation]="filterLoading"
+            [params]="params">
+          </app-filter>
         </div>
       </div>
 
@@ -53,7 +43,8 @@
           [data]="tableViewerData"
           footerPlaceholder="Load 25 more"
           [skeletalAnimation]="tableViewersLoading"
-          (exportEvent)="onExport()">
+          (exportEvent)="onExport()"
+          (moreEvent)="onLoadMore($event)">
         </app-table-viewer>
       </div>
     </div>

@@ -15,6 +15,10 @@ import {
   AppMultiselectOverlayComponent,
   AppSearchComponent,
   AppSearchOverlayComponent,
+  AppMinmaxComponent,
+  AppMinmaxOverlayComponent,
+  AppDatepickerComponent,
+  AppDatepickerOverlayComponent,
 } from './components';
 
 import {
@@ -31,6 +35,10 @@ import {
     AppMultiselectOverlayComponent,
     AppSearchComponent,
     AppSearchOverlayComponent,
+    AppMinmaxComponent,
+    AppMinmaxOverlayComponent,
+    AppDatepickerComponent,
+    AppDatepickerOverlayComponent,
 
     // pipes
     ThousandsPipe,
@@ -52,6 +60,10 @@ import {
     AppMultiselectOverlayComponent,
     AppSearchComponent,
     AppSearchOverlayComponent,
+    AppMinmaxComponent,
+    AppMinmaxOverlayComponent,
+    AppDatepickerComponent,
+    AppDatepickerOverlayComponent,
 
     // pipes
     ThousandsPipe,
@@ -60,6 +72,8 @@ import {
   entryComponents: [
     AppMultiselectOverlayComponent,
     AppSearchOverlayComponent,
+    AppMinmaxOverlayComponent,
+    AppDatepickerOverlayComponent,
   ],
 })
 export class SharedModule {}

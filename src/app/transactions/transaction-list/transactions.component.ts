@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Transaction, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { TransactionsService } from './transactions.service';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonQueries, TransactionQueries } from 'src/app/api/queries';
+import { ViewerData, ItemList, Transaction } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
+import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
-import { appRouteMap } from '../../app-route-map';
 
 @Component({
   selector: 'app-transactions',
@@ -13,131 +14,103 @@ import { appRouteMap } from '../../app-route-map';
   styleUrls: ['./transactions.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransactionsComponent implements OnInit, OnDestroy {
+export class TransactionsComponent extends BaseComponent<Transaction> implements OnInit, AfterViewChecked, OnDestroy {
   /**
-   * Для отписок на запросы
+   * Details or list
    */
-  public unsubscribe: Subject<void> = new Subject();
-  /**
-   * Data for view
-   */
-  public generalViewerData: Array<ViewerData>;
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
+  protected listMode: boolean = true;
   /**
    * For skeleton animation
    */
-  public skeletonArray: Array<number> = new Array(2);
-  /**
-   * Flag for loading data of General Viewer
-   */
-  public generalViewerLoading: boolean;
-  /**
-   * Flag for loading data of Tabs Viewer
-   */
-  public tableViewerLoading: boolean;
-
-  /** Array of ... */
-  public data: Transaction[] = [];
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
 
   constructor(
-    private changeDetection: ChangeDetectorRef,
-    private transactionsService: TransactionsService,
-    private router: Router,
+    protected changeDetection: ChangeDetectorRef,
+    protected _service: TransactionsService,
+    protected route: ActivatedRoute,
+    protected router: Router,
+    private commonQueries: CommonQueries,
+    private transactionQueries: TransactionQueries,
   ) {
-    /** Disable change detection for application optimization */
-    this.changeDetection.detach();
-
-    /** Loading animation in children */
-    this.generalViewerLoading = true;
-    this.tableViewerLoading = true;
+    super(
+      changeDetection,
+      _service,
+      route,
+      router,
+    );
   }
 
   /**
-   * Initialization of the component
+   * Export method
    */
-  ngOnInit(): void {
-    this.detectChanges();
-    this.init();
-  }
-
-  /**
-   * Destruction of the component
-   */
-  ngOnDestroy(): void {
+  public onExport(): void {
     // TODO
   }
 
   /**
-   * Export event
-   */
-  onExport(): void {
-    // TODO
-  }
-
-  /**
-   * Event of select
-   * @param item Selected item from table
-   */
-  public onSelectItem(item: TabViewerData): void {
-
-    if (item.id) {
-      this.router.navigate([`/${appRouteMap.transaction}/${item.id}`]);
-    }
-
-  }
-
-  /**
-   * Change tab
+   * Load more data
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onLoadMore(index: number): void {
+    // // this.tableViewerLoading = true;
 
-    // this.tableViewerLoading = true;
+    // // this.detectChanges();
 
-    // this.detectChanges();
+    // let date = this.data[this.data.length - 1].now;
 
-    let date = this.data[this.data.length - 1].now;
+    // const _variables = {
+    //   filter: {now: {le: date}},
+    //   orderBy: [
+    //     {path: 'now', direction: 'DESC'},
+    //     {path: 'account_addr', direction: 'DESC'},
+    //     {path: 'lt', direction: 'DESC'}
+    //   ],
+    //   limit: 25,
+    // }
 
-    const _variables = {
-      filter: {now: {le: date}},
-      orderBy: [
-        {path: 'now', direction: 'DESC'},
-        {path: 'account_addr', direction: 'DESC'},
-        {path: 'lt', direction: 'DESC'}
-      ],
-      limit: 25,
-    }
+    // // Get transaction
+    // this.transactionsService.getTransaction(_variables)
+    //   .pipe(takeUntil(this.unsubscribe))
+    //   .subscribe((res: Transaction[]) => {
 
-    // Get transaction
-    this.transactionsService.getTransaction(_variables)
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((res: Transaction[]) => {
+    //     let newData = this.mapData(res);
+    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
+    //     // this.tableViewerLoading = false;
 
-        let newData = this.mapData(res);
-        this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-        // this.tableViewerLoading = false;
+    //     this.detectChanges();
 
-        this.detectChanges();
-
-        // Scroll to bottom
-        // window.scrollTo(0, document.body.scrollHeight);
+    //     // Scroll to bottom
+    //     // window.scrollTo(0, document.body.scrollHeight);
       
-      }, (error: any) => {
-        console.log(error);
-      });
+    //   }, (error: any) => {
+    //     console.log(error);
+    //   });
   }
 
   /**
-   * Init method
+   * Получение данных
    */
-  private init(): void {
+  protected refreshData(): void {
+    this.getAggregateData();
+  }
 
-    this.transactionsService.getGeneralData()
-      .pipe(takeUntil(this.unsubscribe))
+  /**
+   * Get aggregate transsactions count
+   */
+  private getAggregateData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this._service.getAggregateData(
+      this._service.getVariablesForTransactions(this.params, true),
+      this.commonQueries.getAggregateTransactions
+    )
+      .pipe(takeUntil(this._unsubscribe))
       .subscribe((generalData: any) => {
+
+        this.generalViewerData = [];
 
         const aggregateTransactions = new ViewerData({
           title: 'Transaction count',
@@ -145,39 +118,28 @@ export class TransactionsComponent implements OnInit, OnDestroy {
           isNumber: true
         });
 
-        // Get messages
-        this.transactionsService.getTransaction()
-          .pipe(takeUntil(this.unsubscribe))
-          .subscribe((res: Transaction[]) => {
+        this.generalViewerData.push(aggregateTransactions);
 
-            this.data = res ? res : [];
+        this.getTransactions();
 
-            const tps = new ViewerData({
-              title: 'TPS',
-              value: (this.getAverageTime(this.data) + ' sec').replace('.', ','),
-              isNumber: false,
-              dinamic: true
-            });
+      }, (error: any) => {
+        console.log(error);
+      });
+  }
 
-            this.generalViewerData = [];
+  /**
+   * Get transaction list
+   */
+  private getTransactions(): void {
 
-            this.generalViewerData.push(aggregateTransactions);
-            this.generalViewerData.push(tps);
+    this._service.getData(
+      this._service.getVariablesForTransactions(this.params),
+      this.transactionQueries.getTransactions
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Transaction[]) => {
 
-            this.generalViewerLoading = false;
-
-            this.detectChanges();
-    
-            this.tableViewerData = this.mapData(this.data);
-
-            this.tableViewerLoading = false;
-
-            this.detectChanges();
-
-          }, (error: any) => {
-            console.log(error);
-          });
-
+        this.processData(res ? res : []);
 
       }, (error: any) => {
         console.log(error);
@@ -186,68 +148,38 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get average time
-   * @param _list Array of items
+   * Get general data
+   * @param _data Transactions
    */
-  private getAverageTime(_list: Transaction[]): number {
-    if (!_list || !_list.length) { return 0; }
+  private processData(_data: Transaction[]): void {
 
-    let averageTime = 0;
-
-    _list.forEach((item: Transaction, i: number) => {
-
-      // item.balance_delta = item.balance_delta && item.balance_delta.match('x') ? String(parseInt(item.balance_delta, 16)) : item.balance_delta;
-
-      if (_list[i+1]) {
-        averageTime += item.now - _list[i+1].now;
-      }
+    /** Transactions */
+    this.data = new ItemList({
+      data: _data ? _data : [],
+      page: 0,
+      pageSize: 25,
+      total: _data ? _data.length : 0
     });
 
-    averageTime = averageTime/_list.length;
-
-    return Number(averageTime.toFixed(1));
-  }
-
-  /**
-   * Map transactions for table
-   * @param _list Array of transactions
-   */
-  private mapData(_list: Transaction[]): TabViewerData[] {
-    if (!_list || !_list.length) { return []; }
-
-    let data = [];
-    data = _list.map((t: Transaction, i: number) => {
-
-      t.balance_delta = t.balance_delta && t.balance_delta.match('x') ? String(parseInt(t.balance_delta, 16)) : t.balance_delta;
-
-      return new TabViewerData({
-        id: t.id,
-        url: appRouteMap.transaction,
-        titleLeft: t.id,
-        subtitleLeft: new DataConfig({
-          text: t.account_addr ? t.account_addr.substring(0, 6) : '',
-          type: 'string'
-        }),
-        titleRight: new DataConfig({
-          text: t.tr_type == 3 ? 'Tock' : t.tr_type == 2 ? 'Tick' : t.balance_delta,
-          icon: (t.balance_delta && t.balance_delta != '0') ? true : false,
-          iconClass: 'icon-gem',
-          textColorClass: (t.balance_delta && t.balance_delta != '0') ? '' : 'color-gray',
-          type: (t.balance_delta && t.balance_delta != '0') ? 'number' : 'string'
-        }),
-        subtitleRight: new DataConfig({text: t.now, type: 'date'})
-      });
+    const tps = new ViewerData({
+      title: 'TPS',
+      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'now') + ' sec').replace('.', ','),
+      isNumber: false,
+      dinamic: true
     });
 
-    data = _.clone(_.first(data, 10))
+    this.generalViewerData.push(tps);
 
-    return data;
-  }
+    this.viewersLoading = false;
 
-  /**
-   * Detect Changes
-   */
-  private detectChanges(): void {
-    this.changeDetection.detectChanges();
+    this.detectChanges();
+
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.transactions, 10);
+
+    this.tableViewersLoading = false;
+
+    this.filterLoading = false;
+
+    this.detectChanges();
   }
 }

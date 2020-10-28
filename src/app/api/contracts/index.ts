@@ -10,6 +10,7 @@ export { Breadcrumbs } from './breadcrumbs';
 export { DataCounts } from './data-counts';
 export { DataRef } from './data-ref';
 export { ExtBlkRef } from './ext-blk-ref';
+export { FilterSettings } from './filter-settings';
 export { FlowData } from './flow-data';
 export { ViewerData } from './viewer-data';
 export { InMsg } from './in-msg';

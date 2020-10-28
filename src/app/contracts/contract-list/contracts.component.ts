@@ -1,14 +1,12 @@
 import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ContractsService } from './contracts.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BlockQueries, CommonQueries } from 'src/app/api/queries';
-import { ValidatorSet, ViewerData, TabViewerData, BlockMasterConfig, Block, ItemList, DataConfig } from 'src/app/api';
+import { CommonQueries } from 'src/app/api/queries';
+import { ViewerData, TabViewerData, ItemList, DataConfig, Account } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 
-const HASH="80d6c47c4a25543c9b397b71716f3fae1e2c5d247174c52e2c19bd896442b105";
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
@@ -24,11 +22,6 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(1);
-
-  /**
-   * Ids
-   */
-  public uniqueAccountsIds: Array<string> = [ HASH ];
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -50,18 +43,8 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
-    // this.prevBlockKey = null;
 
-    // this.previosValidators = null;
-    // this.currentValidators = null;
-    // this.nextValidators = null;
-
-    // this.p15ViewerData = null;
-    // this.p16ViewerData = null;
-    // this.p17ViewerData = null;
-
-    // this.tableViewerDataPrev = null;
-    // this.tableViewerDataNext = null;
+    // this.uniqueAccountsIds = null;
   }
 
   /**
@@ -76,117 +59,14 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-
-    // // this.tableViewerLoading = true;
-
-    // // this.detectChanges();
-
-    // let balance = this.data[this.data.length - 1].balance;
-
-    // balance = balance && balance.match('x') ? String(parseInt(balance, 16)) : balance;
-
-    // const _variables = {
-    //   filter: {balance: {le: balance}},
-    //   orderBy: [{path: 'balance', direction: 'DESC'}],
-    //   limit: 25,
-    // }
-
-    // // Get accounts
-    // this.contractsService.getAccounts(_variables)
-    //   .pipe(takeUntil(this.unsubscribe))
-    //   .subscribe((res: Account[]) => {
-
-    //     let newData = this.mapData(res);
-    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-    //     // this.tableViewerLoading = false;
-
-    //     this.detectChanges();
-
-    //     // Scroll to bottom
-    //     // window.scrollTo(0, document.body.scrollHeight);
-      
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
+    return;
   }
 
   /**
    * Получение данных
    */
   protected refreshData(): void {
-
-    this.tableViewerData = [];
-
-
-    this.uniqueAccountsIds.forEach((id: string) => {
-
-      this._service.getAggregateData(this._service.getVariablesForAggregateAccountsByBalance(id), this.commonQueries.getValidatorAggregateAccounts)
-        .pipe(takeUntil(this._unsubscribe))
-        .subscribe((byBalance: any[]) => {
-
-          this._service.getAggregateData(this._service.getVariablesForAggregateAccountsByType(id), this.commonQueries.getValidatorAggregateAccounts)
-          .pipe(takeUntil(this._unsubscribe))
-          .subscribe((byType: any[]) => {
-
-            this._service.getAggregateData(this._service.getVariablesForAggregateAccountsByHash(id), this.commonQueries.getValidatorAggregateAccounts)
-            .pipe(takeUntil(this._unsubscribe))
-            .subscribe((byHash: any[]) => {
-
-              this._service.getAggregateData(this._service.getVariablesForAggregateMessages(id), this.commonQueries.getAggregateMessages)
-              .pipe(takeUntil(this._unsubscribe))
-              .subscribe((mess: any[]) => {
-
-                let t = new TabViewerData({
-                  id: HASH,
-                  url: appRouteMap.contract,
-                  titleLeft: HASH,
-                  subtitleLeft: new DataConfig({
-                    text: ``,
-                    type: 'string'
-                  }),
-                  titleRight: new DataConfig({
-                    text: byBalance['aggregateAccounts'][0],
-                    icon: true,
-                    iconClass: 'icon-gem',
-                    type: 'number'
-                  }),
-                  subtitleRight: new DataConfig({
-                    text: `Contracts: ${byHash['aggregateAccounts'][0]} | Active: ${byType['aggregateAccounts'][0]} | New: ${mess['aggregateMessages'][0]}`,
-                    type: 'string'
-                  })
-                });
-
-                this.tableViewerData.push(t);
-
-                this.tableViewersLoading = false;
-                this.detectChanges();
-        
-                this.mapDataForViews(null);
-        
-                this.viewersLoading = false;
-                this.detectChanges();
-
-                // setTimeout(() => {this.detectChanges();}, 3000);
-      
-              }, (error: any) => {
-                console.log(error);
-              });
-    
-            }, (error: any) => {
-              console.log(error);
-            });
-  
-          }, (error: any) => {
-            console.log(error);
-          });
-
-
-        }, (error: any) => {
-          console.log(error);
-        });
-
-
-    });
+    this.getContracts();
   }
 
   /**
@@ -196,6 +76,131 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    */
   protected mapDataForViews(_model: any, _data?: any): void {
     this.generalViewerData = [];
-    this.generalViewerData.push(new ViewerData({title: 'Unique contracts', value: 1, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({
+      title: 'Unique contracts',
+      value: this.data.total,
+      dinamic: true,
+      isNumber: true
+    }));
+  }
+
+  /**
+   * Get contracts
+   */
+  private getContracts(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this._service.getAccounts()
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: ItemList<Account>) => {
+
+        this.data = res;
+
+        this.data.data = this.data.data ? this.data.data : [];
+
+        this.tableViewerData = [];
+
+        this.data.data.forEach((item: Account, index: number) => {
+
+          this.getStatistic(item.code_hash, index);
+        });
+
+      });
+  }
+
+  /**
+   * Get statistic by hash
+   * @param hash Account's Hash
+   * @param index Account's index
+   */
+  private getStatistic(hash: string, index: number): void {
+    // get by balance
+    this._service.getAggregateData(
+      this._service.getVariablesForAggregateAccounts(this.params, hash, true),
+      this.commonQueries.getValidatorAggregateAccounts
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((byBalance: any[]) => {
+
+        // Get by type
+        this._service.getAggregateData(
+          this._service.getVariablesForAggregateAccounts(this.params, hash, false, true),
+          this.commonQueries.getValidatorAggregateAccounts
+        )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((byType: any[]) => {
+
+          // Get by hash only
+          this._service.getAggregateData(
+            this._service.getVariablesForAggregateAccounts(this.params, hash),
+            this.commonQueries.getValidatorAggregateAccounts
+          )
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((byHash: any[]) => {
+
+            // Get message
+            this._service.getAggregateData(
+              this._service.getVariablesForAggregateMessages(this.params, hash),
+              this.commonQueries.getAggregateMessages
+            )
+            .pipe(takeUntil(this._unsubscribe))
+            .subscribe((mess: any[]) => {
+
+              let _item = new TabViewerData({
+                id: hash,
+                url: appRouteMap.contract,
+                titleLeft: hash,
+                subtitleLeft: new DataConfig({
+                  text: ``,
+                  type: 'string'
+                }),
+                titleRight: new DataConfig({
+                  text: byBalance['aggregateAccounts'][0],
+                  icon: true,
+                  iconClass: 'icon-gem',
+                  type: 'number'
+                }),
+                subtitleRight: new DataConfig({
+                  text: `Contracts: ${byHash['aggregateAccounts'][0]} | Active: ${byType['aggregateAccounts'][0]} | New: ${mess['aggregateMessages'][0]}`,
+                  type: 'string'
+                })
+              });
+
+              this.tableViewerData.push(_item);
+
+              if (index === this.data.data.length - 1) {
+
+                this.mapDataForViews(null);
+
+                this.viewersLoading = false;
+            
+                this.detectChanges();
+        
+                this.tableViewersLoading = false;
+  
+                this.filterLoading = false;
+            
+                this.detectChanges();
+              }
+
+            }, (error: any) => {
+              console.log(error);
+            });
+  
+          }, (error: any) => {
+            console.log(error);
+          });
+
+        }, (error: any) => {
+          console.log(error);
+        });
+
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 }

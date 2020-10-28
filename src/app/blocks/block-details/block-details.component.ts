@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { BlockDetailsService } from './block-details.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TransactionQueries } from 'src/app/api/queries';
+import { ActivatedRoute, Router, Params } from '@angular/router';
+import { TransactionQueries, BlockQueries } from 'src/app/api/queries';
 import { Block, ViewerData, Transaction, MsgData } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
@@ -63,7 +63,8 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
     protected service: BlockDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
-    private transactionQueries: TransactionQueries
+    private transactionQueries: TransactionQueries,
+    private blockQueries: BlockQueries
   ) {
     super(
       changeDetection,
@@ -71,6 +72,62 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
       route,
       router,
     );
+  }
+
+  /**
+   * Initialization of the component
+   * For details component
+   */
+  public initDatails(): void {
+    this.route.params
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((params: Params) => {
+        this.modelId = params['id'] != null ? params['id'].trim() : null;
+
+        this._service.getModel(this.modelId)
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((_model: Block[]) => {
+
+            if (!_model[0]) {
+              this.router.navigate([`/${this._service.parentPageName}`]);
+              this._unsubscribe.next();
+              this._unsubscribe.complete();
+              return;
+            }
+  
+            this.model = this._service.factoryFunc(_model[0]);
+
+            // Get aditional data
+            this.initList();
+
+          }, (error: any) => {
+            console.log(error);
+          });
+
+      })
+      .unsubscribe();
+  }
+
+  /**
+   * Initialization of the component
+   * For list component
+   */
+  public initList(): void {
+    this.route.queryParams
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((queryParams: Params) => {
+
+        this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
+
+        this.detectChanges();
+
+        if (this.initComplete) {
+          this.refreshData();
+        }
+
+      });
+
+    this.initMethod();
   }
 
   /**
@@ -93,6 +150,7 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
    * Destruction of the component
    */
   public clearData(): void {
+    this.unsubscribe();
     this.viewersLoading = true;
     this.disabled = false;
     this.generalViewerData = [];
@@ -142,7 +200,11 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
     this.disabled = true;
 
     // Get previos block
-    this.service.getData(this.service.getVariablesForBlockBySeqNo(_seq_no, this.model.workchain_id), this._service.graphQueryService['getBlocks'], appRouteMap.blocks)
+    this.service.getData(
+      this.service.getVariablesForBlockBySeqNo(_seq_no, this.model.workchain_id),
+      this._service.graphQueryService['getBlocks'],
+      appRouteMap.blocks
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
@@ -197,42 +259,32 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
   }
 
   /**
+   * First intit
+   */
+  protected initMethod(): void {
+    this.getData();
+  }
+
+  /**
+   * Получение данных
+   */
+  protected refreshData(): void {
+    this.getTransactions();
+  }
+
+  /**
    * Data for model from other queries
    */
   protected getData(): void {
-    // Get transactions
-    this.service.getData(this.service.getVariablesForTransactions(this.modelId), this.transactionQueries.getTransactions, appRouteMap.transactions)
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe((res: Transaction[]) => {
 
-        this.transactions = res ? res : [];
-        this.inMessages = this.model.in_msg_descr ? this.model.in_msg_descr : [];
-        this.outMessages = this.model.out_msg_descr ? this.model.out_msg_descr : [];
-
-        this.previosBlockId = this.model.prev_ref && this.model.prev_ref.root_hash
-          ? this.model.prev_ref.root_hash
-          : null;
-
-        this.mapDataForViews(this.model);
-        this.viewersLoading = false;
-        this.detectChanges();
-
-        this.tableViewerData = this.selectedTabIndex == 0
-          ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-          : this.selectedTabIndex == 1
-            ? this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages)
-            : this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
-
-        this.tableViewersLoading = false;
-
-        this.detectChanges();
-
-    }, (error: any) => {
-      console.log(error);
-    });
+    this.getTransactions();
 
     // Get next block
-    this.service.getData(this.service.getVariablesForBlockBySeqNo((this.model.seq_no + 1), this.model.workchain_id, this.model.shard), this._service.graphQueryService['getBlocks'], appRouteMap.blocks)
+    this.service.getData(
+      this.service.getVariablesForBlockBySeqNo((this.model.seq_no + 1), this.model.workchain_id, this.model.shard),
+      this.blockQueries.getBlocks,
+      appRouteMap.blocks
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
@@ -335,5 +387,47 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
 
     // this.finalStateViewerData = [];
     // this.finalStateViewerData.push(new GeneralViewer({title: 'Destroyed', value: _model.destroyed ? 'Yes' : 'No'}));
+  }
+
+  private getTransactions(): void {
+
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    // Get transactions
+    this.service.getData(
+      this.service.getVariablesForTransactions(this.params, String(this.modelId)),
+      this.transactionQueries.getTransactions,
+      appRouteMap.transactions
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Transaction[]) => {
+
+        this.transactions = res ? res : [];
+        this.inMessages = this.model.in_msg_descr ? this.model.in_msg_descr : [];
+        this.outMessages = this.model.out_msg_descr ? this.model.out_msg_descr : [];
+
+        this.previosBlockId = this.model.prev_ref && this.model.prev_ref.root_hash
+          ? this.model.prev_ref.root_hash
+          : null;
+
+        this.mapDataForViews(this.model);
+        this.viewersLoading = false;
+        this.detectChanges();
+
+        this.tableViewerData = this.selectedTabIndex == 0
+          ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
+          : this.selectedTabIndex == 1
+            ? this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages)
+            : this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
+
+        this.tableViewersLoading = false;
+        this.filterLoading = false;
+        this.initComplete = true;
+        this.detectChanges();
+
+    }, (error: any) => {
+      console.log(error);
+    });
   }
 }

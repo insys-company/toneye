@@ -50,8 +50,14 @@
 
       </div>
       <div class="contract-page-viewer__filters-wrapper">
-        <app-filter #filter class=""
-          [skeletonArray]="skeletonArrayForGeneralViewer"
+        <app-filter #filter class="page-list-content__component"
+          [minMaxPlaceholder]="'With any tons number'"
+          [datePlaceholder]="'All time'"
+          [isFilterOpen]="isGeneralInfoOpen"
+          [settings]="filterSettings"
+          [skeletonArray]="skeletonArrayForFilter"
+          [skeletalAnimation]="filterLoading"
+          [params]="params"
           [isFilterOpen]="isFilterOpen"
           [isFilterHideBtnVisible]="isFilterHideBtnVisible"
           [isFilterFooterVisible]="isFilterFooterVisible">

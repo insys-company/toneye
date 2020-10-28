@@ -16,13 +16,22 @@
       <div class="page-list-content__filters-sticky-position">
         <div class="page-list-content__component-wrapper">
           <app-general-viewer #generalViewer class="page-list-content__component"
+            [isGeneralInfoOpen]="isGeneralInfoOpen"
             [data]="generalViewerData"
-            [skeletonArray]="skeletonArray"
-            [skeletalAnimation]="generalViewerLoading">
+            [skeletonArray]="skeletonArrayForGeneralViewer"
+            [skeletalAnimation]="viewersLoading">
           </app-general-viewer>
         </div>
         <div class="page-list-content__component-wrapper">
-          <app-filter #filter class="page-list-content__component"></app-filter>
+          <app-filter #filter class="page-list-content__component"
+            [minMaxPlaceholder]="'With any tons number'"
+            [datePlaceholder]="'Any transaction date'"
+            [isFilterOpen]="isGeneralInfoOpen"
+            [settings]="filterSettings"
+            [skeletonArray]="skeletonArrayForFilter"
+            [skeletalAnimation]="filterLoading"
+            [params]="params">
+          </app-filter>
         </div>
       </div>
 
@@ -33,8 +42,9 @@
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
           footerPlaceholder="Load 25 more"
-          [skeletalAnimation]="tableViewerLoading"
-          (exportEvent)="onExport()">
+          [skeletalAnimation]="tableViewersLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onLoadMore($event)">
         </app-table-viewer>
       </div>
     </div>

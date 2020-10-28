@@ -1,0 +1,30 @@
+<div class="app-multiselect-panel {{ panelClass }}" #minmaxPanel>
+
+  <!-- tabindex="0" для фокусировки -->
+  <div tabindex="0" class="app-multiselect-panel__options" id="optionsPanelId" #optionsPanel>
+    <div class="app-multiselect-panel__option-fields">
+
+      <div class="app-multiselect-panel__option-field">
+        <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+          <input matInput type="text" #minInput class="" [placeholder]="minPlaceholder" [disabled]="disabled"
+            [(ngModel)]="min" (keyup.enter)="onMax()" tabindex="0" autocomplete="off" (ngModelChange)="numberValidator($event, 'minInput', 'min')">
+          <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForMin" (click)="onClearMin()"></div>
+        </mat-form-field>
+      </div>
+
+
+      <div class="app-multiselect-panel__option-field">
+        <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+          <input matInput type="text" #maxInput class="" [placeholder]="maxPlaceholder" [disabled]="disabled"
+            [(ngModel)]="max" (keyup.enter)="onSave()" tabindex="0" autocomplete="off" (ngModelChange)="numberValidator($event, 'maxInput', 'max')">
+          <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForMax" (click)="onClearMax()"></div>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="app-multiselect-panel__option-btn">
+      <button type="button" mat-stroked-button disableRipple (click)="onSave()">Save</button>
+      <button type="button" mat-stroked-button disableRipple (click)="onResetFilter()">Clear all</button>
+    </div>
+  </div>
+
+</div>

@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Block, ViewerData, TabViewerData, DataConfig, QueryOrderBy } from '../../api';
+import { Component, ChangeDetectionStrategy, OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { BlocksService } from './blocks.service';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router, Params } from '@angular/router';
+import { CommonQueries, BlockQueries } from 'src/app/api/queries';
+import { ViewerData, ItemList, Block } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
-import _ from 'underscore';
 import { appRouteMap } from 'src/app/app-route-map';
+import _ from 'underscore';
 
 @Component({
   selector: 'app-blocks',
@@ -13,114 +14,216 @@ import { appRouteMap } from 'src/app/app-route-map';
   styleUrls: ['./blocks.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlocksComponent implements OnInit, OnDestroy {
+export class BlocksComponent extends BaseComponent<Block> implements OnInit, AfterViewChecked, OnDestroy {
   /**
-   * Для отписок на запросы
+   * Details or list
    */
-  public unsubscribe: Subject<void> = new Subject();
-  /**
-   * Data for view
-   */
-  public generalViewerData: Array<ViewerData>;
-  /**
-   * Data for view
-   */
-  public tableViewerData: Array<TabViewerData>;
-  /**
-   * For skeleton animation
-   */
-  public skeletonArray: Array<number> = new Array(4);
-  /**
-   * Flag for loading data of General Viewer
-   */
-  public generalViewerLoading: boolean;
-  /**
-   * Flag for loading data of Tabs Viewer
-   */
-  public tableViewerLoading: boolean;
+  protected listMode: boolean = true;
 
-  /** Array of ... */
-  public data: Block[] = [];
+  /**
+   * Min time for aggregate data
+   */
+  protected utime_since: number;
+
+  /**
+   * Key for prev block for master block's config
+   */
+  protected prev_key_block_seqno: number;
+
+  /**
+   * Count of shards
+   */
+  protected shards_length: number = 0;
+  /**
+   * count of blocks
+   */
+  protected aggregate_blocks: string;
 
   constructor(
-    private changeDetection: ChangeDetectorRef,
-    private blocksService: BlocksService,
-    private router: Router,
+    protected changeDetection: ChangeDetectorRef,
+    protected _service: BlocksService,
+    protected route: ActivatedRoute,
+    protected router: Router,
+    private commonQueries: CommonQueries,
+    private blockQueries: BlockQueries,
   ) {
-    /** Disable change detection for application optimization */
-    this.changeDetection.detach();
-
-    /** Loading animation in children */
-    this.generalViewerLoading = true;
-    this.tableViewerLoading = true;
+    super(
+      changeDetection,
+      _service,
+      route,
+      router,
+    );
   }
 
   /**
    * Initialization of the component
+   * For list component
    */
-  ngOnInit(): void {
-    this.detectChanges();
-    this.init();
+  public initList(): void {
+    this.route.queryParams
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((queryParams: Params) => {
+
+        this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
+
+        this.detectChanges();
+
+        if (this.initComplete) {
+          this.refreshData();
+        }
+
+      });
+
+    this.initMethod();
   }
 
   /**
    * Destruction of the component
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
+    super.ngOnDestroy();
+
+    this.prev_key_block_seqno = null;
+    this.utime_since = null;
+    this.shards_length = null;
+    this.aggregate_blocks = null;
+  }
+
+  /**
+   * Export method
+   */
+  public onExport(): void {
     // TODO
   }
 
   /**
-   * Export event
-   */
-  onExport(): void {
-    // TODO
-  }
-
-  /**
-   * Event of select
-   * @param item Selected item from table
-   */
-  public onSelectItem(item: TabViewerData): void {
-
-    if (item.id) {
-      this.router.navigate([`/${appRouteMap.block}/${item.id}`]);
-    }
-
-  }
-
-  /**
-   * Change tab
+   * Load more data
    * @param index Index of selected tab
    */
-  onSeeMore(index: number): void {
+  public onLoadMore(index: number): void {
+    // // this.tableViewerLoading = true;
 
-    // this.tableViewerLoading = true;
+    // // this.detectChanges();
 
-    // this.detectChanges();
+    // let date = this.data[this.data.length - 1].gen_utime;
 
-    let date = this.data[this.data.length - 1].gen_utime;
+    // const _variables = {
+    //   filter: {gen_utime: {le: date}},
+    //   orderBy: [{path: 'gen_utime', direction: 'DESC'}],
+    //   limit: 25,
+    // }
 
-    const _variables = {
-      filter: {gen_utime: {le: date}},
-      orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-      limit: 25,
-    }
+    // // Get blocks
+    // this.blocksService.getBlocks(_variables)
+    //   .pipe(takeUntil(this.unsubscribe))
+    //   .subscribe((res: Block[]) => {
 
-    // Get blocks
-    this.blocksService.getBlocks(_variables)
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((res: Block[]) => {
+    //     let newData = this.mapData(res);
+    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
+    //     // this.tableViewerLoading = false;
 
-        let newData = this.mapData(res);
-        this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-        // this.tableViewerLoading = false;
+    //     this.detectChanges();
 
-        this.detectChanges();
-
-        // Scroll to bottom
-        // window.scrollTo(0, document.body.scrollHeight);
+    //     // Scroll to bottom
+    //     // window.scrollTo(0, document.body.scrollHeight);
       
+    //   }, (error: any) => {
+    //     console.log(error);
+    //   });
+  }
+
+  /**
+   * First intit
+   */
+  protected initMethod(): void {
+    this.getMasterBlock();
+  }
+
+  /**
+   * Получение данных
+   */
+  protected refreshData(): void {
+    this.getAggregateData();
+  }
+
+  /**
+   * Get key of prev block for master config
+   */
+  private getMasterBlock(): void {
+    // Get master block
+    this._service.getGeneralData(
+      this._service.getVariablesForPrevBlockKey(),
+      this.blockQueries.getMasterBlockPrevKey,
+      appRouteMap.blocks
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((prevBlock: Block[]) => {
+
+        prevBlock = prevBlock ? prevBlock : [];
+
+        this.prev_key_block_seqno = prevBlock[0] ? prevBlock[0].prev_key_block_seqno : null;
+
+        this.getMasterBlockConfig();
+
+      }, (error: any) => {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Get config for utime_since
+   */
+  private getMasterBlockConfig(): void {
+    // Get master block config
+    this._service.getGeneralData(
+      this._service.getVariablesForPrevBlockConfig(this.prev_key_block_seqno),
+      this.blockQueries.getMasterBlockConfig,
+      appRouteMap.blocks
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((masterBlockConfig: Block[]) => {
+
+        masterBlockConfig = masterBlockConfig ? masterBlockConfig : [];
+
+        // For aggregate data
+        this.utime_since = masterBlockConfig[0] && masterBlockConfig[0].master && masterBlockConfig[0].master.config && masterBlockConfig[0].master.config.p34
+          ? masterBlockConfig[0].master.config.p34.utime_since
+          : null;
+
+        // count of shards
+        this.shards_length = masterBlockConfig[0] && masterBlockConfig[0].master && masterBlockConfig[0].master && masterBlockConfig[0].master.shard_hashes
+          ? masterBlockConfig[0].master.shard_hashes.length
+          : 0;
+
+        this.getAggregateData();
+
+      }, (error: any) => {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Get aggregate blocks count
+   */
+  private getAggregateData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this._service.getAggregateData(
+      this._service.getVariablesForAggregateData(this.params, this.utime_since),
+      this.commonQueries.getAggregateBlocks
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((aggData: any) => {
+
+        this.aggregate_blocks = aggData && aggData.aggregateBlocks[0]
+          ? aggData.aggregateBlocks[0]
+          : 0;
+
+        this.getBlocks();
+
       }, (error: any) => {
         console.log(error);
       });
@@ -129,133 +232,81 @@ export class BlocksComponent implements OnInit, OnDestroy {
   /**
    * Init method
    */
-  private init(): void {
+  private getBlocks(): void {
+    this._service.getData(
+      this._service.getVariablesForBlocks(this.params),
+      this.blockQueries.getBlocks
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Block[]) => {
 
-    this.blocksService.getGeneralData()
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe((generalData: any) => {
-
-        const aggregateBlocks = new ViewerData({
-          title: 'Blocks by current validators',
-          value: generalData.aggregateBlocks[0] ? generalData.aggregateBlocks[0] : 0,
-          isNumber: true
-        });
-
-        // Get master block
-        this.blocksService.getMasterBlock()
-        .pipe(takeUntil(this.unsubscribe))
-          .subscribe((masterBlock: any) => {
-
-            const shards = new ViewerData({
-              title: 'Workchain shards',
-              value: masterBlock[0].master && masterBlock[0].master.shard_hashes
-                ? masterBlock[0].master.shard_hashes.length
-                : 0,
-              isNumber: true,
-              // dinamic: true
-            });
-
-            // Get blocks
-            this.blocksService.getBlocks()
-              .pipe(takeUntil(this.unsubscribe))
-              .subscribe((res: Block[]) => {
-
-                this.data = res ? res : [];
-
-                const headBlocks = new ViewerData({
-                  title: 'Head blocks',
-                  value: this.data.length ? _.max(this.data, function(b){ return b.seq_no; })['seq_no'] : 0,
-                  isNumber: true,
-                  dinamic: true
-                });
-
-                const averageBlockTime = new ViewerData({
-                  title: 'Average block time',
-                  value: (this.getAverageBlockTime(this.data) + ' sec').replace('.', ','),
-                  isNumber: false,
-                  dinamic: true
-                });
-
-                this.generalViewerData = [];
-
-                this.generalViewerData.push(headBlocks);
-                this.generalViewerData.push(averageBlockTime);
-                this.generalViewerData.push(aggregateBlocks);
-                this.generalViewerData.push(shards);
-
-                this.generalViewerLoading = false;
-
-                this.detectChanges();
-        
-                this.tableViewerData = this.mapData(this.data);
-
-                this.tableViewerLoading = false;
-
-                this.detectChanges();
-
-              }, (error: any) => {
-                console.log(error);
-              });
-    
-          }, (error: any) => {
-            console.log(error);
-          });
-
+        this.processData(res ? res : []);
 
       }, (error: any) => {
         console.log(error);
       });
-
   }
 
   /**
-   * Map list for table
-   * @param _list Array of blocks
+   * Get general data
+   * @param _data Blocks
    */
-  private mapData(_list: Block[]): TabViewerData[] {
-    if (!_list || !_list.length) { return []; }
+  private processData(_data: Block[]): void {
 
-    let data = [];
-    data = _list.map((b: Block, i) => {
-      return new TabViewerData({
-        id: b.id,
-        url: appRouteMap.block,
-        titleLeft: b.seq_no,
-        subtitleLeft: new DataConfig({text: `${b.workchain_id}:${b.shard ? b.shard.substring(0, 3) : b.shard}`, type: 'string'}),
-        titleRight: new DataConfig({text: (b.tr_count ? b.tr_count : ''), icon: true, iconClass: 'icon-transactions', type: 'number'}),
-        subtitleRight: new DataConfig({text: b.gen_utime, type: 'date'})
-      });
+    /** Blocks */
+    this.data = new ItemList({
+      data: _data ? _data : [],
+      page: 0,
+      pageSize: 25,
+      total: _data ? _data.length : 0
     });
 
-    data = _.clone(_.first(data, 10))
-
-    return data;
-  }
-
-  /**
-   * Get average time
-   * @param _list Array of blocks
-   */
-  private getAverageBlockTime(_list: Block[]): number {
-    if (!_list || !_list.length) { return 0; }
-
-    let averageTime = 0;
-
-    _list.forEach((b: Block, i: number) => {
-      if (_list[i+1]) {
-        averageTime += b.gen_utime - _list[i+1].gen_utime;
-      }
+    const aggregateBlocks = new ViewerData({
+      title: 'Blocks by current validators',
+      value: this.aggregate_blocks,
+      dinamic: true,
+      isNumber: true
     });
 
-    averageTime = averageTime/_list.length;
+    const shards = new ViewerData({
+      title: 'Workchain shards',
+      value: this.shards_length,
+      isNumber: true
+    });
 
-    return Number(averageTime.toFixed(1));
-  }
+    const headBlocks = new ViewerData({
+      title: 'Head blocks',
+      value: this.data.data.length ? _.max(this.data.data, function(b){ return b.seq_no; })['seq_no'] : 0,
+      dinamic: true,
+      isNumber: true
+    });
 
-  /**
-   * Detect Changes
-   */
-  private detectChanges(): void {
-    this.changeDetection.detectChanges();
+    const averageBlockTime = new ViewerData({
+      title: 'Average block time',
+      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'gen_utime') + ' sec').replace('.', ','),
+      dinamic: true,
+      isNumber: false
+    });
+
+    this.generalViewerData = [];
+
+    this.generalViewerData.push(headBlocks);
+    this.generalViewerData.push(averageBlockTime);
+    this.generalViewerData.push(aggregateBlocks);
+    this.generalViewerData.push(shards);
+
+    this.viewersLoading = false;
+
+    this.detectChanges();
+
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks, 10);
+
+    this.tableViewersLoading = false;
+
+    this.filterLoading = false;
+
+    this.initComplete = true;
+
+    this.detectChanges();
   }
 }

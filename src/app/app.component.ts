@@ -174,7 +174,7 @@ export class AppComponent implements OnDestroy {
       .subscribe(event => {
         if (event instanceof NavigationEnd) {
 
-          const _urlArray = event.url != null ? _.without(event.url.split('/'), '', null) : '';
+          const _urlArray = event.url != null ? _.without((event.url.split('?')[0]).split('/'), '', null) : '';
   
           const _url = _urlArray[0] != null ? _urlArray[0] : '';
 
@@ -333,8 +333,14 @@ export class AppComponent implements OnDestroy {
    */
   private getAccounts(_search?: string): Observable<Account[]> {
 
+    _search = _search && _search.match('-') && _search.match(':')
+      ? _search.substring(3, _search.length)
+      :  _search && _search.match(':')
+        ? _search.substring(2, _search.length)
+        : _search;
+
     const _variables = {
-      filter: {id: {in: _search}},
+      filter: {id: {in: [`0:${_search}`, `-1:${_search}`]}},
       orderBy: [
         new QueryOrderBy({path: "balance", direction: "DESC"}),
       ]

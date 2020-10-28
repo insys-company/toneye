@@ -69,7 +69,11 @@ export class TransactionDetailsComponent extends BaseComponent<Transaction> impl
    */
   protected getData(): void {
     /** Get blocks */
-    this.service.getData(this._service.getVariablesForModel(this.model.block_id), this.blockQueries.getBlocks, appRouteMap.blocks)
+    this.service.getData(
+      this._service.getVariablesForModel(this.model.block_id),
+      this.blockQueries.getBlocks,
+      appRouteMap.blocks
+    )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((blockModel: Block[]) => {
 

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener, OnInit, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges } from '@angular/core';
 import { AppSearchService } from './app-search.service';
 import { AppSearchOverlayService } from './app-search-overlay/app-search-overlay.service';
 import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
@@ -16,7 +16,7 @@ import { appRouteMap } from 'src/app/app-route-map';
   providers: [ AppSearchService ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppSearchComponent implements OnInit, OnDestroy {
+export class AppSearchComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * Подписка на изменение строки поиска
    * @type {Subject<string>}
@@ -33,38 +33,38 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   /**
    * Список элементов для выбора
    */
-  @Input() blocks: Block[];
+  @Input() public blocks: Block[];
   /**
    * Список элементов для выбора
    */
-  @Input() messages: Message[];
+  @Input() public messages: Message[];
   /**
    * Список элементов для выбора
    */
-  @Input() transactions: Transaction[];
+  @Input() public transactions: Transaction[];
   /**
    * Список элементов для выбора
    */
-  @Input() accounts: Account[];
+  @Input() public accounts: Account[];
   /**
    * Список элементов для выбора
    */
-  @Input() validators: Validator[];
+  @Input() public validators: Validator[];
 
   /**
    * Текст для случая когда не найдено ничего по поиску
    */
-  @Input() notFoundTitle: string;
+  @Input() public notFoundTitle: string;
 
   /**
    * Search event
    */
-  @Output() searchChange: EventEmitter<string>;
+  @Output() public searchChange: EventEmitter<string>;
 
   /**
    * Select event
    */
-  @Output() selectChange: EventEmitter<{type: string, option: any}>;
+  @Output() public selectChange: EventEmitter<{type: string, option: any}>;
 
   /**
    * фокус на поле
@@ -170,7 +170,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
    * Change data and update
    * @param changes Input data from parent
    */
-  ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+  public ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
 
     if (this.isDirty && this.focused) {
       this.isLoading = false;
@@ -189,7 +189,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   /**
    * Инициализация
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.blocks = this.blocks != null ? this.blocks : [];
     this.messages = this.messages != null ? this.messages : [];
     this.transactions = this.transactions != null ? this.transactions : [];
@@ -201,7 +201,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   /**
    * Уничтожение компонента
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     if (this.searchSub) {
       this.searchSub.unsubscribe();
     }
@@ -219,7 +219,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   /**
    * Метод открытия overlay
    */
-  onOpenPanel(): void {
+  public onOpenPanel(): void {
 
     if (this.overlayRef && this.overlayRef.hasAttached()) {
       // this.closePanel();
@@ -262,7 +262,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
    * Search method
    * @param search String from search input
    */
-  onSearch(search: string): void {
+  public onSearch(search: string): void {
     const _search = search ? search.trim() : search;
 
     if (!_search || _search == '') {
@@ -277,7 +277,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
    * Метод очищает поле поиска и все списки
    * @param {Event} clickEvent Событие для прекращения дальнейшей передачи текущего события
    */
-  onResetSearch(clickEvent?: Event, isNotReset: boolean = false): void {
+  public onResetSearch(clickEvent?: Event, isNotReset: boolean = false): void {
     /** Прекращение дальнейшей передачи текущего события */
     if (clickEvent) { clickEvent.stopPropagation(); }
 
@@ -298,7 +298,7 @@ export class AppSearchComponent implements OnInit, OnDestroy {
   /**
    * 
    */
-  closePanelWithDelay(): void {
+  public closePanelWithDelay(): void {
     setTimeout(() => { this.closePanel(); }, 200);
   }
 

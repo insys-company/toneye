@@ -94,7 +94,7 @@
     &.no-link {
       pointer-events: none !important;
     }
-    &:not(.app-viewer__body-item--skeleton):not(.no-link):hover {
+    &:not(.app-viewer__body-item--skeleton):not(.no-link):not(.no-hover):hover {
       transform: scale(1.014);
     }
   }

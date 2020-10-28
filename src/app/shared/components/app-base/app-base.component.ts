@@ -1,14 +1,13 @@
-import { OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { IModel } from '../../interfaces';
 import { BaseService } from './app-base.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Subject } from 'rxjs';
-import { ViewerData, TabViewerData, SimpleDataFilter, ItemList } from 'src/app/api';
-import { FilterSettings } from '../app-filter/filter-settings';
+import { ViewerData, TabViewerData, SimpleDataFilter, ItemList, FilterSettings } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
 
-export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
+export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewChecked, OnDestroy {
   // /**
   //  * For subs 
   //  */
@@ -25,6 +24,14 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(4);
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(4);
+  /**
+   * Flag for filter
+   */
+  public filterLoading: boolean;
   /**
    * Flag for main info
    */
@@ -57,6 +64,10 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
    * For DOM elements
    */
   public disabled: boolean;
+  /**
+   * Component is init
+   */
+  public initComplete: boolean;
 
 
   /** For Details component */
@@ -116,6 +127,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
     this.params = new SimpleDataFilter();
 
     /** Loading animation in children */
+    this.filterLoading = true;
     this.isGeneralInfoOpen = true;
     this.viewersLoading = true;
     this.tableViewersLoading = true;
@@ -131,6 +143,14 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
     this.listMode
       ? this.initList()
       : this.initDatails();
+  }
+
+  /**
+   * After children check
+   */
+  public ngAfterViewChecked(): void {
+    console.log('d');
+    this.detectChanges();
   }
 
   /**
@@ -176,7 +196,11 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((queryParams: Params) => {
 
-        this.params = this._service.baseFunctionsService.getFilterParams(queryParams, this.params);
+        this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
+
+        console.log(this.params);
+
+        this.detectChanges();
 
         this.refreshData();
 
@@ -278,6 +302,16 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
   }
 
   /**
+   * Event of select
+   * @param item Selected item from table
+   */
+  public onSelectItem(item: TabViewerData): void {
+    if (item.id) {
+      this.router.navigate([`/${this._service.detailsPageName}/${item.id}`]);
+    }
+  }
+
+  /**
    * Method for ngFor optimization (Skeleton list)
    * @param index Item index in ngFor
    * @param item Item in ngFor
@@ -324,6 +358,8 @@ export class BaseComponent<TModel extends IModel> implements OnInit, OnDestroy {
         delete this.params[key];
       }
     });
+    this.unsubscribe();
+    this._service.unsubscribe();
     return this.router.navigate([], { queryParams: this.params });
   }
 

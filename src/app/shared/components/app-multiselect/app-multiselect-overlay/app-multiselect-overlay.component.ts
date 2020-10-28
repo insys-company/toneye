@@ -1,4 +1,4 @@
-import { Component, ViewChild, InjectionToken, Inject, OnDestroy, OnInit, HostListener, ElementRef, AfterContentInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, InjectionToken, Inject, OnDestroy, OnInit, HostListener, ElementRef, AfterContentInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatFormField } from '@angular/material/form-field';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { AppMultiselectOverlayService } from './app-multiselect-overlay.service';
@@ -15,7 +15,8 @@ const SELECT_ALL = 'Select All';
 @Component({
   selector: 'app-multiselect-overlay',
   templateUrl: './app-multiselect-overlay.component.html',
-  styleUrls: ['./app-multiselect-overlay.component.scss']
+  styleUrls: ['./app-multiselect-overlay.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, AfterContentInit, OnDestroy {
   /**
@@ -296,7 +297,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Инициализация
    * @returns {void}
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.focusedOptionIndex = null;
     this.overlaySize = this.data.data.overlaySize != null ? this.data.data.overlaySize : 20;
     this.disabled = this.data.data.disabled;
@@ -378,7 +379,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Обновление дом элементов после инициализации
    * @returns {void}
    */
-  ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
     if (this.optionsPanel) { this.optionsPanel.nativeElement.focus(); }
   }
 
@@ -386,7 +387,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Обновление дом элементов после ngDoCheck
    * @returns {void}
    */
-  ngAfterContentInit(): void {
+  public ngAfterContentInit(): void {
     this.focusedOption = this.checkArrayLength(this.selectedOptions)
      ? this.selectedOptions[this.selectedOptions.length - 1]
      : this.checkArrayLength(this.options)
@@ -409,7 +410,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Уничтожение компонента
    * @returns {void}
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.ngUnsubscribe();
 
     if (this.overlaySub) {
@@ -444,7 +445,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Отписка от запросов
    * @returns {void}
    */
-  ngUnsubscribe(): void {
+  public ngUnsubscribe(): void {
     if (this.unsubscribe) {
       this.unsubscribe.next();
       this.unsubscribe.complete();
@@ -458,7 +459,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {void}
    */
-  onSearch(search: string): void {
+  public onSearch(search: string): void {
     if (this.searchEnable && this.multiselectSearchInput) {
       this.search = search;
     }
@@ -469,7 +470,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Метод очищает строку поиска и генерирует событие
    * @returns {void}
    */
-  onClearSearch(): void {
+  public onClearSearch(): void {
     if (this.searchEnable && this.search !== '' && this.multiselectSearchInput) {
       this.search = '';
 
@@ -485,7 +486,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {void}
    */
-  onSelectOption(option: any): void {
+  public onSelectOption(option: any): void {
 
     this.selectedOptions = this.selectedOptions ? this.selectedOptions : [];
 
@@ -522,7 +523,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {void}
    */
-  onSelectAll(event: MatCheckboxChange): void {
+  public onSelectAll(event: MatCheckboxChange): void {
 
     if (!this.multiple || !this.checkArrayLength(this.options)) { return; }
 
@@ -541,7 +542,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    * Проверка выбраны ли все элементы
    * @returns {boolean}
    */
-  isAllSelected(): boolean {
+  public isAllSelected(): boolean {
     if (!this.multiple) { return false; }
 
     const numSelected = this.selectedOptions ? this.selectedOptions.length : 0;
@@ -559,7 +560,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {boolean}
    */
-  isOptionSelected(option: any): boolean {
+  public isOptionSelected(option: any): boolean {
     if (!option) {
       return false;
     }
@@ -573,7 +574,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {boolean}
    */
-  isOptionFocused(option: any): boolean {
+  public isOptionFocused(option: any): boolean {
     if (!option || !this.focusedOption || !this.checkArrayLength(this.options)) {
       return false;
     }
@@ -586,7 +587,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {boolean}
    */
-  isLimitExceeded(option: any): boolean {
+  public isLimitExceeded(option: any): boolean {
     if (this.isOptionSelected(option) || !this.optionsLimitEnable || !this.multiple) {
       return;
     }
@@ -600,7 +601,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
    *
    * @returns {boolean} результат - удовлетворяет ли массив условию
    */
-  checkArrayLength(array: any[]): boolean {
+  public checkArrayLength(array: any[]): boolean {
     return (array && array.length) ? true : false;
   }
 

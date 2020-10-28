@@ -1,4 +1,4 @@
-import { Component, InjectionToken, Inject, OnDestroy, OnInit, AfterContentInit, AfterViewInit } from '@angular/core';
+import { Component, InjectionToken, Inject, OnDestroy, OnInit } from '@angular/core';
 import { AppSearchOverlayService } from './app-search-overlay.service';
 import { Block, Message, Transaction, Validator } from 'src/app/api/contracts';
 import { smoothSearchPanelAnimation } from 'src/app/app-animations';
@@ -12,38 +12,38 @@ export const NOT_FOUND = 'Not found';
   styleUrls: ['./app-search-overlay.component.scss'],
   animations: [ smoothSearchPanelAnimation ],
 })
-export class AppSearchOverlayComponent implements OnInit, AfterViewInit, AfterContentInit, OnDestroy {
+export class AppSearchOverlayComponent implements OnInit, OnDestroy {
   /**
    * Список элементов для выбора
    */
-  blocks: Block[];
+  public blocks: Block[];
   /**
    * Список элементов для выбора
    */
-  messages: Message[];
+  public messages: Message[];
   /**
    * Список элементов для выбора
    */
-  transactions: Transaction[];
+  public transactions: Transaction[];
   /**
    * Список элементов для выбора
    */
-  accounts: Account[];
+  public accounts: Account[];
   /**
    * Список элементов для выбора
    */
-  validators: Validator[];
+  public validators: Validator[];
 
   /**
    * Текст для случая когда не найдено ничего по поиску
    */
-  notFoundTitle: string;
+  public notFoundTitle: string;
 
   /**
    * Не найдено
    */
-  get notFound(): boolean {
-    return  !this.checkArray(this.blocks)
+  public get notFound(): boolean {
+    return !this.checkArray(this.blocks)
       && !this.checkArray(this.messages)
       && !this.checkArray(this.transactions)
       && !this.checkArray(this.accounts)
@@ -60,7 +60,7 @@ export class AppSearchOverlayComponent implements OnInit, AfterViewInit, AfterCo
   /**
    * Инициализация
    */
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.blocks = this.data.data.blocks ? this.data.data.blocks : [];
     this.messages = this.data.data.messages ? this.data.data.messages : [];
     this.transactions = this.data.data.transactions ? this.data.data.transactions : [];
@@ -75,23 +75,9 @@ export class AppSearchOverlayComponent implements OnInit, AfterViewInit, AfterCo
   }
 
   /**
-   * Обновление дом элементов после инициализации
-   */
-  ngAfterViewInit(): void {
-    // TODO
-  }
-
-  /**
-   * Обновление дом элементов после ngDoCheck
-   */
-  ngAfterContentInit(): void {
-    // TODO
-  }
-
-  /**
    * Уничтожение компонента
    */
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.blocks = null;
     this.messages = null;
     this.transactions = null;
@@ -105,7 +91,7 @@ export class AppSearchOverlayComponent implements OnInit, AfterViewInit, AfterCo
    * Метод выбора элементов из списка
    * @param {any} option Выбранный элемент
    */
-  onSelectOption(type: string, option: any): void {
+  public onSelectOption(type: string, option: any): void {
     this.service.selectOption.next({type, option});
   }
 

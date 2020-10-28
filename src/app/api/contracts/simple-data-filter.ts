@@ -1,15 +1,16 @@
 export class SimpleDataFilter {
-  chains: string;
-  extint: string;
-  max: number;
-  min: number;
-  dateFrom: number;
-  dateTo: number;
+  chain: string;
+  ext_int: string;
+  msg_direction:string;
+  max: string;
+  min: string;
+  fromDate: string;
+  toDate: string;
   period: string;
-  timeFrom: number;
-  timeTo: number;
+  fromTime: number;
+  toTime: number;
   shard: string;
-  aborted: boolean;
+  aborted: string;
   direction: string;
   index: string;
 

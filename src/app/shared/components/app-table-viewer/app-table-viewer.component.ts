@@ -100,6 +100,21 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * @param changes Input data from parent
    */
   ngOnChanges(changes: { [propertyName: string]: SimpleChange }): void {
+
+    if (this.data) {
+
+      if (this.data.length && this.data.length < 11) {
+        this.skeletonArray = new Array(this.data.length);
+      }
+      else if (!this.data.length) {
+        this.skeletonArray = new Array(5);
+      }
+      else if (this.data.length > 10) {
+        this.skeletonArray = new Array(10);
+      }
+
+    }
+
     this.detectChanges();
   }
 

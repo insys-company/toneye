@@ -5,8 +5,7 @@ import { GraphQueryService, BaseFunctionsService } from '../../services';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { DocumentNode } from 'graphql';
-import { ItemList, TabViewerData } from 'src/app/api';
-import { FilterSettings } from '../app-filter/filter-settings';
+import { ItemList, TabViewerData, FilterSettings, SimpleDataFilter } from 'src/app/api';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 
@@ -138,6 +137,15 @@ export class BaseService<TModel extends IModel> {
    */
   public getVariablesForModel(_id: string | number): object {
     return {filter: {id: {eq: _id}}};
+  }
+
+  /**
+   * Get variables
+   * @param params Filter params for query
+   * @param _data Aditional data for query
+   */
+  public getVariablesForAggregateData(params?: SimpleDataFilter, _data?: any): object {
+    return {filter: {}};
   }
 
   /**
