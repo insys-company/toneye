@@ -32,6 +32,7 @@ export class AccountsService extends BaseService<Account> {
           filterByAbort: false,
           filterByMinMax: true,
           filterByDate: true,
+          filterByDirection: false,
         });
       }
     );

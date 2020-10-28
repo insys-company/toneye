@@ -137,6 +137,19 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
   public abortedInit: boolean;
 
   /**
+   * Directions list
+   */
+  public directions: ListItem[] = [];
+  /**
+   * Selected directions list
+   */
+  public selectedDirections: ListItem[] = [];
+  /**
+   * Init
+   */
+  public directionsInit: boolean;
+
+  /**
    * Min
    */
   public min: string;
@@ -174,7 +187,9 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
     count = this.settings.filterExtInt && this.params.ext_int != null ? count += 1 : count;
     count = this.settings.filterByMinMax && (this.params.min != null || this.params.max != null) ? count += 1 : count;
     count = this.settings.filterByAbort && this.params.aborted != null ? count += 1 : count;
-
+    count = this.settings.filterByDirection && this.params.msg_direction != null ? count += 1 : count;
+    count = this.settings.filterByDate && (this.params.fromDate != null || this.params.toDate != null) ? count += 1 : count;
+  
     return count;
   }
 
@@ -207,6 +222,9 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
       }
       if (this.settings.filterByAbort) {
         this.getAbortFilter(this.params ? this.params.aborted : null);
+      }
+      if (this.settings.filterByDirection) {
+        this.getDirections(this.params ? this.params.msg_direction : null);
       }
       if (this.settings.filterByMinMax) {
         this.getMinMax(this.params ? { min: this.params.min, max: this.params.max } : { min: null, max: null})
@@ -308,6 +326,7 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
     this.selectedExtInt = [];
     this.selectedShards = [];
     this.selectedAborted = [];
+    this.selectedDirections = [];
     this.min = null;
     this.max = null;
     this.fromDate = null;
@@ -389,6 +408,22 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
   }
 
   /**
+   * Изменение идентификатора
+   * @param item Выбранный элемент
+   */
+  public onSelectDirection(item: ListItem): void {
+    if (!item) { // null передается при сбросе
+      this.params.msg_direction = null;
+    } else {
+      const index = this.selectedDirections.indexOf(item);
+      this.params.msg_direction = index > -1 ? item.id : null;
+    }
+
+    // this.detectChanges();
+    this.redirect();
+  }
+
+  /**
    * Изменение фильтра aborted
    * @param check Состояние выбранное
    */
@@ -463,25 +498,25 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
    * Get list
    * @param id Id of selected item
    */
-  private getExtInt(id?: string): void {
+  private getDirections(id?: string): void {
 
-    if (!this.extIntInit) {
-      this.extInt = this.service.getExtInt();
-      this.selectedExtInt = [];
+    if (!this.directionsInit) {
+      this.directions = this.service.getDirections();
+      this.selectedDirections = [];
     }
 
     // Поиск выбранных
     if (id) {
-      let item = this.extInt.find(s => s.id === id);
+      let item = this.directions.find(s => s.id === id);
 
       if (item) {
-        this.selectedExtInt.push(item);
+        this.selectedDirections.push(item);
       }
 
       item = null;
     }
 
-    this.extIntInit = true;
+    this.directionsInit = true;
   }
 
   /**
@@ -531,6 +566,31 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
       }, (error: any) => {
         console.log(error);
       });
+  }
+
+  /**
+   * Get list
+   * @param id Id of selected item
+   */
+  private getExtInt(id?: string): void {
+
+    if (!this.extIntInit) {
+      this.extInt = this.service.getExtInt();
+      this.selectedExtInt = [];
+    }
+
+    // Поиск выбранных
+    if (id) {
+      let item = this.extInt.find(s => s.id === id);
+
+      if (item) {
+        this.selectedExtInt.push(item);
+      }
+
+      item = null;
+    }
+
+    this.extIntInit = true;
   }
 
   /**

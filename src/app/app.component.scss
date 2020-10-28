@@ -48,6 +48,7 @@
   transition: all .3s ease;
   background: url('./../assets/icons/logo.svg') center center no-repeat;
   animation: logoAnimate .5s ease 1 normal .8s forwards;
+  text-decoration: none !important;
   // &:hover {
   //   animation: logoAnimate .5s ease 1 normal .5s forwards;
   // }

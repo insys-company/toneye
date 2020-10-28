@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { TransactionQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Transaction } from 'src/app/api';
+import { Transaction, FilterSettings } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
@@ -21,7 +21,20 @@ export class TransactionDetailsService extends BaseService<Transaction> {
       graphQueryService,
       baseFunctionsService,
       (data: Transaction) => new Transaction(data),
-      appRouteMap.transactions
+      appRouteMap.transactions,
+      appRouteMap.transaction,
+      () => {
+        this._filterSettings = new FilterSettings({
+          filterChain: false,
+          filterExtInt: false,
+          filterByShard: false,
+          filterByTime: false,
+          filterByAbort: false,
+          filterByMinMax: false,
+          filterByDate: false,
+          filterByDirection: false,
+        });
+      }
     );
   }
 }

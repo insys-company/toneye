@@ -8,6 +8,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material/material.module';
 
 import {
+  NgxMatDatetimePickerModule, 
+  NgxMatNativeDateModule, 
+  NgxMatTimepickerModule 
+} from '@angular-material-components/datetime-picker';
+
+import {
   AppGeneralViewerComponent,
   AppFilterComponent,
   AppTableViewerComponent,
@@ -50,6 +56,9 @@ import {
     ReactiveFormsModule,
     RouterModule,
     MaterialModule,
+    NgxMatDatetimePickerModule,
+    NgxMatTimepickerModule,
+    NgxMatNativeDateModule,
   ],
   providers: [],
   exports: [

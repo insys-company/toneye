@@ -21,7 +21,7 @@
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
     <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item no-link">
       <div class="app-viewer__body-item-header"><p>{{item?.title}}</p></div>
-      <div class="app-viewer__body-item-subheader"><span>{{item?.isNumber ? (item?.value | thousandspipe) : item?.isDate ? (item?.isDate | unixdate: 'HH:mm:ss D MMM YYYY') : item?.value}}</span></div>
+      <div class="app-viewer__body-item-subheader"><span>{{item?.isNumber ? (item?.value | thousandspipe) : item?.isDate ? (item?.value | unixdate: 'HH:mm:ss D MMM YYYY') : item?.value}}</span></div>
     </div>
   </div>
 

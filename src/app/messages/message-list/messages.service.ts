@@ -32,6 +32,7 @@ export class MessagesService extends BaseService<Message> {
           filterByAbort: false,
           filterByMinMax: true,
           filterByDate: true,
+          filterByDirection: false,
         });
       }
     );

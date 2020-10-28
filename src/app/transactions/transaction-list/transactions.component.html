@@ -5,7 +5,10 @@
       <h1>Transactions</h1>
     </div>
     <div class="page-header__slide-toggle">
-      <mat-slide-toggle>Autoupdate</mat-slide-toggle>
+      <mat-slide-toggle
+        [checked]="autoupdate"
+        (change)="updateChange($event.checked)">Autoupdate
+      </mat-slide-toggle>
     </div>
   </div>
   <!-- Page content -->

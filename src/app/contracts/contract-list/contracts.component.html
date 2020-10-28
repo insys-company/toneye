@@ -4,9 +4,12 @@
     <div class="page-header__header">
       <h1>Contracts</h1>
     </div>
-    <div class="page-header__slide-toggle">
-      <mat-slide-toggle>Autoupdate</mat-slide-toggle>
-    </div>
+    <!-- <div class="page-header__slide-toggle">
+      <mat-slide-toggle
+        [checked]="autoupdate"
+        (change)="updateChange($event.checked)">Autoupdate
+      </mat-slide-toggle>
+    </div> -->
   </div>
   <!-- Page content -->
   <div class="contracts-page__content contracts-content page-list-content">

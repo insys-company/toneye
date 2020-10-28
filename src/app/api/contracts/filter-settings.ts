@@ -6,6 +6,7 @@ export class FilterSettings {
   filterByAbort: boolean;
   filterByMinMax: boolean;
   filterByDate: boolean;
+  filterByDirection: boolean;
 
   constructor(data?: any) {
     if (data) {

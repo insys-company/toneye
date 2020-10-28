@@ -32,6 +32,7 @@ export class AccountDetailsService extends BaseService<Account> {
           filterByAbort: true,
           filterByMinMax: true,
           filterByDate: true,
+          filterByDirection: false,
         });
       }
     );
@@ -80,7 +81,7 @@ export class AccountDetailsService extends BaseService<Account> {
     };
   }
 
-  public getVariablesForMessages(params: SimpleDataFilter, _id: string, srcTypeMess: boolean = true): object {
+  public getVariablesForMessages(params: SimpleDataFilter, _id: string, srcTypeMess: boolean = null): object {
     params = params ? params : new SimpleDataFilter({});
 
     let id = params.chain != null && !_id.match(`${params.chain}:`) ? {eq: null} : undefined;
@@ -90,7 +91,7 @@ export class AccountDetailsService extends BaseService<Account> {
     let _src: object;
 
     // Только по src
-    if (params.msg_direction == 'src' || srcTypeMess) {
+    if (params.msg_direction == 'src' || srcTypeMess  + '' == 'true') {
 
       _src = id
         ? undefined
@@ -104,7 +105,7 @@ export class AccountDetailsService extends BaseService<Account> {
 
     }
     // Только по dst
-    else if (params.msg_direction == 'dst' || !srcTypeMess) {
+    else if (params.msg_direction == 'dst' || srcTypeMess  + '' == 'false') {
 
       _dst = id
         ? undefined

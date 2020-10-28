@@ -28,6 +28,10 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(6);
+  /**
+   * For skeleton animation
+   */
+  public aditionalSkeletonArrayForGeneralViewer: Array<number> = new Array(2);
 
   /**
    * Validators
@@ -49,6 +53,16 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
   public tableViewerDataPrev: Array<TabViewerData>;
   public tableViewerDataNext: Array<TabViewerData>;
 
+  /**
+   * Aditional Data for view
+   */
+  public prevViewerData: Array<ViewerData>;
+
+  /**
+   * Aditional Data for view
+   */
+  public nextViewerData: Array<ViewerData>;
+
   constructor(
     protected changeDetection: ChangeDetectorRef,
     protected _service: ValidatorsService,
@@ -69,6 +83,7 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
+    this.aditionalSkeletonArrayForGeneralViewer = null;
     this.prevBlockKey = null;
 
     this.previosValidators = null;
@@ -81,6 +96,9 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
 
     this.tableViewerDataPrev = null;
     this.tableViewerDataNext = null;
+
+    this.prevViewerData = null;
+    this.nextViewerData = null;
   }
 
   /**
@@ -88,48 +106,6 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    */
   public onExport(): void {
     // TODO
-  }
-
-  /**
-   * Change tab
-   * @param index Index of selected tab
-   */
-  public onChangeTab(index: number): void {
-
-    if (index == this.selectedTabIndex) { return; }
-
-    this.selectedTabIndex = index;
-    this.tableViewersLoading = true;
-    this.tableViewerData = [];
-    this.detectChanges();
-
-    this.tableViewerData = index == 0
-      ? this.tableViewerDataPrev
-      : index == 1
-        ? this._service.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight)
-        : this.tableViewerDataNext;
-
-
-    const conf = this.data.data[0] && this.data.data[0].master ? this.data.data[0].master.config : null;
-
-    this.aditionalViewerData.push(new ViewerData({
-      title: 'Since',
-      value: index == 0 ? conf.p32.utime_since : index == 1 ? conf.p34.utime_since : conf.p36.utime_since,
-      isDate: true
-    }));
-    this.aditionalViewerData.push(new ViewerData({
-      title: 'Until', value: index == 0 ? conf.p32.utime_until : index == 1 ? conf.p34.utime_until : (conf.p36 ? conf.p36.utime_until : null),
-      isDate: true
-    }));
-
-
-        // this.tableViewerDataPrev = this.mapDataForTable(this.previosValidators.list, appRouteMap.validators, 10, this.previosValidators.total_weight);
-        // this.tableViewerData = this.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight);
-        // this.tableViewerDataNext = this.mapDataForTable(this.nextValidators.list, appRouteMap.validators, 10, this.nextValidators.total_weight);
-
-    this.tableViewersLoading = false;
-    this.detectChanges();
-
   }
 
   /**
@@ -179,9 +155,36 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
     this.p17ViewerData.push(new ViewerData({title: 'Min stake', value: _model.p17.min_stake, isNumber: true}));
     this.p17ViewerData.push(new ViewerData({title: 'Min total stake', value: _model.p17.min_total_stake, isNumber: true}));
 
+    this.prevViewerData = [];
+    this.prevViewerData.push(new ViewerData({
+      title: 'Since', value: _model && _model.p32 && _model.p32.utime_since != null ? _model.p32.utime_since : '--',
+      isDate:  _model && _model.p32 && _model.p32.utime_since != null ? true : false
+    }));
+    this.prevViewerData.push(new ViewerData({
+      title: 'Until', value: _model && _model.p32 && _model.p32.utime_until != null ? _model.p32.utime_until : '--',
+      isDate: _model && _model.p32 && _model.p32.utime_until != null ? true : false
+    }));
+
     this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new ViewerData({title: 'Since', value: _model.p32.utime_since, isDate: true}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Until', value: _model.p32.utime_until, isDate: true}));
+    this.aditionalViewerData.push(new ViewerData({
+      title: 'Since', value: _model && _model.p34 && _model.p34.utime_since != null ? _model.p34.utime_since : '--',
+      isDate:  _model && _model.p34 && _model.p34.utime_since != null ? true : false
+    }));
+    this.aditionalViewerData.push(new ViewerData({
+      title: 'Until', value: _model && _model.p34 && _model.p34.utime_until != null ? _model.p34.utime_until : '--',
+      isDate: _model && _model.p34 && _model.p34.utime_until != null ? true : false
+    }));
+
+    this.nextViewerData = [];
+    this.nextViewerData.push(new ViewerData({
+      title: 'Since', value: _model && _model.p36 && _model.p36.utime_since != null ? _model.p36.utime_since : '--',
+      isDate:  _model && _model.p36 && _model.p36.utime_since != null ? true : false
+    }));
+    this.nextViewerData.push(new ViewerData({
+      title: 'Until', value: _model && _model.p36 && _model.p36.utime_until != null ? _model.p36.utime_until : '--',
+      isDate: _model && _model.p36 && _model.p36.utime_until != null ? true : false
+    }));
+
   }
 
   /**
@@ -247,9 +250,9 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
 
         this.detectChanges();
 
-        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list, appRouteMap.validators, 10, this.previosValidators.total_weight);
-        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list, appRouteMap.validators, 10, this.currentValidators.total_weight);
-        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list, appRouteMap.validators, 10, this.nextValidators.total_weight);
+        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, 10, this.previosValidators.total_weight);
+        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, 10, this.currentValidators.total_weight);
+        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, 10, this.nextValidators.total_weight);
 
         this.tableViewersLoading = false;
 

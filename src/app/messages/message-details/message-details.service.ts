@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { MessageQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Message } from 'src/app/api';
+import { Message, FilterSettings } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
@@ -21,7 +21,20 @@ export class MessageDetailsService extends BaseService<Message> {
       graphQueryService,
       baseFunctionsService,
       (data: Message) => new Message(data),
-      appRouteMap.messages
+      appRouteMap.messages,
+      appRouteMap.message,
+      () => {
+        this._filterSettings = new FilterSettings({
+          filterChain: false,
+          filterExtInt: false,
+          filterByShard: false,
+          filterByTime: false,
+          filterByAbort: false,
+          filterByMinMax: false,
+          filterByDate: false,
+          filterByDirection: false,
+        });
+      }
     );
   }
 

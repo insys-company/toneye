@@ -73,7 +73,7 @@
 
   </div>
 
-  <div class="page-content__tabs-buttons">
+  <!-- <div class="page-content__tabs-buttons">
     <div class="tabs-buttons__wrapper">
       <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
         <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Transactions {{transactions?.length ? '(' + transactions.length + ')' : ''}}</h2>
@@ -85,39 +85,82 @@
         <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 2">Out Messages {{outMessages?.length ? '(' + outMessages.length + ')' : ''}}</h2>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <div class="blocks-page__content blocks-content page-list-content" [class.hide-filters]="selectedTabIndex !== 0">
-    <div class="page-list-content__filters">
 
-      <!-- Sticky block for desctop -->
-      <div class="page-list-content__filters-sticky-position">
-        <div class="page-list-content__component-wrapper">
-          <app-filter #filter class="page-list-content__component"
-            [minMaxPlaceholder]="'With any tons number'"
-            [datePlaceholder]="'All time'"
-            [isFilterOpen]="isGeneralInfoOpen"
-            [settings]="filterSettings"
-            [skeletonArray]="skeletonArrayForFilter"
-            [skeletalAnimation]="filterLoading"
-            [params]="params">
-          </app-filter>
+
+  <div class="account-page__content account-content page-list-content">
+      <!-- animationDuration="0ms" -->
+    <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
+      <mat-tab label="Transactions ({{transactions?.length ? transactions?.length : 0}})"> 
+
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__filters tab-animation">
+            <!-- Sticky block for desctop -->
+            <div class="page-list-content__filters-sticky-position">
+              <div class="page-list-content__component-wrapper">
+                <app-filter #filter class="page-list-content__component"
+                  [minMaxPlaceholder]="'With any tons number'"
+                  [datePlaceholder]="'All time'"
+                  [isFilterOpen]="isGeneralInfoOpen"
+                  [settings]="filterSettings"
+                  [skeletonArray]="skeletonArrayForFilter"
+                  [skeletalAnimation]="filterLoading"
+                  [params]="params">
+                </app-filter>
+              </div>
+            </div>
+          </div>
+                
+          <div class="page-list-content__tabs tab-animation">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer1
+                [data]="tableViewerData"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
         </div>
-      </div>
+          
+      </mat-tab>
 
-    </div>
 
-    <div class="page-list-content__tabs">
-      <div class="page-list-content__component-wrapper">
-        <app-table-viewer #tableViewer
-          [data]="tableViewerData"
-          footerPlaceholder="Load 25 more"
-          [skeletalAnimation]="tableViewersLoading"
-          (exportEvent)="onExport()"
-          (moreEvent)="onLoadMore($event)">
-        </app-table-viewer>
-      </div>
-    </div>
+      <mat-tab label="In Messages ({{inMessages?.length ? inMessages?.length : 0}})"> 
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__tabs tab-animation" style="flex: 1 1 100%;max-width: 100%;">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer2
+                [data]="aditionalTableViewerData"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+
+      <mat-tab label="Out Messages ({{outMessages?.length ? outMessages?.length : 0}})">
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__tabs tab-animation" style="flex: 1 1 100%;max-width: 100%;">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer3
+                [data]="outMessTableViewerData"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 
 </div>

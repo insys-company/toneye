@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="explorer__header header" [class.header--mobile-menu-opened]="isMenuOpened">
       <!-- Logo icon -->
-      <div class="header__logo"></div>
+      <a routerLink="/home" class="header__logo"></a>
 
       <!-- Icon for mobile version -->
       <div class="header__mobile-menu-icon mobile-menu-icon" [class.mobile-menu-icon--opened]="isMenuOpened" (click)="isMenuOpened = !isMenuOpened;">

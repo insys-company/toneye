@@ -3,7 +3,7 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { BlockDetailsService } from './block-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { TransactionQueries, BlockQueries } from 'src/app/api/queries';
-import { Block, ViewerData, Transaction, MsgData } from 'src/app/api';
+import { Block, ViewerData, Transaction, MsgData, TabViewerData } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
@@ -35,6 +35,11 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
    * Master config Data for view
    */
   public masterConfigViewerData: Array<ViewerData>;
+
+  /**
+   * Aditional Data for view
+   */
+  public outMessTableViewerData: Array<TabViewerData>;
 
   /**
    * Id for redirect
@@ -227,30 +232,6 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
   }
 
   /**
-   * Change tab
-   * @param index Index of selected tab
-   */
-  public onChangeTab(index: number): void {
-
-    if (index == this.selectedTabIndex) { return; }
-
-    this.selectedTabIndex = index;
-    this.tableViewersLoading = true;
-    this.tableViewerData = [];
-    this.detectChanges();
-
-    this.tableViewerData = index == 0
-      ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-      : index == 1
-        ? this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages)
-        : this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
-
-    this.tableViewersLoading = false;
-    this.detectChanges();
-
-  }
-
-  /**
    * Load more data
    * @param index Index of selected tab
    */
@@ -389,6 +370,9 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
     // this.finalStateViewerData.push(new GeneralViewer({title: 'Destroyed', value: _model.destroyed ? 'Yes' : 'No'}));
   }
 
+  /**
+   * Get transactions
+   */
   private getTransactions(): void {
 
     this.tableViewersLoading = true;
@@ -415,11 +399,11 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
         this.viewersLoading = false;
         this.detectChanges();
 
-        this.tableViewerData = this.selectedTabIndex == 0
-          ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-          : this.selectedTabIndex == 1
-            ? this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages)
-            : this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
+        this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
+
+        this.aditionalTableViewerData = this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages);
+
+        this.outMessTableViewerData = this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
 
         this.tableViewersLoading = false;
         this.filterLoading = false;

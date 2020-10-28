@@ -19,6 +19,10 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
   /**
    * For subscribers
    */
+  public _routeUnsubscribe: Subject<void> = new Subject<void>();
+  /**
+   * For subscribers
+   */
   public _unsubscribe: Subject<void> = new Subject<void>();
   /**
    * For skeleton animation
@@ -60,6 +64,26 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Data for view
    */
   public tableViewerData: Array<TabViewerData>;
+  /**
+   * Aditional Data for view
+   */
+  public aditionalTableViewerData: Array<TabViewerData>;
+
+  /**
+   * For data update
+   */
+  public autoupdate: boolean;
+
+  /**
+   * For data update
+   */
+  public autoupdateSubscribe: boolean;
+
+  /**
+   * Data for view
+   */
+  public newDataAfterUpdate: Array<TabViewerData>;
+
   /**
    * For DOM elements
    */
@@ -123,6 +147,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     /** Disable change detection for application optimization */
     this.changeDetection.detach();
 
+    this._routeUnsubscribe = new Subject<void>();
     this._unsubscribe = new Subject<void>();
     this.params = new SimpleDataFilter();
 
@@ -159,7 +184,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   public initDatails(): void {
     this.route.params
-      .pipe(takeUntil(this._unsubscribe))
+      .pipe(takeUntil(this._routeUnsubscribe))
       .subscribe((params: Params) => {
         this.modelId = params['id'] != null ? params['id'].trim() : null;
 
@@ -193,7 +218,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   public initList(): void {
     this.route.queryParams
-      .pipe(takeUntil(this._unsubscribe))
+      .pipe(takeUntil(this._routeUnsubscribe))
       .subscribe((queryParams: Params) => {
 
         this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
@@ -213,6 +238,9 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Destruction of the component
    */
   public ngOnDestroy(): void {
+    this.routeUnsubscribe();
+    this._routeUnsubscribe = null;
+
     this.unsubscribe();
     this._unsubscribe = null;
 
@@ -229,7 +257,11 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     this.aditionalViewerData = null;
     this.tableViewersLoading = null;
     this.tableViewerData = null;
+    this.aditionalTableViewerData = null;
     this.disabled = null;
+    this.autoupdate = null;
+    this.autoupdateSubscribe = null;
+    this.newDataAfterUpdate = null;
 
     this.model = null;
     this.modelId =  null;
@@ -237,6 +269,16 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     this.data = null;
     this.total = null;
     this.selectedTabIndex = null;
+  }
+
+  /**
+   * unsubscribe from qeries of the component
+   */
+  public routeUnsubscribe(): void {
+    if (this._routeUnsubscribe) {
+      this._routeUnsubscribe.next();
+      this._routeUnsubscribe.complete();
+    }
   }
 
   /**
@@ -326,6 +368,17 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
   public identifyData(index: number, item: ViewerData): string { return item.value; }
 
   /**
+   * Change autoupdate checkbox
+   * @param check Flag
+   */
+  public updateChange(check: boolean) {
+    this.autoupdate = check;
+
+    this.detectChanges();
+    // TODO
+  }
+
+  /**
    * update data
    */
   protected refreshData(): void {
@@ -358,8 +411,12 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
         delete this.params[key];
       }
     });
-    this.unsubscribe();
-    this._service.unsubscribe();
+
+    if (!(this.autoupdate && this.autoupdateSubscribe)) {
+      this.unsubscribe();
+      this._service.unsubscribe();
+    }
+
     return this.router.navigate([], { queryParams: this.params });
   }
 
@@ -368,6 +425,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   protected init(): void {
     this._service.init();
+    this._routeUnsubscribe = new Subject<void>();
     this._unsubscribe = new Subject<void>();
     this.params = new SimpleDataFilter();
 

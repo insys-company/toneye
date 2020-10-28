@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { BlockQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Block } from 'src/app/api';
+import { Block, FilterSettings } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 const NODE_ID="4cded8178438ca7739b7429f7eabff5961023878a2ffaa2dbf03f040f87c4e04";
@@ -22,7 +22,20 @@ export class ValidatorDetailsService extends BaseService<any> {
       graphQueryService,
       baseFunctionsService,
       (data: Block) => new Block(data),
-      appRouteMap.blocks
+      appRouteMap.blocks,
+      appRouteMap.block,
+      () => {
+        this._filterSettings = new FilterSettings({
+          filterChain: false,
+          filterExtInt: false,
+          filterByShard: false,
+          filterByTime: false,
+          filterByAbort: false,
+          filterByMinMax: false,
+          filterByDate: false,
+          filterByDirection: false,
+        });
+      }
     );
   }
 

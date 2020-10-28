@@ -98,6 +98,26 @@
       </app-multiselect>
     </div>
 
+    <div *ngIf="settings?.filterByDirection" class="app-viewer__body-item no-hover">
+      <app-multiselect
+        [placeholder]="'Any direction'"
+  
+        [options]="directions"
+        [selectedOptions]="selectedDirections"
+  
+        [searchEnable]="true"
+        [panelClass]="'app-filters__multiselect-panel'"
+        [styleClass]="'app-filters__multiselect'"
+        [shadowStyleClass]="''"
+        [prefixIconClass]="'direction'"
+
+        [singleSelectClearingEnable]="true"
+  
+        (optionSelected)="onSelectDirection($event)"
+        (selectedOptionsChange)="updateSelectedItems($event, 'selectedDirections')">
+      </app-multiselect>
+    </div>
+
     <!-- <div *ngIf="settings?.filterByDate" class="app-viewer__body-item no-hover">
       <app-datepicker
         [placeholder]="datePlaceholder"

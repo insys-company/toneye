@@ -2,6 +2,7 @@ import { Component, OnChanges, OnInit, OnDestroy, Input, Output, ChangeDetectorR
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { TabViewerData } from 'src/app/api';
 import { appRouteMap } from 'src/app/app-route-map';
+import _ from 'underscore';
 
 /**
  * This component displays table information on list pages.
@@ -18,6 +19,15 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Data for view
    */
   @Input() public data: TabViewerData[];
+  /**
+   * New Data for view
+   */
+  @Input() public newData: TabViewerData[];
+  /**
+   * Name of New Data
+   */
+  @Input() public newDataName: string = 'items';
+  
   /**
    * For skeleton animation
    */
@@ -130,6 +140,8 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.data = null;
+    this.newData = null;
+    this.newDataName = null;
     this.skeletonArray = null;
     this.skeletalAnimation = null;
     this.isHeaderVisible = null;
@@ -200,6 +212,23 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.detectChanges();
 
     this.tabChange.next(this.selectedTabIndex);
+  }
+
+  /**
+   * Show new data
+   */
+  public onShowNewData(): void {
+    this.skeletalAnimation = true;
+
+    let _newData = _.clone(this.newData = this.newData ? this.newData : []);
+    this.newData = [];
+
+    this.detectChanges();
+
+    // Объединение двух массивов и сортировка
+    this.data = _.clone(_.first(_newData.concat(this.data), 10));
+
+    this.detectChanges();
   }
 
   /**

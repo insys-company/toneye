@@ -5,8 +5,8 @@ import { Apollo } from 'apollo-angular';
 import { AccountQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
 import { Account, FilterSettings, SimpleDataFilter, ItemList } from 'src/app/api';
-import { appRouteMap } from '../../app-route-map';
 import { Observable, Subscriber } from 'rxjs';
+import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
   providedIn: ContractsServicesModule
@@ -33,6 +33,7 @@ export class ContractsService extends BaseService<Account> {
           filterByAbort: false,
           filterByMinMax: true,
           filterByDate: true,
+          filterByDirection: false,
         });
       }
     );

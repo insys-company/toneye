@@ -198,5 +198,39 @@ export class TransactionQueries extends GraphQueryService {
     }
   `;
 
+  getTransactionsSub = gql`
+    subscription getTransactions($filter: TransactionFilter, $orderBy: [QueryOrderBy], $limit: Int, $timeout: Float) {
+      transactions(filter: $filter, orderBy: $orderBy, limit: $limit, timeout: $timeout) {
+        aborted
+        account_addr
+        balance_delta
+        block_id
+        boc
+        end_status
+        id
+        in_message {
+          id
+          block_id
+        }
+        in_msg
+        lt
+        new_hash
+        now
+        old_hash
+        orig_status
+        outmsg_cnt
+        prev_trans_hash
+        storage {
+          status_change
+          storage_fees_collected
+          storage_fees_due
+          __typename
+        }
+        tr_type
+        __typename
+      }
+    }
+  `;
+
   constructor() { super(); }
 }

@@ -173,7 +173,9 @@ a {
 .page-details-content,
 .page-content__tabs-buttons,
 .page-list-content__filters,
-.page-list-content__tabs {
+.page-list-content__tabs,
+
+.mat-tab-group {
   opacity: 0;
   -webkit-transform: translateY(10px);
   transform: translateY(10px);
@@ -185,17 +187,26 @@ a {
 }
 
 .page-list-content,
-.page-details-content {
+.page-details-content,
+.mat-tab-group {
   animation: loadContent .5s ease 1 alternate .7s forwards;
 }
 
-.page-list-content__filters {
+.page-list-content__filters:not(.tab-animation) {
   animation: loadContent .5s ease 1 alternate .75s forwards;
 }
 
 .page-content__tabs-buttons,
-.page-list-content__tabs {
+.page-list-content__tabs:not(.tab-animation) {
   animation: loadContent .7s ease 1 alternate .8s forwards;
+}
+
+.page-list-content__filters.tab-animation {
+  animation: loadContent .5s ease 1 alternate .15s forwards;
+}
+
+.page-list-content__tabs.tab-animation {
+  animation: loadContent .7s ease 1 alternate .2s forwards;
 }
 
 
@@ -345,17 +356,26 @@ a {
 .page-list-content__filters,
 .page-content__tabs-buttons,
 .page-list-content__tabs,
-.page-list-content__filters-sticky-position {
+.page-list-content__filters-sticky-position,
+.mat-tab-group,
+.mat-tab-labels {
   transition: all .3s ease;
 }
 
+.mat-tab-body-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1;
+}
+
 // LIST PAGE
-.page-list-content {
+.page-list-content,
+.mat-tab-body-content__wrapper {
   display: flex;
 
   &__filters-sticky-position {
     position: sticky;
-    top: 20px;
+    // top: 20px;
     flex-direction: column;
   }
 
@@ -412,10 +432,18 @@ a {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  // justify-content: flex-end;
   align-items: center;
   flex-wrap: wrap;
   transition:  all .3s ease;
   margin-bottom: 20px;
+
+  &.single-element {
+    justify-content: flex-end;
+    margin-bottom: 5px;
+  }
+
+  // margin-bottom: -40px;
 
   .tabs-buttons__wrapper {
     display: flex;
@@ -693,6 +721,10 @@ app-search-overlay {
         &.transaction {
           background-image: url($ico-transactions-filter-wh);
         }
+
+        &.direction {
+          background-image: url($ico-direction-wh);
+        }
       }
 
     }
@@ -741,6 +773,64 @@ app-search-overlay {
     }
   }
 
+}
+
+.mat-tab-body-wrapper{
+  position: unset !important;
+}
+
+// Tabs
+.mat-tab-group {
+  border: none !important;
+  width: 100% !important;
+  transition: all .3s ease;
+}
+
+.mat-tab-body {
+  overflow: hidden !important;
+  top: unset !important;
+  bottom: unset !important;
+}
+
+.mat-tab-body-content,
+.mat-tab-body-content__wrapper {
+  height: 100%;
+  overflow: hidden !important;
+}
+
+.mat-ink-bar {
+  display: none !important;
+}
+
+.mat-tab-label {
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-size: 24px !important;
+  opacity: 1 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  padding: 0 20px 0 0 !important;
+  height: 35px !important;
+  &:not(.mat-tab-label-active) {
+    color: $explorer--base__gray !important;
+  }
+
+  &.mat-tab-label-active {
+    color: $explorer--base__blue !important;
+  }
+}
+
+.mat-tab-nav-bar,
+.mat-tab-header {
+  border-bottom: 0 !important;
+}
+
+.mat-tab-header {
+  margin-bottom: 20px !important;
+  .mat-ripple {
+    .mat-ripple-element {
+      display: none !important;
+    }
+  }
 }
 // .app-filters__multiselect {
 //   .mat-form-field-appearance-outline,
@@ -798,7 +888,9 @@ app-home {
   display: flex;
   flex-direction: column;
   .page-list-content,
-  .page-details-content {
+  .page-details-content,
+  .mat-tab-body-content,
+  .mat-tab-body-content__wrapper {
     flex: 1 1;
   }
 }
@@ -832,13 +924,14 @@ app-home {
 
 @media screen and (max-width: 789px) {
   // LIST PAGE
-  .page-list-content {
+  .page-list-content,
+  .mat-tab-body-content__wrapper {
     display: flex;
     flex-direction: column;
 
     &__filters-sticky-position {
       position: static !important;
-      top: 20px;
+      // top: 20px;
       display: flex;
       flex-direction: column-reverse;
     }
@@ -931,6 +1024,10 @@ app-home {
     .mat-stroked-button {
       width: 100% !important;
     }
+  }
+
+  .mat-tab-labels {
+    flex-direction: column !important;
   }
 }
 

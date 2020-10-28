@@ -100,6 +100,10 @@ app-datepicker {
       &.transaction {
         background-image: url($ico-transactions-filter);
       }
+
+      &.direction {
+        background-image: url($ico-direction);
+      }
     }
 
     &__icon-arrow,

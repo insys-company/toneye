@@ -4,7 +4,7 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { AccountDetailsService } from './account-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MessageQueries, TransactionQueries } from 'src/app/api/queries';
-import { Account, Message, ViewerData, Transaction } from 'src/app/api';
+import { Account, Message, ViewerData, Transaction, FilterSettings, TabViewerData } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
@@ -22,6 +22,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   public skeletonArrayForFilter: Array<number> = new Array(3);
   /**
+   * For skeleton animation
+   */
+  public messSkeletonArrayForFilter: Array<number> = new Array(5);
+  /**
    * Account's transactions
    */
   public transactions: Array<Transaction>;
@@ -29,6 +33,34 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    * Account's in_msg_descr
    */
   public messages: Array<Message>;
+
+  /**
+   * Filter settings
+   */
+  public messFilterSettings: FilterSettings = new FilterSettings({
+    filterChain: true,
+    filterExtInt: true,
+    filterByShard: false,
+    filterByTime: false,
+    filterByAbort: false,
+    filterByMinMax: true,
+    filterByDate: true,
+    filterByDirection: true,
+   });
+
+  /**
+   * Flag for filter
+   */
+  public messFilterLoading: boolean;
+  /**
+   * Flag for loading data of Tabs Viewer
+   */
+  public messTableViewersLoading: boolean;
+
+  /**
+   * Data for view
+   */
+  public messNewDataAfterUpdate: Array<TabViewerData>;
 
   /**
    * Single request for messages by params
@@ -51,6 +83,9 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       route,
       router,
     );
+
+    this.messFilterLoading = true;
+    this.messTableViewersLoading = true;
   }
 
   /**
@@ -59,7 +94,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   public initDatails(): void {
     this.route.params
-      .pipe(takeUntil(this._unsubscribe))
+      .pipe(takeUntil(this._routeUnsubscribe))
       .subscribe((params: Params) => {
         this.modelId = params['id'] != null ? params['id'].trim() : null;
 
@@ -96,7 +131,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   public initList(): void {
     this.route.queryParams
-      .pipe(takeUntil(this._unsubscribe))
+      .pipe(takeUntil(this._routeUnsubscribe))
       .subscribe((queryParams: Params) => {
 
         this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
@@ -117,8 +152,14 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
+    this.messSkeletonArrayForFilter = null;
     this.transactions = null;
     this.messages = null;
+    this.messFilterSettings = null;
+
+    this.messFilterLoading = null;
+    this.messTableViewersLoading = null;
+    this.messNewDataAfterUpdate = null;
   }
 
   /**
@@ -135,7 +176,9 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
     this.messages = [];
 
     this.tableViewersLoading = true;
+    this.messTableViewersLoading = true;
     this.tableViewerData = [];
+    this.aditionalViewerData = [];
 
     this.detectChanges();
   }
@@ -148,27 +191,6 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   }
 
   /**
-   * Change tab
-   * @param index Index of selected tab
-   */
-  public onChangeTab(index: number): void {
-
-    if (index == this.selectedTabIndex) { return; }
-
-    this.selectedTabIndex = index;
-    this.tableViewersLoading = true;
-    this.tableViewerData = [];
-    this.detectChanges();
-
-    this.tableViewerData = index == 0
-      ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-      : this._service.mapDataForTable(this.messages, appRouteMap.messages);
-
-    this.tableViewersLoading = false;
-    this.detectChanges();
-  }
-
-  /**
    * Load more data
    * @param index Index of selected tab
    */
@@ -177,10 +199,43 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   }
 
   /**
+   * Change autoupdate checkbox
+   * @param check Flag
+   */
+  public updateChange(check: boolean) {
+    this.autoupdate = check;
+
+    // this.detectChanges();
+
+    // if (this.autoupdate) {
+    //   this.subscribeData();
+    // }
+    // else {
+    //   this.autoupdateSubscribe = false;
+    //   this._unsubscribe.next();
+    //   this._unsubscribe.complete();
+    // }
+  }
+
+  /**
+   * Subscribe
+   */
+  protected subscribeData(): void {
+    this.getTransactions();
+  }
+
+  /**
    * First intit
    */
   protected initMethod(): void {
-    this.getFirstData();
+    this.mapDataForViews(this.model);
+    this.viewersLoading = false;
+
+    this.detectChanges();
+
+    this.getTransactions();
+
+    this.getMessages();
   }
 
   /**
@@ -195,196 +250,133 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   protected getData(): void {
 
-    this.tableViewersLoading = true;
-    this.detectChanges();
-
-
-    if (this.selectedTabIndex == 0) {
-      // Get transactions
-      this.service.getData(
-        this.service.getVariablesForTransactions(this.params, String(this.modelId)),
-        this.transactionQueries.getTransactions,
-        appRouteMap.transactions
-      )
-        .pipe(takeUntil(this._unsubscribe))
-        .subscribe((t: Transaction[]) => {
-
-          this.transactions = t ? t : [];
-          this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
-          this.tableViewersLoading = false;
-          this.detectChanges();
-
-      }, (error: any) => {
-        console.log(error);
-      });
-    }
-    else if (this.selectedTabIndex == 1) {
-
-
-      if (this.isSingleQuery) {
-
-        // Get messages
-        this.service.getData(
-          this.service.getVariablesForMessages(this.params, String(this.modelId)),
-          this.messageQueries.getMessages,
-          appRouteMap.messages
-        )
-        .pipe(takeUntil(this._unsubscribe))
-        .subscribe((m: Message[]) => {
-          
-          this.messages = m ? m : [];
-          this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-          this.tableViewersLoading = false;
-          this.detectChanges();
-
-        }, (error: any) => {
-          console.log(error);
-        });
-
-      }
-      else {
-
-        this._service.getData(
-          this.service.getVariablesForMessages(this.params, String(this.modelId), true),
-          this.messageQueries.getMessages
-        )
-          .pipe(takeUntil(this._unsubscribe))
-          .subscribe((srcData: Message[]) => {
-    
-            srcData = srcData ? srcData : [];
-  
-            this._service.getData(
-              this.service.getVariablesForMessages(this.params, String(this.modelId), false),
-              this.messageQueries.getMessages
-            )
-              .pipe(takeUntil(this._unsubscribe))
-              .subscribe((dstData: Message[]) => {
-  
-                dstData = dstData ? dstData : [];
-  
-                // Объединение двух массивов и сортировка
-                let _data = srcData.concat(dstData);
-  
-                _data = (_.sortBy(_data, 'created_at')).reverse();
-
-                this.messages = _data ? _data : [];
-                this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-                this.tableViewersLoading = false;
-                this.detectChanges();
-        
-              }, (error: any) => {
-                console.log(error);
-              });
-    
-          }, (error: any) => {
-            console.log(error);
-          });
-
-      }
-
-
-    }
+    this.selectedTabIndex == 0
+      ? this.getTransactions()
+      : this.getMessages();
 
   }
 
   /**
-   * Data for model from other queries
+   * Get transactions
    */
-  protected getFirstData(): void {
+  private getTransactions(): void {
 
-    this.mapDataForViews(this.model);
-    this.viewersLoading = false;
+    // if (!this.autoupdate) {
+    //   this.tableViewersLoading = true;
+    //   this.detectChanges();
+    // }
 
-    this.detectChanges();
+    // if (this.autoupdate && this.autoupdateSubscribe) {
+    //   return;
+    // }
+
+    // if (this.autoupdate) {
+    //   this.autoupdateSubscribe = true;
+    // }
 
     // Get transactions
     this.service.getData(
       this.service.getVariablesForTransactions(this.params, String(this.modelId)),
+      // (!this.autoupdate ? this.transactionQueries.getTransactions : this.transactionQueries.getTransactionsSub),
       this.transactionQueries.getTransactions,
       appRouteMap.transactions
     )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((t: Transaction[]) => {
 
-        this.transactions = t ? t : [];
+        // if (!this.autoupdate) {
+          this.transactions = t ? t : [];
+          this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
+          this.tableViewersLoading = false;
+          this.filterLoading = false;
+          this.initComplete = true;
+          this.detectChanges();
+        // }
+        // else {
+        //   this.newDataAfterUpdate = this.newDataAfterUpdate.concat(this._service.mapDataForTable(t ? t : [], appRouteMap.transactions));
+        //   this.detectChanges();
+        // }
 
-        if (this.isSingleQuery) {
+    }, (error: any) => {
+      console.log(error);
+    });
+  }
 
-          // Get messages
-          this.service.getData(
-            this.service.getVariablesForMessages(this.params, String(this.modelId)),
+  /**
+   * Get messages
+   */
+  private getMessages(): void {
+
+    this.messTableViewersLoading = true;
+    this.detectChanges();
+
+    if (this.isSingleQuery) {
+
+      // Get messages
+      this.service.getData(
+        this.service.getVariablesForMessages(this.params, String(this.modelId)),
+        this.messageQueries.getMessages,
+        appRouteMap.messages
+      )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((m: Message[]) => {
+        
+        this.messages = m ? m : [];
+        this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+        this.messTableViewersLoading = false;
+        this.messFilterLoading = false;
+        this.initComplete = true;
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
+
+    }
+    else {
+
+      this._service.getData(
+        this.service.getVariablesForMessages(this.params, String(this.modelId), true),
+        this.messageQueries.getMessages,
+        appRouteMap.messages
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((srcData: Message[]) => {
+  
+          srcData = srcData ? srcData : [];
+
+          this._service.getData(
+            this.service.getVariablesForMessages(this.params, String(this.modelId), false),
             this.messageQueries.getMessages,
             appRouteMap.messages
           )
-          .pipe(takeUntil(this._unsubscribe))
-          .subscribe((m: Message[]) => {
-            
-            this.messages = m ? m : [];
-
-            this.tableViewerData = this.selectedTabIndex == 0
-              ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-              : this._service.mapDataForTable(this.messages, appRouteMap.messages);
-
-            this.tableViewersLoading = false;
-            this.filterLoading = false;
-            this.initComplete = true;
-            this.detectChanges();
-  
-          }, (error: any) => {
-            console.log(error);
-          });
-  
-        }
-        else {
-  
-          this._service.getData(
-            this.service.getVariablesForMessages(this.params, String(this.modelId), true),
-            this.messageQueries.getMessages
-          )
             .pipe(takeUntil(this._unsubscribe))
-            .subscribe((srcData: Message[]) => {
-      
-              srcData = srcData ? srcData : [];
-    
-              this._service.getData(
-                this.service.getVariablesForMessages(this.params, String(this.modelId), false),
-                this.messageQueries.getMessages
-              )
-                .pipe(takeUntil(this._unsubscribe))
-                .subscribe((dstData: Message[]) => {
-    
-                  dstData = dstData ? dstData : [];
-    
-                  // Объединение двух массивов и сортировка
-                  let _data = srcData.concat(dstData);
-    
-                  _data = (_.sortBy(_data, 'created_at')).reverse();
-  
-                  this.messages = _data ? _data : [];
+            .subscribe((dstData: Message[]) => {
 
-                  this.tableViewerData = this.selectedTabIndex == 0
-                    ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-                    : this._service.mapDataForTable(this.messages, appRouteMap.messages);
+              dstData = dstData ? dstData : [];
 
-                  this.tableViewersLoading = false;
-                  this.filterLoading = false;
-                  this.initComplete = true;
-                  this.detectChanges();
-          
-                }, (error: any) => {
-                  console.log(error);
-                });
+              // Объединение двух массивов и сортировка
+              let _data = srcData.concat(dstData);
+
+              _data = (_.sortBy(_data, 'created_at')).reverse();
+
+              this.messages = _data ? _data : [];
+              console.log(_data);
+              this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+              this.messTableViewersLoading = false;
+              this.messFilterLoading = false;
+              this.initComplete = true;
+              this.detectChanges();
       
             }, (error: any) => {
               console.log(error);
             });
   
-        }
+        }, (error: any) => {
+          console.log(error);
+        });
 
-
-    }, (error: any) => {
-      console.log(error);
-    });
+    }
 
   }
 

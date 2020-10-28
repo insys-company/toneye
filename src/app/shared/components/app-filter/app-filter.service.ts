@@ -69,6 +69,16 @@ export class AppFilterService {
   }
 
   /**
+   * List of directions
+   */
+  public getDirections(): ListItem[] {
+    return [
+      { id: 'srt', name: 'Src' },
+      { id: 'dst', name: 'Dst' }
+    ];
+  }
+
+  /**
    * List of aborted
    */
   public getAbortFilter(): ListItem[] {

@@ -32,6 +32,7 @@ export class TransactionsService extends BaseService<Transaction> {
           filterByAbort: true,
           filterByMinMax: true,
           filterByDate: true,
+          filterByDirection: false,
         });
       }
     );

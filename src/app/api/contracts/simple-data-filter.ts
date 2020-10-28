@@ -11,7 +11,6 @@ export class SimpleDataFilter {
   toTime: number;
   shard: string;
   aborted: string;
-  direction: string;
   index: string;
 
   constructor(data?: any) {

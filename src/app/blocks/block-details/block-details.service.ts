@@ -32,6 +32,7 @@ export class BlockDetailsService extends BaseService<Block> {
           filterByAbort: true,
           filterByMinMax: true,
           filterByDate: true,
+          filterByDirection: false,
         });
       }
     );

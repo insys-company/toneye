@@ -37,6 +37,18 @@
 
   <!-- Data -->
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
+  
+    <div class="app-viewer__body-new-items-wrapper" [class.app-viewer__body-new-items-wrapper--show]="newData?.length">
+      <div class="app-viewer__body-new-items">
+        <div class="app-viewer__header">
+          <span>{{newData?.length}} new {{newDataName}}</span>
+        </div>
+        <div class="app-viewer__btn" (click)="onShowNewData()">
+          <span class="color-blue">Show</span>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="!data?.length" class="app-viewer__body-not-found">
       <span class="color-gray">Not Found</span>
     </div>
