@@ -48,6 +48,15 @@
         </div>
       </div>
 
+      <div *ngIf="validators?.length" class="app-search-panel__option">
+        <div class="app-search-panel__option-header">
+          <span class="strong">Validators</span> <span class="color-gray">that signed that block</span>
+        </div>
+        <div *ngFor="let option of validators;" class="app-search-panel__option-body" (click)="onSelectOption('validators', option)">
+          <span class="color-blue link">{{option?.id}}</span>
+        </div>
+      </div>
+
     </div>
 
   </div>

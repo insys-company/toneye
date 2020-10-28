@@ -375,6 +375,13 @@ export class AppSearchComponent implements OnChanges, OnInit, OnDestroy {
           this.transactions = [];
           this.validators = [];
         }
+        else if (data.type === appRouteMap.validators) {
+          this.accounts = []
+          this.blocks = [];
+          this.messages = [];
+          this.transactions = [];
+          this.validators = JSON.parse(JSON.stringify([data.option]));
+        }
 
         this.changeDetection.detectChanges();
 

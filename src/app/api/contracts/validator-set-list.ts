@@ -2,6 +2,7 @@ export class ValidatorSetList {
   adnl_addr: string;
   public_key: string;
   weight: string;
+  id: string;
   __typename: string;
 
   constructor(data?: any) {
@@ -19,6 +20,7 @@ export class ValidatorSetList {
       adnl_addr: this.adnl_addr,
       public_key: this.public_key,
       weight: this.weight,
+      id: this.id,
       __typename: this.__typename,
     };
   }

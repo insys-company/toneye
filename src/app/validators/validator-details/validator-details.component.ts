@@ -150,7 +150,7 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
 
                   // Aggregate Block total
                   this.service.getAggregateData(
-                    this.service.getVariablesForAggregateBlocks(this.model.utime_until, this.model.utime_since),
+                    this.service.getVariablesForAggregateBlocks(this.model ? this.model.utime_until : null, this.model ? this.model.utime_since : null),
                     this.commonQueries.getAggregateBlocks
                   )
                     .pipe(takeUntil(this._unsubscribe))
@@ -241,6 +241,10 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
    */
   protected mapDataForViews(_model: BlockMasterConfig, _data: any): void {
 
+    this.validatorModel = this.validatorModel ? this.validatorModel : new ValidatorSetList();
+
+    this.model = this.model ? this.model : new ValidatorSet();
+
     this.validatorModel.weight = this.validatorModel.weight && this.validatorModel.weight.match('x')
       ? String(parseInt(this.validatorModel.weight, 16))
       : this.validatorModel.weight;
@@ -252,8 +256,8 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     this.generalViewerData = [];
     this.generalViewerData.push(new ViewerData({title: 'Public key hex', value: this.modelId}));
     this.generalViewerData.push(new ViewerData({title: 'Public key base64', value: this.modelId}));
-    this.generalViewerData.push(new ViewerData({title: 'ADNL address hex', value: this.validatorModel.adnl_addr}));
-    this.generalViewerData.push(new ViewerData({title: 'ADNL address base64', value: this.validatorModel.adnl_addr}));
+    this.generalViewerData.push(new ViewerData({title: 'ADNL address hex', value: this.validatorModel.adnl_addr ? this.validatorModel.adnl_addr : '--'}));
+    this.generalViewerData.push(new ViewerData({title: 'ADNL address base64', value: this.validatorModel.adnl_addr ? this.validatorModel.adnl_addr : '--'}));
     this.generalViewerData.push(new ViewerData({title: 'Node ID hex', value: '--'}));
     this.generalViewerData.push(new ViewerData({title: 'Stake', value: '--'}));
     this.generalViewerData.push(new ViewerData({title: 'Weight', value: Number(((Number(this.validatorModel.weight)/Number(this.model.total_weight))*100).toFixed(2)), isPercent: true}));

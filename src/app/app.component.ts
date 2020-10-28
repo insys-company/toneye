@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnDestroy, ViewChild, ElementRef, C
 import { appRouteMap } from './app-route-map';
 import { RouterOutlet, Router, NavigationStart, NavigationEnd } from '@angular/router';
 import { routeAnimation } from './app-animations';
-import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, Validator } from './api';
+import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, Validator, BlockMaster, ValidatorSetList } from './api';
 import { takeUntil, map } from 'rxjs/operators';
 import { Subject, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
@@ -47,7 +47,7 @@ export class AppComponent implements OnDestroy {
   public foundTransactions: Transaction[] = [];
 
   public foundAccounts: Account[] = [];
-  public foundValidators: Validator[] = [];
+  public foundValidators: ValidatorSetList[] = [];
 
   constructor(
     private changeDetection: ChangeDetectorRef,
@@ -136,6 +136,9 @@ export class AppComponent implements OnDestroy {
     }
     else if (data.type === appRouteMap.accounts) {
       baseUrl = appRouteMap.account;
+    }
+    else if (data.type === appRouteMap.validators) {
+      baseUrl = appRouteMap.validator;
     }
 
     if (baseUrl && data.option.id) {
@@ -227,16 +230,59 @@ export class AppComponent implements OnDestroy {
                   .pipe(takeUntil(this._unsubscribe))
                   .subscribe((a: Account[]) => {
 
-                    // Для вызова в child ngOnChanges
-                    this.foundBlocks = JSON.parse(JSON.stringify(b)) ? JSON.parse(JSON.stringify(b)) : JSON.parse(JSON.stringify([]));
+                    this.getKeyForValidators()
+                      .pipe(takeUntil(this._unsubscribe))
+                      .subscribe((prevBlock: Block[]) => {
 
-                    // Для вызова в child ngOnChanges
-                    this.foundMessages = JSON.parse(JSON.stringify(m)) ? JSON.parse(JSON.stringify(m)) : JSON.parse(JSON.stringify([]));
+                        this.getValidators(prevBlock[0].prev_key_block_seqno)
+                        .pipe(takeUntil(this._unsubscribe))
+                        .subscribe((masterBlockConfig: Block[]) => {
 
-                    this.foundTransactions = JSON.parse(JSON.stringify(t)) ? JSON.parse(JSON.stringify(t)) : JSON.parse(JSON.stringify([]));
+                          // Для вызова в child ngOnChanges
+                          this.foundBlocks = JSON.parse(JSON.stringify(b)) ? JSON.parse(JSON.stringify(b)) : JSON.parse(JSON.stringify([]));
 
-                    this.foundAccounts = JSON.parse(JSON.stringify(a)) ? JSON.parse(JSON.stringify(a)) : JSON.parse(JSON.stringify([]));
-                    this.detectChanges();
+                          // Для вызова в child ngOnChanges
+                          this.foundMessages = JSON.parse(JSON.stringify(m)) ? JSON.parse(JSON.stringify(m)) : JSON.parse(JSON.stringify([]));
+
+                          this.foundTransactions = JSON.parse(JSON.stringify(t)) ? JSON.parse(JSON.stringify(t)) : JSON.parse(JSON.stringify([]));
+
+                          this.foundAccounts = JSON.parse(JSON.stringify(a)) ? JSON.parse(JSON.stringify(a)) : JSON.parse(JSON.stringify([]));
+
+                          let masterBlock = masterBlockConfig ? new BlockMaster(masterBlockConfig[0].master) : new BlockMaster(null);
+
+                          if (masterBlock.config && masterBlock.config.p32 && masterBlock.config.p32.list) {
+                            this.foundValidators = _.find(masterBlock.config.p32.list, (item: ValidatorSetList) => { return item.public_key === search})
+                              ? [_.find(masterBlock.config.p32.list, (item: ValidatorSetList) => { return item.public_key === search})]
+                              : [];
+                          }
+            
+                          if (!this.foundValidators.length && masterBlock.config && masterBlock.config.p34 && masterBlock.config.p34.list) {
+                            this.foundValidators = _.find(masterBlock.config.p34.list, (item: ValidatorSetList) => { return item.public_key === search})
+                              ? [_.find(masterBlock.config.p34.list, (item: ValidatorSetList) => { return item.public_key === search})]
+                              : [];
+                          }
+            
+                          if (!this.foundValidators.length && masterBlock.config && masterBlock.config.p36 && masterBlock.config.p36.list) {
+                            this.foundValidators = _.find(masterBlock.config.p36.list, (item: ValidatorSetList) => { return item.public_key === search})
+                              ? [_.find(masterBlock.config.p36.list, (item: ValidatorSetList) => { return item.public_key === search})]
+                              : [];
+                          }
+
+                          this.foundValidators.forEach(v => { v.id = v.public_key});
+
+                          this.foundValidators = JSON.parse(JSON.stringify(this.foundValidators)) ? JSON.parse(JSON.stringify(this.foundValidators)) : JSON.parse(JSON.stringify([]));
+
+                          this.detectChanges();
+  
+                        }, (error: any) => {
+                          console.log(error);
+                        });
+
+
+                      }, (error: any) => {
+                        console.log(error);
+                      });
+    
 
                   }, (error: any) => {
                     console.log(error);
@@ -355,25 +401,35 @@ export class AppComponent implements OnDestroy {
     .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.accounts]));
   }
 
-  // /**
-  //  * Get accounts list query
-  //  * @param _search String for searching
-  //  */
-  // private getValidators(_search?: string): Observable<Account[]> {
+  /**
+   * Get accounts list query
+   * @param _search String for searching
+   */
+  private getKeyForValidators(): Observable<Block[]> {
 
-  //   const _variables = {
-  //     filter: {id: {in: _search}},
-  //     orderBy: [
-  //       new QueryOrderBy({path: "balance", direction: "DESC"}),
-  //     ]
-  //   }
+    const _variables = {filter: {workchain_id: {eq: -1}}, orderBy: [{path: 'seq_no', direction: 'DESC'}], limit: 1};
+    return this.apollo.watchQuery<Block[]>({
+      query: this.blockQueries.getMasterBlockPrevKey,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]));
+  }
 
-  //   return this.apollo.watchQuery<Account[]>({
-  //     query: this.transactionQueries.getTransaction,
-  //     variables: _variables,
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.validators]));
-  // }
+  /**
+   * Get accounts list query
+   * @param seq_no For configs
+   */
+  private getValidators(seq_no: number): Observable<Block[]> {
+
+    const _variables = {filter: {seq_no: {eq: seq_no}, workchain_id: {eq: -1}}};
+    return this.apollo.watchQuery<Block[]>({
+      query: this.blockQueries.getMasterBlockConfig,
+      variables: _variables,
+      errorPolicy: 'all'
+    })
+    .valueChanges
+    .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]));
+  }
 }
