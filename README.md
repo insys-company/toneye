@@ -1,7 +1,12 @@
 # Toneye
-[Live Demo](http://toneye.app/)
+[Live Demo (Korean)](http://toneye.app/)
+[Live Demo (English)](http://en.toneye.app/)
 
 This is a web-based Free TON Network blockchain explorer.
+
+Supported languages:
+- English
+- Korean
 
 ## Development Setup
 
