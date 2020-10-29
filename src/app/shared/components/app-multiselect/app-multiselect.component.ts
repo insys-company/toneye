@@ -5,12 +5,11 @@ import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
 import { Subscription } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 export type MaterialType = 'legacy' | 'standard' | 'fill' | 'outline';
 
-const DEFAULT_LABEL = 'label';
 const DEFAULT_INPUTNAME = 'multiselect';
-const DEFAULT_PLACEHOLDER = 'placeholder';
 const DEFAULT_MATERIAL_THEME = 'outline';
 @Component({
   selector: 'app-multiselect',
@@ -329,10 +328,10 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.disabled = false;
     this.simpleFilter = false;
     /** Метка над полем */
-    this.label = DEFAULT_LABEL;
+    this.label = LocaleText.label;
     /** Наименование инпута для формы */
     this.inputName = DEFAULT_INPUTNAME;
-    this.placeholder = DEFAULT_PLACEHOLDER;
+    this.placeholder = LocaleText.placeholder;
     this.materialTheme = DEFAULT_MATERIAL_THEME;
 
     this.options = [];
@@ -340,7 +339,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.displayName = 'name';
     this.sortField = this.displayName;
     this.searchParamNameForServerSideSearching = 'search';
-    this.selectAllPlaceholder = 'Select All';
+    this.selectAllPlaceholder = LocaleText.selectAll;
     this.inputTextColorClass = 'default';
 
     /** Список по дефолту */
@@ -402,9 +401,9 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.required = this.required != null ? this.required : false;
     this.simpleFilter = this.simpleFilter != null ? this.simpleFilter : false;
     this.labelVisible = this.labelVisible != null ? this.labelVisible : false;
-    this.label = this.label != null ? this.label : DEFAULT_LABEL;
+    this.label = this.label != null ? this.label : LocaleText.label;
     this.inputName = this.inputName != null ? this.inputName : DEFAULT_INPUTNAME;
-    this.placeholder = this.placeholder != null ? this.placeholder : DEFAULT_PLACEHOLDER;
+    this.placeholder = this.placeholder != null ? this.placeholder : LocaleText.placeholder;
     this.materialTheme = this.materialTheme != null ? this.materialTheme : DEFAULT_MATERIAL_THEME;
     this.styleClass = this.styleClass != null ? this.styleClass : 'app-default__multiselect';
     this.shadowStyleClass = this.shadowStyleClass != null ? this.shadowStyleClass : 'app-multiselect__multiselect--shadow';
@@ -419,7 +418,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.searchParamNameForServerSideSearching =
       this.searchParamNameForServerSideSearching != null ? this.searchParamNameForServerSideSearching : 'search';
     this.searchEnable = this.searchEnable != null ? this.searchEnable : false;
-    this.searchPlaceholder = this.searchPlaceholder != null ? this.searchPlaceholder : null;
+    this.searchPlaceholder = this.searchPlaceholder != null ? this.searchPlaceholder : `${LocaleText.search}...`;
     this.multiple = this.multiple != null ? this.multiple : false;
     this.notFoundTitle = this.notFoundTitle != null ? this.notFoundTitle : null;
     this.optionsLimitEnable = this.optionsLimitEnable != null ? this.optionsLimitEnable : false;
@@ -429,7 +428,7 @@ export class AppMultiselectComponent implements OnInit, OnDestroy {
     this.tooltipVisible = this.tooltipVisible != null ? this.tooltipVisible : false;
 
     this.selectAll = this.selectAll != null ? this.selectAll : false;
-    this.selectAllPlaceholder = this.selectAllPlaceholder != null ? this.selectAllPlaceholder : 'Select All';
+    this.selectAllPlaceholder = this.selectAllPlaceholder != null ? this.selectAllPlaceholder : LocaleText.selectAll;
 
     this.panelClass = this.panelClass != null ? this.panelClass : null;
   }

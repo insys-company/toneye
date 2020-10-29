@@ -6,6 +6,7 @@ import { CommonQueries } from 'src/app/api/queries';
 import { ViewerData, TabViewerData, ItemList, DataConfig, Account } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-contracts',
@@ -22,6 +23,15 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(1);
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.contractsPage,
+    date: LocaleText.activeInPeriod,
+    tons: LocaleText.transactionCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -77,9 +87,8 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
   protected mapDataForViews(_model: any, _data?: any): void {
     this.generalViewerData = [];
     this.generalViewerData.push(new ViewerData({
-      title: 'Unique contracts',
+      title: LocaleText.uniqueContracts,
       value: this.data.total,
-      dinamic: true,
       isNumber: true
     }));
   }

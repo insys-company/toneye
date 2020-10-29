@@ -7,6 +7,7 @@ import { ViewerData, TabViewerData, ItemList, Account } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-accounts',
@@ -23,6 +24,15 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.accountsPage,
+    date: LocaleText.transactionDateFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   /**
    * Balance
@@ -151,13 +161,13 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
         this.generalViewerData = [];
 
         const getAccountsCount = new ViewerData({
-          title: 'Accounts',
+          title: LocaleText.accounts,
           value: generalData && generalData.getAccountsCount ? generalData.getAccountsCount : 0,
           isNumber: true
         });
 
         const getAccountsTotalBalance = new ViewerData({
-          title: 'Coins',
+          title: LocaleText.coins,
           value: generalData && generalData.getAccountsTotalBalance ? generalData.getAccountsTotalBalance : 0,
           isNumber: true
         });

@@ -2,7 +2,7 @@
   <!-- Page header -->
   <div class="block-page__page-header page-header">
     <div class="page-header__header">
-      <h1>Validator details</h1>
+      <h1>{{locale?.title}}</h1>
     </div>
   </div>
   <!-- Page content -->
@@ -19,7 +19,7 @@
 
     <div class="contract-page__page-header page-header">
       <div class="page-header__header">
-        <h1>Signed masterchain blocks</h1>
+        <h1>{{locale?.signed}}</h1>
       </div>
     </div>
 
@@ -30,7 +30,7 @@
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
-          footerPlaceholder="Load 25 more"
+          [footerPlaceholder]="locale?.loadMore"
           [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()"
           (moreEvent)="onLoadMore($event)">

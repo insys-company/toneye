@@ -214,6 +214,10 @@
       }
 
       .app-viewer__body-item-header {
+        &.strong {
+          font-weight: 800;
+        }
+
         margin-bottom: 5px;
       }
 

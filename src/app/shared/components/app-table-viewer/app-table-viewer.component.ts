@@ -3,6 +3,7 @@ import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { TabViewerData } from 'src/app/api';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 /**
  * This component displays table information on list pages.
@@ -26,7 +27,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * Name of New Data
    */
-  @Input() public newDataName: string = 'items';
+  @Input() public newDataName: string = LocaleText.items;
   
   /**
    * For skeleton animation
@@ -51,11 +52,11 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * Header for block
    */
-  @Input() public header: string = 'List';
+  @Input() public header: string = LocaleText.list;
   /**
    * For header button
    */
-  @Input() public btnPlaceholder: string = 'Export to csv';
+  @Input() public btnPlaceholder: string = LocaleText.exportTo;
   /**
    * For header button (icon in btn)
    */
@@ -63,7 +64,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * For footer button
    */
-  @Input() public footerPlaceholder: string = 'See all';
+  @Input() public footerPlaceholder: string = LocaleText.seeAll;
 
   /**
    * Click export button
@@ -82,6 +83,14 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    */
   @Output() selectItem: EventEmitter<any> = new EventEmitter<any>(null);
 
+  /** Общие тексты для страниц */
+  public locale = {
+    list: LocaleText.list,
+    notFound: LocaleText.notFound,
+    show: LocaleText.show,
+    new: LocaleText.new
+  };
+
   /**
    * Tab index
    * (For styles and queries in parent component)
@@ -94,7 +103,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   public get footerBtnPlaceholder(): string {
     if (!this.isTabsHeaderMode) { return this.footerPlaceholder };
 
-    return `See all ${this.selectedTabIndex == 0 ? appRouteMap.blocks : this.selectedTabIndex == 1 ? appRouteMap.transactions : appRouteMap.messages}`;
+    return `${LocaleText.seeAll} ${this.selectedTabIndex == 0 ? LocaleText.blocks.toLocaleLowerCase() : this.selectedTabIndex == 1 ? LocaleText.transactions.toLocaleLowerCase() : LocaleText.messages.toLocaleLowerCase()}`;
   }
 
   constructor(
@@ -139,6 +148,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Destruction of the component
    */
   ngOnDestroy(): void {
+    this.locale = null;
     this.data = null;
     this.newData = null;
     this.newDataName = null;

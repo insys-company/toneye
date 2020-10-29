@@ -5,6 +5,7 @@ import { BlockQueries } from 'src/app/api/queries';
 import { Observable, Subject } from 'rxjs';
 import { appRouteMap } from 'src/app/app-route-map';
 import { takeUntil, map } from 'rxjs/operators';
+import { LocaleText } from 'src/locale/locale';
 
 @Injectable({
   providedIn: 'root'
@@ -52,40 +53,28 @@ export class AppFilterService {
    * List of chains
    */
   public getChains(): ListItem[] {
-    return [
-      { id: '-1', name: 'Masterchain' },
-      { id: '0', name: 'Workchain' }
-    ];
+    return LocaleText.chainFilter;
   }
 
   /**
    * List of ExtInt
    */
   public getExtInt(): ListItem[] {
-    return [
-      { id: 'ext', name: 'Ext' },
-      { id: 'int', name: 'Int' }
-    ];
+    return LocaleText.extintFilter;
   }
 
   /**
    * List of directions
    */
   public getDirections(): ListItem[] {
-    return [
-      { id: 'srt', name: 'Src' },
-      { id: 'dst', name: 'Dst' }
-    ];
+    return LocaleText.diractionFilter;
   }
 
   /**
    * List of aborted
    */
   public getAbortFilter(): ListItem[] {
-    return [
-      { id: 'true', name: 'Aborted' },
-      { id: 'false', name: 'Not Aborted' }
-    ];
+    return LocaleText.abortFilter;
   }
 
   /**

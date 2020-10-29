@@ -1,13 +1,13 @@
 <div class="accounts-page page">
   <!-- Page header -->
-  <div class="accounts-page__page-header page-header">
+  <div class="transactions-page__page-header page-header">
     <div class="page-header__header">
-      <h1>Accounts</h1>
+      <h1>{{locale?.title}}</h1>
     </div>
     <!-- <div class="page-header__slide-toggle">
       <mat-slide-toggle
-      [checked]="autoupdate"
-      (change)="updateChange($event.checked)">Autoupdate
+        [checked]="autoupdate"
+        (change)="updateChange($event.checked)">{{locale?.autoupdate}}
       </mat-slide-toggle>
     </div> -->
   </div>
@@ -27,8 +27,8 @@
         </div>
         <div class="page-list-content__component-wrapper">
           <app-filter #filter class="page-list-content__component"
-            [minMaxPlaceholder]="'With any tons number'"
-            [datePlaceholder]="'Any transaction date'"
+            [minMaxPlaceholder]="locale?.tons"
+            [datePlaceholder]="locale?.date"
             [isFilterOpen]="isGeneralInfoOpen"
             [settings]="filterSettings"
             [skeletonArray]="skeletonArrayForFilter"
@@ -44,7 +44,7 @@
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
-          footerPlaceholder="Load 25 more"
+          [footerPlaceholder]="locale?.loadMore"
           [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()"
           (moreEvent)="onLoadMore($event)">

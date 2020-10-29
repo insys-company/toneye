@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="app-viewer__header-wrapper">
     <div class="app-viewer__header">
-      <span>Filters {{filterSetCount ? '(' + filterSetCount + ' set)' : ''}}</span>
+      <span>{{locale?.filters}} {{filterSetCount ? '(' + filterSetCount + ' locale?.set)' : ''}}</span>
     </div>
     <div *ngIf="isFilterHideBtnVisible" class="app-viewer__btn" (click)="onShowOrHide()">
       <span class="color-blue link">
@@ -20,7 +20,7 @@
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
     <div *ngIf="settings?.filterChain" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'All chains'"
+        [placeholder]="locale?.chains"
 
         [options]="chains"
         [selectedOptions]="selectedChains"
@@ -40,7 +40,7 @@
 
     <div *ngIf="settings?.filterExtInt" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'Ext+Int'"
+        [placeholder]="locale?.extint"
   
         [options]="extInt"
         [selectedOptions]="selectedExtInt"
@@ -60,7 +60,7 @@
 
     <div *ngIf="settings?.filterByShard" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'All shards'"
+        [placeholder]="locale?.shards"
   
         [options]="shards"
         [selectedOptions]="selectedShards"
@@ -80,7 +80,7 @@
 
     <div *ngIf="settings?.filterByAbort" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'Aborted and not'"
+        [placeholder]="locale?.abort"
   
         [options]="aborted"
         [selectedOptions]="selectedAborted"
@@ -100,7 +100,7 @@
 
     <div *ngIf="settings?.filterByDirection" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'Any direction'"
+        [placeholder]="locale?.direstion"
   
         [options]="directions"
         [selectedOptions]="selectedDirections"
@@ -163,6 +163,6 @@
   <div *ngIf="isFilterFooterVisible" class="app-viewer__footer-wrapper">
     <div *ngIf="skeletalAnimation" class="app-viewer__body-item-block skeleton skeleton-filter-bg skeleton--block w-40"></div>
 
-    <button *ngIf="!skeletalAnimation" @smoothDisplayAnimation type="button" mat-stroked-button disableRipple (click)="onResetFilter()">Clear all</button>
+    <button *ngIf="!skeletalAnimation" @smoothDisplayAnimation type="button" mat-stroked-button disableRipple (click)="onResetFilter()">{{locale?.clearAll}}</button>
   </div>
 </div>

@@ -7,6 +7,7 @@ import { ViewerData, ItemList, Transaction } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-transactions',
@@ -23,6 +24,15 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.transactionsPage,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -113,7 +123,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
         this.generalViewerData = [];
 
         const aggregateTransactions = new ViewerData({
-          title: 'Transaction count',
+          title: LocaleText.transactionCount,
           value: generalData.aggregateTransactions[0] ? generalData.aggregateTransactions[0] : 0,
           isNumber: true
         });
@@ -162,10 +172,9 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
     });
 
     const tps = new ViewerData({
-      title: 'TPS',
+      title: LocaleText.tps,
       value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'now') + ' sec').replace('.', ','),
-      isNumber: false,
-      dinamic: true
+      isNumber: false
     });
 
     this.generalViewerData.push(tps);
