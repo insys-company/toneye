@@ -1,0 +1,181 @@
+@import './../../../../../scss/abstracts/colors';
+@import './../../../../../scss/icon.scss';
+
+app-multiselect-overlay {
+  width: 100%;
+}
+
+.app-multiselect-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 50px;
+  border-radius: 0 0 3px 3px;
+  background-color: $explorer--base__white;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+  border: 1px solid $explorer--base__search-border;
+
+  overflow: auto;
+
+  margin-top: -2px;
+
+  animation: multiselectPanel .3s ease 1 forwards;
+
+  &__search,
+  &__select-all,
+  &__option {
+    padding-left: 24px;
+    padding-right: 24px; 
+  }
+
+  &__search {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    .mat-form-field-wrapper {
+      padding: 0 !important;
+    }
+    .mat-form-field-underline {
+      display: none !important;
+    }
+
+  }
+  &__icon-search {
+
+    background-image: url($ico-search-filter);
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+    bottom: 0;
+    position: absolute;
+
+    &--focused {
+
+    }
+  }
+  &__icon-clear {
+
+    min-height: 20px;
+    min-width: 20px;
+    background-image: url($ico-search-clear);
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3 ease;
+
+    &--show {
+      transform: scale(1);
+      opacity: 1;
+      cursor: pointer;
+      pointer-events: unset;
+    }
+  }
+  &__select-all {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-top: 1px solid $explorer--base__search-border;
+  }
+  &__options {
+
+    padding-top: 15px;
+    padding-bottom: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid $explorer--base__search-border;
+    outline: none !important;
+
+    &--multiple {
+
+    }
+    &--single {
+      
+    }
+  }
+  &__option-single {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__not-found {
+    height: 45px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 0 16px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 48px;
+    text-decoration: none;
+    position: relative;
+    cursor: default;
+    pointer-events: none !important;
+    outline: 0;
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  &__option {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: $explorer--base__green-dark;
+    // padding: 0 16px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 48px;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    outline: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+
+    &:not(.app-multiselect-panel__option--disabled):not(.app-multiselect-panel__option--selected).app-multiselect-panel__option--focused,
+    &:not(.app-multiselect-panel__option--disabled):not(.app-multiselect-panel__option--selected):hover {
+      background-color: $explorer--base__blue-light;
+    }
+
+    &.app-multiselect-panel__option--disabled.app-multiselect-panel__option--selected {
+      background-color: $explorer--base__input-disabled !important;
+    }
+
+    &:not(.app-multiselect-panel__option--disabled).app-multiselect-panel__option--selected {
+      background-color: $explorer--base__green-dark !important;
+      color: $explorer--base__white;
+    }
+
+    &.app-multiselect-panel__option--disabled {
+      pointer-events: none !important;
+      opacity: .4;
+    }
+  }
+}
+
+// option для фильтра чуть уменьшены
+.app-multiselect-panel.app-filters__multiselect-panel {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+  .app-multiselect-panel__options {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .app-multiselect-panel__option {
+    height: 36px;
+  }
+  .app-multiselect-panel__search {
+    .mat-form-field-flex {
+      padding: .5em 0 !important;
+    }
+  }
+}

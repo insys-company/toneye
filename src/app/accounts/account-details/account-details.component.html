@@ -1,0 +1,174 @@
+<div class="account-page page">
+  <!-- Page header -->
+  <div class="account-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Account details</h1>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="account-page__content account-content page-details-content">
+
+    <!-- General block -->
+    <div class="page-details-content__component-wrapper">
+      <div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
+        <!-- Header -->
+        <div class="app-viewer__header-wrapper">
+          <div class="app-viewer__header">
+            <span>General</span>
+          </div>
+          <div class="app-viewer__btn" (click)="onShowOrHideGeneralInfo()">
+            <span class="color-blue link">
+              {{generalInfoBtnPlaceholder}}
+            </span>
+          </div>
+        </div>
+        <!-- Skeleton -->
+        <div *ngIf="viewersLoading" class="app-viewer__body-wrapper">
+          <div class="app-viewer__content-wrapper">
+            <div class="general-info">
+              <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
+                <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
+                <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
+              </div>
+              <div class="additional-wrapper">
+                <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
+                  <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
+                  <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
+                </div>
+                <div class="app-viewer__body-item app-viewer__body-item--skeleton no-link">
+                  <div class="app-viewer__body-item-header skeleton skeleton--small-text w-25"></div>
+                  <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-50"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Data -->
+        <div *ngIf="!viewersLoading" @smoothDisplayAnimation class="app-viewer__body-wrapper">
+          <div class="app-viewer__content-wrapper">
+            <div class="general-info">
+              <div class="app-viewer__body-item no-link">
+                <div class="app-viewer__body-item-header"><p>Address</p></div>
+                <div class="app-viewer__body-item-subheader"><span>{{model?.id}}</span></div>
+              </div>
+              <div class="additional-wrapper">
+                <div class="app-viewer__body-item no-link">
+                  <div class="app-viewer__body-item-header"><p>Status</p></div>
+                  <div class="app-viewer__body-item-subheader color-green" [class.color-red]="!model?.acc_type"><span>{{model?.acc_type ? 'Active' : 'Frozen'}}</span></div>
+                </div>
+                <div class="app-viewer__body-item no-link">
+                  <div class="app-viewer__body-item-header"><p>Balance</p></div>
+                  <div class="app-viewer__body-item-subheader" style="display:flex;flex-direction:row;align-items: center;"><span>{{model?.balance | thousandspipe}}</span><div class="icon icon-gem" style="margin-left:5px;"></div></div>
+                </div>
+              </div>
+            </div>
+            <img class="qr-code" src="https://chart.googleapis.com/chart?chs=164x164&chld=L|2&cht=qr&chl={{model?.code}}">
+          </div>
+        </div>
+      
+      </div>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'More details'"
+        [data]="aditionalViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+  </div>
+
+  <div class="page-content__tabs-buttons single-element">
+    <mat-slide-toggle
+      [checked]="autoupdate"
+      (change)="updateChange($event.checked)">Autoupdate
+    </mat-slide-toggle>
+  </div>
+
+  <div class="account-page__content account-content page-list-content">
+      <!-- animationDuration="0ms" -->
+    <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
+      <mat-tab label="Transactions ({{transactions?.length ? transactions?.length : 0}})"> 
+
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__filters tab-animation">
+      
+            <!-- Sticky block for desctop -->
+            <div class="page-list-content__filters-sticky-position">
+              <div class="page-list-content__component-wrapper">
+                <app-filter #filter1 class="page-list-content__component"
+                  [minMaxPlaceholder]="'With any tons number'"
+                  [datePlaceholder]="'All time'"
+                  [isFilterOpen]="isGeneralInfoOpen"
+                  [settings]="filterSettings"
+                  [skeletonArray]="skeletonArrayForFilter"
+                  [skeletalAnimation]="filterLoading"
+                  [params]="params">
+                </app-filter>
+              </div>
+            </div>
+      
+          </div>
+              
+          <div class="page-list-content__tabs tab-animation">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer1
+                [data]="tableViewerData"
+                [newData]="newDataAfterUpdate"
+                [newDataName]="'transactions'"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+
+        </div>
+          
+      </mat-tab>
+
+
+      <mat-tab label="Messages ({{messages?.length ? messages?.length : 0}})"> 
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__filters tab-animation">
+    
+            <!-- Sticky block for desctop -->
+            <div class="page-list-content__filters-sticky-position">
+              <div class="page-list-content__component-wrapper">
+                <app-filter #filter2 class="page-list-content__component"
+                  [minMaxPlaceholder]="'With any tons number'"
+                  [datePlaceholder]="'All time'"
+                  [isFilterOpen]="isGeneralInfoOpen"
+                  [settings]="messFilterSettings"
+                  [skeletonArray]="messSkeletonArrayForFilter"
+                  [skeletalAnimation]="messFilterLoading"
+                  [params]="params">
+                </app-filter>
+              </div>
+            </div>
+        
+          </div>
+                
+          <div class="page-list-content__tabs tab-animation">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer2
+                [data]="aditionalTableViewerData"
+                [newData]="messNewDataAfterUpdate"
+                [newDataName]="'messages'"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="messTableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+</div>

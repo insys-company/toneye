@@ -1,0 +1,30 @@
+<div class="app-multiselect-panel {{ panelClass }}" #datePanel>
+
+  <!-- tabindex="0" для фокусировки -->
+  <div tabindex="0" class="app-multiselect-panel__options" id="optionsPanelId" #optionsPanel>
+    <div class="app-multiselect-panel__option-fields">
+
+      <div class="app-multiselect-panel__option-field">
+        <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+          <input matInput type="text" readonly class="" [placeholder]="fromPlaceholder" disabled
+            [(ngModel)]="fromDate" tabindex="0" autocomplete="off">
+          <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForFrom" (click)="onClearFromDate()"></div>
+        </mat-form-field>
+      </div>
+
+
+      <div class="app-multiselect-panel__option-field">
+        <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+          <input matInput type="text" readonly class="" [placeholder]="toPlaceholder" disabled
+            [(ngModel)]="toDate" tabindex="0" autocomplete="off">
+          <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForTo" (click)="onClearToDate()"></div>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="app-multiselect-panel__option-btn">
+      <button type="button" mat-stroked-button disableRipple (click)="onSave()">Save</button>
+      <button type="button" mat-stroked-button disableRipple (click)="onResetFilter()">Clear all</button>
+    </div>
+  </div>
+
+</div>

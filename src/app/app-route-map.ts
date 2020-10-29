@@ -13,8 +13,14 @@ export const appRouteMap = {
     transactions: 'transactions',
     transaction: 'transaction',
 
+    contracts: 'contracts',
+    contract: 'contract',
+
     validators: 'validators',
     validator: 'validator',
+
+    inOutMessages: 'inOutMessages',
+    blocksSignatures: 'blocks_signatures',
 
     loading: 'loading',
 };

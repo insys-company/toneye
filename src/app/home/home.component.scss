@@ -1,0 +1,76 @@
+@import './../../scss/abstracts/colors';
+@import './../../scss/abstracts/animation';
+
+.home-page,
+.network-info,
+.network-info__header-wrapper,
+.network-info__body-wrapper,
+.network-info__header,
+.network-info__btn,
+.network-info__body-item {
+  transition: all .3s ease;
+}
+
+.network-info {
+  // width: 100%;
+  // min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: $explorer--base__blue-light;
+  border-radius: 4px;
+  overflow: hidden;
+
+  &__header-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__body-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 50%;
+  }
+
+  &__header {
+    font-weight: 700;
+    font-size: 24px;
+  }
+
+  &__btn {
+    min-height: 40px;
+    padding: 0 0 0 20px;
+    cursor: pointer;
+    background-color: transparent;
+    color: $explorer--base__blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  &__body-item {
+    margin-bottom: 0;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  &--opened {
+
+    .network-info__header-wrapper {
+      margin-bottom: 30px;
+    }
+
+    .network-info__body-item {
+      max-height: 200px;
+      opacity: 1;
+
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+<div class="app-multiselect {{ styleClass }}" [class.app-multiselect--focused]="setUpClassForArrowIcon">
+
+  <label *ngIf="labelVisible">{{ label }}</label>
+
+  <div class="app-multiselect__wrapper" #multiselectElement>
+    <!-- Поле ввода -->
+    <mat-form-field appearance="{{ materialTheme ? materialTheme : 'outline' }}" class="app-multiselect__multiselect {{ shadowStyleClass }}"
+      [class.ng-dirty]="isDirty"
+      [class.app-multiselect__multiselect--selected]="isDirty"
+      [class.app-multiselect__multiselect--focused]="setUpClassForArrowIcon"
+      [class.mat-focused]="focused"
+      floatLabel="never" (click)="onOpenPanel()">
+
+      <!-- Иконка слева -->
+      <div *ngIf="isPrefixIconVisible" matPrefix class="app-multiselect__icon-prefix {{ prefixIconClass }}"></div>
+  
+      <input matInput type="text" readonly class="app-multiselect__input {{ inputTextColorClass }}" [placeholder]="placeholder"
+        [name]="inputName" [disabled]="disabled" [required]="required" [(ngModel)]="firstSelectedOptionName"
+        tabindex="0" (keyup.enter)="onOpenPanel()" (keyup.space)="onOpenPanel()" #multiselectInput
+        (focus)="focused=true;" (blur)="focused=false;">
+  
+      <!-- Текст при множественном выборе -->
+      <span class="app-multiselect__multiple" [class.app-multiselect__multiple--show]="setShowClassForMultipleText">(+{{ selectedOptions?.length - 1 }})</span>
+      <!-- Иконка удаления -->
+      <div matSuffix class="app-multiselect__icon-clear" [class.app-multiselect__icon-clear--show]="setShowClassForClearIcon" (click)="onDeleteOptions($event)"></div>
+      <!-- Иконка стрелочка -->
+      <div matSuffix class="app-multiselect__icon-arrow" [class.app-multiselect__icon-arrow--up]="setUpClassForArrowIcon" [class.app-multiselect__icon-arrow--hide]="setHideClassForArrowIcon"></div>
+    </mat-form-field>
+  </div>
+  
+</div>

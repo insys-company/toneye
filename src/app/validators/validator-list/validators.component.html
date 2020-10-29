@@ -1,0 +1,194 @@
+<div class="validators-page page">
+  <!-- Page header -->
+  <div class="validators-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Validators</h1>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <div class="block-page__content block-content page-details-content">
+
+    <!-- General block -->
+    <div class="page-details-content__component-wrapper">
+      <div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
+        <!-- Header -->
+        <div class="app-viewer__header-wrapper">
+          <div class="app-viewer__header">
+            <span>General</span>
+          </div>
+          <div class="app-viewer__btn" (click)="onShowOrHideGeneralInfo()">
+            <span class="color-blue link">
+              {{generalInfoBtnPlaceholder}}
+            </span>
+          </div>
+        </div>
+        <!-- Skeleton -->
+        <div *ngIf="viewersLoading"  class="app-viewer-validators__body-wrapper">
+          <div *ngFor="let wrapper of skeletonArrayForGeneralViewer | slice:0:3;trackBy:identifySkeleton;" class="app-viewer__body-wrapper">
+            <div *ngFor="let item of skeletonArrayForGeneralViewer | slice:0:2;trackBy:identifySkeleton;" class="app-viewer__body-item app-viewer__body-item--skeleton">
+              <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
+              <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div *ngIf="!viewersLoading" @smoothDisplayAnimation class="app-viewer-validators__body-wrapper">
+          <div *ngFor="let wrapper of skeletonArrayForGeneralViewer | slice:0:3;let i = index;trackBy:identifySkeleton;" class="app-viewer__body-wrapper">
+            <div *ngFor="let item of generalViewerData | slice:(i*2):((i*2)+2);let j = index;trackBy:identifyData;" class="app-viewer__body-item no-link" [class.arrows]="i === 1">
+              <div class="app-viewer__body-item-header"><p>{{item?.title}}</p></div>
+              <div class="app-viewer__body-item-subheader"><span>{{item?.isNumber ? (item?.value | thousandspipe) : item?.isDate ? (item?.value | unixdate: 'HH:mm:ss D.MM.YYYY') : item?.value}}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #p15Viewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Election parameters'"
+        [data]="p15ViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #p16GeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Validators count'"
+        [data]="p16ViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+    <div class="page-details-content__component-wrapper">
+      <app-general-viewer #p17GeneralViewer class="page-details-content__component"
+        [isGeneralInfoOpen]="isAditionalInfoOpen"
+        [header]="'Validator stake parameters'"
+        [data]="p17ViewerData"
+        [skeletonArray]="skeletonArrayForGeneralViewer"
+        [skeletalAnimation]="viewersLoading">
+      </app-general-viewer>
+    </div>
+
+  </div>
+
+  <!-- <div class="page-content__tabs-buttons">
+    <div class="tabs-buttons__wrapper">
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 0" (click)="onChangeTab(0)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 0">Previos {{tableViewerDataPrev?.length ? '(' + tableViewerDataPrev.length + ')' : ''}}</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 1" (click)="onChangeTab(1)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 1">Current {{tableViewerData?.length ? '(' + tableViewerData.length + ')' : ''}}</h2>
+      </div>
+      <div class="tabs-buttons__header" [class.tabs-buttons__header--active]="selectedTabIndex === 2" (click)="onChangeTab(2)">
+        <h2 class="color-gray" [class.color-blue]="selectedTabIndex === 2">Next {{tableViewerDataNext?.length ? '(' + tableViewerDataNext.length + ')' : ''}}</h2>
+      </div>
+    </div>
+  </div> -->
+
+
+  <div class="account-page__content account-content page-list-content">
+      <!-- animationDuration="0ms" -->
+    <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
+      <mat-tab label="Previos ({{tableViewerDataPrev?.length ? tableViewerDataPrev?.length : 0}})"> 
+
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__filters tab-animation">
+            <!-- Sticky block for desctop -->
+            <div class="page-list-content__filters-sticky-position">
+              <div class="page-list-content__component-wrapper">
+                <app-general-viewer #generalViewer1 class="page-list-content__component"
+                  [isGeneralInfoOpen]="isGeneralInfoOpen"
+                  [data]="prevViewerData"
+                  [skeletonArray]="aditionalSkeletonArrayForGeneralViewer"
+                  [skeletalAnimation]="viewersLoading">
+                </app-general-viewer>
+              </div>
+            </div>
+          </div>
+                
+          <div class="page-list-content__tabs tab-animation">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer1
+                [data]="tableViewerDataPrev"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+        </div>
+          
+      </mat-tab>
+
+
+      <mat-tab label="Current ({{tableViewerData?.length ? tableViewerData?.length : 0}})"> 
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__filters tab-animation">
+            <!-- Sticky block for desctop -->
+            <div class="page-list-content__filters-sticky-position">
+              <div class="page-list-content__component-wrapper">
+                <app-general-viewer #generalViewer2 class="page-list-content__component"
+                  [isGeneralInfoOpen]="isGeneralInfoOpen"
+                  [data]="aditionalViewerData"
+                  [skeletonArray]="aditionalSkeletonArrayForGeneralViewer"
+                  [skeletalAnimation]="viewersLoading">
+                </app-general-viewer>
+              </div>
+            </div>
+          </div>
+                
+          <div class="page-list-content__tabs tab-animation">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer2
+                [data]="tableViewerData"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+
+      <mat-tab label="Next ({{tableViewerDataNext?.length ? tableViewerDataNext?.length : 0}})">
+        <div class="mat-tab-body-content__wrapper">
+          <div class="page-list-content__filters tab-animation">
+            <!-- Sticky block for desctop -->
+            <div class="page-list-content__filters-sticky-position">
+              <div class="page-list-content__component-wrapper">
+                <app-general-viewer #generalViewer3 class="page-list-content__component"
+                  [isGeneralInfoOpen]="isGeneralInfoOpen"
+                  [data]="nextViewerData"
+                  [skeletonArray]="aditionalSkeletonArrayForGeneralViewer"
+                  [skeletalAnimation]="viewersLoading">
+                </app-general-viewer>
+              </div>
+            </div>
+          </div>
+                
+          <div class="page-list-content__tabs tab-animation">
+            <div class="page-list-content__component-wrapper">
+              <app-table-viewer #tableViewer3
+                [data]="tableViewerDataNext"
+                footerPlaceholder="Load 25 more"
+                [skeletalAnimation]="tableViewersLoading"
+                (exportEvent)="onExport()"
+                (moreEvent)="onLoadMore($event)">
+              </app-table-viewer>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+</div>

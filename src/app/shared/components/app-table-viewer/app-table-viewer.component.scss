@@ -1,0 +1,13 @@
+@import './../../../../scss/abstracts/colors';
+@import './../../../../scss/icon.scss';
+
+.color-gray {
+  transition: all .3s ease;
+}
+
+.app-viewer__btn {
+  background-image: url($ico-download);
+  background-repeat: no-repeat;
+  background-position-y: center;
+  padding: 0 0 0 20px;
+}

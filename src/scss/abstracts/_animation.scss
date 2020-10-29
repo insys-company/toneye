@@ -121,6 +121,19 @@
 	}
 }
 
+@keyframes tabsLoadContent {
+	0% {
+		opacity: 0;
+		-webkit-transform: translateY(10px);
+		transform: translateY(10px);
+	}
+	100% {
+		opacity: 1;
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+}
+
 @keyframes logoAnimate {
 	0% {
 		transform: translateY(-90px);
@@ -139,5 +152,52 @@
 	}
 	100% {
 		transform: translateY(0);
+	}
+}
+
+@keyframes skeleton {
+	0% {
+		background-position: -236px 0;
+	}
+	
+	100% {
+		background-position: 236px 0;
+	}
+}
+
+@keyframes rotation {
+	from {
+		transform: rotate(0);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes paddingPanel {
+	from {
+		padding-top: 0;
+		padding-bottom: 0;
+		// max-height: 0;
+	}
+	to {
+		padding-top: 20px;
+		padding-bottom: 20px;
+		// max-height: 500px;
+	}
+}
+
+@keyframes multiselectPanel {
+	from {
+		// padding-top: 0;
+		// padding-bottom: 0;
+		max-height: 0;
+		// opacity: 0;
+	}
+	to {
+		// padding-top: 10px;
+		// padding-bottom: 10px;
+		max-height: 200px;
+		// opacity: 1;
 	}
 }

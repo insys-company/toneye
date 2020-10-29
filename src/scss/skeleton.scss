@@ -1,0 +1,62 @@
+@import './scss/abstracts/animation';
+@import './abstracts/colors.scss';
+
+.skeleton {
+  border-radius: 4px;
+
+  &:not(.skeleton-filter-bg) {
+    background: $explorer--base__skeleton-gray;
+    background-image: linear-gradient(to right, $explorer--base__skeleton-gray 0%, $explorer--base__skeleton-gray-gradient 20%, $explorer--base__skeleton-gray 40%, $explorer--base__skeleton-gray 100%);
+  }
+
+  &.skeleton-filter-bg {
+    background: #E3EDF1;
+    background-image: linear-gradient(to right, #E3EDF1 0%, #D8E7EC 20%, #E3EDF1 40%, #E3EDF1 100%);
+  }
+
+  background-repeat: no-repeat !important;
+  background-size: 236px 300px;
+  animation: skeleton 1s linear infinite forwards !important;
+
+  // For 14px front-size
+  &--normal-text {
+    min-height: 16px; //16
+  }
+
+  // For 12px front-size
+  &--small-text {
+    min-height: 14px; //14
+  }
+
+  &--field {
+    min-height: 40px;
+  }
+
+  &--block {
+    min-height: 40px;
+  }
+
+  &.w-10 {
+    width: 10%;
+  }
+
+  &.w-25 {
+    width: 25%;
+  }
+
+  &.w-40 {
+    width: 40%;
+  }
+
+  &.w-50 {
+    width: 50%;
+  }
+
+  &.w-75 {
+    width: 75%;
+  }
+
+  &.w-100 {
+    width: 100%;
+  }
+}

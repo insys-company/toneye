@@ -1,0 +1,85 @@
+@import './../../../../scss/abstracts/animation';
+@import './../../../../scss/abstracts/colors';
+@import './../../../../scss/icon.scss';
+
+.app-search {
+  transition: all .3s ease;
+  border-radius: 5px;
+
+  &--focused {
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  &__icon-clear,
+  &__icon-search {
+    position: absolute;
+    transition: all .3s ease;
+  }
+
+  &__icon-clear {
+    background: url($ico-search-clear);
+    transform: scale(0);
+    pointer-events: none;
+    cursor: default;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    &--show {
+      pointer-events: all;
+      cursor: pointer;
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  &__icon-search {
+    background: url($ico-search);
+    transform: scale(1);
+    &--hide {
+      transform: scale(0);
+      opacity: 0;
+    }
+  }
+
+  &__icon-load {
+    background: url($ico-load);
+    transition: all .3s ease;
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  &__search {
+    width: 100%;
+
+    &.mat-focused {
+
+      // .app-search__icon-load--show {
+      //   transform: scale(1);
+      //   opacity: 1;
+      // }
+
+      .app-search__icon-load--show {
+        animation: rotation .5s linear infinite;
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      // .app-search__icon-search--hide {
+      //   pointer-events: none;
+      //   cursor: default;
+
+      //   transform: scale(0);
+      //   opacity: 0;
+      // }
+    }
+  }
+
+  .icon {
+    background-repeat: no-repeat;
+    background-position: center;
+    min-width: 12px;
+    min-height: 12px;
+  }
+
+}
