@@ -1,6 +1,7 @@
-# Tonexplorer
+# Toneye
+[Live Demo](http://toneye.app/)
 
-# [Live Demo](http://toneye.app/)
+This is a web-based Free TON Network blockchain explorer.
 
 ## Development Setup
 
