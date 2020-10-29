@@ -1,0 +1,57 @@
+@import './../../../../../scss/abstracts/colors';
+@import './../../../../../scss/icon.scss';
+
+.app-search-panel {
+  // padding-top: 20px;
+  // padding-bottom: 20px;
+
+  padding-left: 20px;
+  padding-right: 20px;
+  border: 1px solid $explorer--base__search-border;
+  border-radius: 0px 0px 5px 5px;
+  background-color: $explorer--base__white;
+
+  max-height: 500px;
+  overflow: auto;
+
+  margin-top: -2px;
+
+  animation: paddingPanel .3s ease 1 forwards;
+
+  &__options,
+  &__options-wrapper,
+  &__option {
+    overflow: hidden;
+    flex-shrink: 0;
+    outline: none;
+  }
+
+  &__option-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    span {
+      margin: 5px 10px 5px 0;
+    }
+  }
+
+  &__option-body {
+
+    // margin: 7px 0 7px 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+
+    &:not(:first-child) {
+      margin-top: 10px;
+    }
+
+    // &:not(:last-child) {
+
+    // }
+  }
+}
+
+.strong {
+  font-weight: 700;
+}

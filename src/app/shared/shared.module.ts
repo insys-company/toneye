@@ -3,22 +3,86 @@ import { CommonModule } from '@angular/common';
 
 import { RouterModule } from '@angular/router';
 
-// import { PageUnderDevelopmentComponent } from './components/page-under-development/page-under-development.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { MaterialModule } from '../material/material.module';
+
+import {
+  NgxMatDatetimePickerModule, 
+  NgxMatNativeDateModule, 
+  NgxMatTimepickerModule 
+} from '@angular-material-components/datetime-picker';
+
+import {
+  AppGeneralViewerComponent,
+  AppFilterComponent,
+  AppTableViewerComponent,
+  AppMultiselectComponent,
+  AppMultiselectOverlayComponent,
+  AppSearchComponent,
+  AppSearchOverlayComponent,
+  AppMinmaxComponent,
+  AppMinmaxOverlayComponent,
+  AppDatepickerComponent,
+  AppDatepickerOverlayComponent,
+} from './components';
+
+import {
+  ThousandsPipe,
+  UnixDatePipe,
+} from './pipes';
 
 @NgModule({
   declarations: [
-    // PageUnderDevelopmentComponent,
+    AppFilterComponent,
+    AppGeneralViewerComponent,
+    AppTableViewerComponent,
+    AppMultiselectComponent,
+    AppMultiselectOverlayComponent,
+    AppSearchComponent,
+    AppSearchOverlayComponent,
+    AppMinmaxComponent,
+    AppMinmaxOverlayComponent,
+    AppDatepickerComponent,
+    AppDatepickerOverlayComponent,
+
+    // pipes
+    ThousandsPipe,
+    UnixDatePipe,
   ],
   imports: [
     CommonModule,
-    // FormsModule,
-    // ReactiveFormsModule,
+    FormsModule,
+    ReactiveFormsModule,
     RouterModule,
+    MaterialModule,
+    NgxMatDatetimePickerModule,
+    NgxMatTimepickerModule,
+    NgxMatNativeDateModule,
   ],
   providers: [],
   exports: [
-    // PageUnderDevelopmentComponent,
+    AppFilterComponent,
+    AppGeneralViewerComponent,
+    AppTableViewerComponent,
+    AppMultiselectComponent,
+    AppMultiselectOverlayComponent,
+    AppSearchComponent,
+    AppSearchOverlayComponent,
+    AppMinmaxComponent,
+    AppMinmaxOverlayComponent,
+    AppDatepickerComponent,
+    AppDatepickerOverlayComponent,
+
+    // pipes
+    ThousandsPipe,
+    UnixDatePipe,
   ],
-  entryComponents: [],
+  entryComponents: [
+    AppMultiselectOverlayComponent,
+    AppSearchOverlayComponent,
+    AppMinmaxOverlayComponent,
+    AppDatepickerOverlayComponent,
+  ],
 })
 export class SharedModule {}

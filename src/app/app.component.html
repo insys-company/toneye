@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="explorer__header header" [class.header--mobile-menu-opened]="isMenuOpened">
       <!-- Logo icon -->
-      <div class="header__logo"></div>
+      <a routerLink="/home" class="header__logo"></a>
 
       <!-- Icon for mobile version -->
       <div class="header__mobile-menu-icon mobile-menu-icon" [class.mobile-menu-icon--opened]="isMenuOpened" (click)="isMenuOpened = !isMenuOpened;">
@@ -14,23 +14,33 @@
 
       <!-- Toolbar -->
       <div class="header__toolbar">
-        <div *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="header__toolbar-link">
+        <a *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="header__toolbar-link span-class">
           <span>{{item}}</span>
-        </div>
+        </a>
       </div>
     </header>
 
     <!-- Search block -->
     <div class="explorer__search search">
-      <span>Search input</span>
+
+      <app-search
+        [blocks]="foundBlocks"
+        [messages]="foundMessages"
+        [transactions]="foundTransactions"
+        [accounts]="foundAccounts"
+        [validators]="foundValidators"
+        (searchChange)="onSearch($event)"
+        (selectChange)="onDetails($event)">
+      </app-search>
+
     </div>
 
     <!-- Breadcrumbs block -->
     <div *ngIf="breadcrumbs?.length" class="explorer__breadcrumbs breadcrumbs">
       <div *ngFor="let item of breadcrumbs;let index = index;trackBy:identifyBreadcrumbs;" class="breadcrumbs__content">
           <!-- Name -->
-          <span class="breadcrumbs__name" [class.breadcrumbs__name--last]="(index === (breadcrumbs?.length - 1))"
-            (click)="onRedirect(index, item)">{{ item?.name }}</span>
+          <a class="breadcrumbs__name" [class.breadcrumbs__name--last]="(index === (breadcrumbs?.length - 1))"
+            routerLink="/{{item?.url}}">{{ item?.name }}</a>
           <!-- Slash -->
           <div class="breadcrumbs__icon" [class.breadcrumbs__icon--hide]="(index === (breadcrumbs?.length - 1))"></div>
       </div>
@@ -46,8 +56,8 @@
 <!-- Mobile menu -->
 <div class="mobile-menu mobile-menu__wrapper" [class.mobile-menu--opened]="isMenuOpened">
   <div class="mobile-menu__content">
-    <div *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="mobile-menu__link" (click)="isMenuOpened=false;">
+    <a *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="mobile-menu__link" (click)="isMenuOpened=false;">
       <span>{{item}}</span>
-    </div>
+    </a>
   </div>
 </div>

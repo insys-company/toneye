@@ -1,0 +1,55 @@
+<div class="transactions-page page">
+  <!-- Page header -->
+  <div class="transactions-page__page-header page-header">
+    <div class="page-header__header">
+      <h1>Transactions</h1>
+    </div>
+    <div class="page-header__slide-toggle">
+      <mat-slide-toggle
+        [checked]="autoupdate"
+        (change)="updateChange($event.checked)">Autoupdate
+      </mat-slide-toggle>
+    </div>
+  </div>
+  <!-- Page content -->
+  <div class="transactions-page__content transactions-content page-list-content">
+    <div class="page-list-content__filters">
+
+      <!-- Sticky block for desctop -->
+      <div class="page-list-content__filters-sticky-position">
+        <div class="page-list-content__component-wrapper">
+          <app-general-viewer #generalViewer class="page-list-content__component"
+            [isGeneralInfoOpen]="isGeneralInfoOpen"
+            [data]="generalViewerData"
+            [skeletonArray]="skeletonArrayForGeneralViewer"
+            [skeletalAnimation]="viewersLoading">
+          </app-general-viewer>
+        </div>
+        <div class="page-list-content__component-wrapper">
+          <app-filter #filter class="page-list-content__component"
+            [minMaxPlaceholder]="'With any tons number'"
+            [datePlaceholder]="'All time'"
+            [isFilterOpen]="isGeneralInfoOpen"
+            [settings]="filterSettings"
+            [skeletonArray]="skeletonArrayForFilter"
+            [skeletalAnimation]="filterLoading"
+            [params]="params">
+          </app-filter>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-list-content__tabs">
+      <div class="page-list-content__component-wrapper">
+        <app-table-viewer #tableViewer
+          [data]="tableViewerData"
+          footerPlaceholder="Load 25 more"
+          [skeletalAnimation]="tableViewersLoading"
+          (exportEvent)="onExport()"
+          (moreEvent)="onLoadMore($event)">
+        </app-table-viewer>
+      </div>
+    </div>
+  </div>
+</div>

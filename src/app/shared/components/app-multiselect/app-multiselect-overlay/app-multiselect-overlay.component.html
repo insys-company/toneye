@@ -1,0 +1,52 @@
+<div class="app-multiselect-panel {{ panelClass }}" #multiselectPanel>
+
+  <!-- Поле поиска -->
+  <mat-form-field *ngIf="searchEnable" #multiselectSearchInput class="app-multiselect-panel__search" floatLabel="never">
+    <div matPrefix class="app-multiselect-panel__icon-search" [class.app-multiselect-panel__icon-search--focused]="setFocusClassForSearchIconInSearchInput"></div>
+    <input matInput type="text" [placeholder]="searchPlaceholder" name="search" [(ngModel)]="search" (ngModelChange)="onSearch(search)" autocomplete="off">
+    <div matSuffix class="app-multiselect-panel__icon-clear" [class.app-multiselect-panel__icon-clear--show]="setShowClassForClearIconInSearchInput" (click)="onClearSearch()"></div>
+  </mat-form-field>
+
+  <div *ngIf="multiple && selectAll" class="app-multiselect-panel__select-all">
+
+    <!-- Выбор всех элементов -->
+    <mat-checkbox
+      readonly color="primary" #selectAllChbx disableRipple
+      (change)="onSelectAll($event)"
+      [checked]="isAllSelected()"
+      [disabled]="!multiple">{{ selectAllPlaceholder }}</mat-checkbox>
+
+  </div>
+
+  <!-- Элементы -->
+  <!-- tabindex="0" для фокусировки -->
+  <div tabindex="0" class="app-multiselect-panel__options" id="optionsPanelId" #optionsPanel
+    [class.app-multiselect-panel__options--multiple]="multiple"
+    [class.app-multiselect-panel__options--single]="!multiple">
+
+    <!-- Пустой список -->
+    <div *ngIf="!checkArrayLength(options)" class="app-multiselect-panel__not-found">
+      <span>{{ notFoundTitle }}</span>
+    </div>
+
+    <!-- Список -->
+    <div *ngFor="let option of options | slice:0:overlaySize; let index = index;" [id]="index" class="app-multiselect-panel__option"
+      [class.app-multiselect-panel__option--selected]="isOptionSelected(option)"
+      [class.app-multiselect-panel__option--focused]="isOptionFocused(option)"
+      [class.app-multiselect-panel__option--disabled]="isLimitExceeded(option)">
+
+      <!-- Включен множественный выбор -->
+      <mat-checkbox *ngIf="multiple"
+        readonly color="primary" disableRipple
+        (change)="onSelectOption(option)"
+        [checked]="isOptionSelected(option)"
+        [disabled]="isLimitExceeded(option)">{{ option ? option[displayName] : '' }}</mat-checkbox>
+
+      <!-- Выключен множественный выбор -->
+      <div *ngIf="!multiple" class="app-multiselect-panel__option-single" (click)="onSelectOption(option)">{{ option ? option[displayName] : '' }}</div>
+
+    </div>
+
+  </div>
+
+</div>

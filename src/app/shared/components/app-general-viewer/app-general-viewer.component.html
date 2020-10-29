@@ -1,0 +1,28 @@
+<div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
+  <!-- Header -->
+  <div class="app-viewer__header-wrapper">
+    <div class="app-viewer__header">
+      <span>{{header}}</span>
+    </div>
+    <div class="app-viewer__btn" (click)="onShowOrHide()">
+      <span class="color-blue link">
+        {{btnPlaceholder}}
+      </span>
+    </div>
+  </div>
+  <!-- Skeleton -->
+  <div *ngIf="skeletalAnimation" class="app-viewer__body-wrapper">
+    <div *ngFor="let item of skeletonArray;trackBy:identifySkeleton;" class="app-viewer__body-item app-viewer__body-item--skeleton">
+      <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
+      <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>
+    </div>
+  </div>
+  <!-- Data -->
+  <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
+    <div *ngFor="let item of data;trackBy:identifyData;" class="app-viewer__body-item no-link">
+      <div class="app-viewer__body-item-header"><p>{{item?.title}}</p></div>
+      <div class="app-viewer__body-item-subheader"><span>{{item?.isNumber ? (item?.value | thousandspipe) : item?.isDate ? (item?.value | unixdate: 'HH:mm:ss D MMM YYYY') : item?.value}}</span></div>
+    </div>
+  </div>
+
+</div>
