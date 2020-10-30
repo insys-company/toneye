@@ -37,7 +37,7 @@
 
   <!-- Data -->
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
-  
+
     <div class="app-viewer__body-new-items-wrapper" [class.app-viewer__body-new-items-wrapper--show]="newData?.length">
       <div class="app-viewer__body-new-items">
         <div class="app-viewer__header">
@@ -54,7 +54,7 @@
     </div>
     <a *ngFor="let item of data;trackBy:identifyData;" routerLink="/{{item?.url}}/{{item?.id}}" class="app-viewer__body-item border-bottom-light" [class.pointer]="item?.url && item?.id" [class.no-link]="!item?.url || !item?.id" (click)="onSelectItem(item)">
       <div class="app-viewer__body-item-row">
-        <span class="color-blue link no-pointer">{{item.titleLeft}}</span>
+        <span class="color-blue link">{{item.titleLeft}}</span>
 
         <!-- With icon -->
         <div class="app-viewer__body-item-icon-wrapper app-viewer__body-item-icon-wrapper--right">

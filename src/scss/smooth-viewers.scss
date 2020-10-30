@@ -143,7 +143,14 @@
       pointer-events: none !important;
     }
     &:not(.app-viewer__body-item--skeleton):not(.no-link):not(.no-hover):hover {
-      transform: scale(1.014);
+      background-color: $explorer--base__blue-light;
+      box-shadow: 0 0 0 14px $explorer--base__blue-light;
+      border-bottom-color: $explorer--base-_search-border;
+
+      .color-blue {
+        font-weight: bold;
+      }
+
     }
   }
 
