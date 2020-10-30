@@ -1,4 +1,4 @@
-<div class="app-viewer bg-light app-filter" [class.app-viewer--opened]="isFilterOpen">
+<div class="app-viewer bg-light app-filter" [class.app-viewer--opened]="isFilterOpen" [class.app-viewer--without-hidden]="!isFilterHideBtnVisible">
   <!-- Header -->
   <div class="app-viewer__header-wrapper">
     <div class="app-viewer__header">
@@ -32,7 +32,7 @@
         [prefixIconClass]="'chain'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectChain($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedChains')">
       </app-multiselect>
@@ -41,10 +41,10 @@
     <div *ngIf="settings?.filterExtInt" class="app-viewer__body-item no-hover">
       <app-multiselect
         [placeholder]="'Ext+Int'"
-  
+
         [options]="extInt"
         [selectedOptions]="selectedExtInt"
-  
+
         [searchEnable]="true"
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
@@ -52,7 +52,7 @@
         [prefixIconClass]="'extint'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectExtint($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedExtInt')">
       </app-multiselect>
@@ -61,7 +61,7 @@
     <div *ngIf="settings?.filterByShard" class="app-viewer__body-item no-hover">
       <app-multiselect
         [placeholder]="'All shards'"
-  
+
         [options]="shards"
         [selectedOptions]="selectedShards"
 
@@ -72,7 +72,7 @@
         [prefixIconClass]="'shard'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectShard($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedShards')">
       </app-multiselect>
@@ -81,10 +81,10 @@
     <div *ngIf="settings?.filterByAbort" class="app-viewer__body-item no-hover">
       <app-multiselect
         [placeholder]="'Aborted and not'"
-  
+
         [options]="aborted"
         [selectedOptions]="selectedAborted"
-  
+
         [searchEnable]="true"
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
@@ -92,7 +92,7 @@
         [prefixIconClass]="'abort'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectAborted($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedAborted')">
       </app-multiselect>
@@ -101,10 +101,10 @@
     <div *ngIf="settings?.filterByDirection" class="app-viewer__body-item no-hover">
       <app-multiselect
         [placeholder]="'Any direction'"
-  
+
         [options]="directions"
         [selectedOptions]="selectedDirections"
-  
+
         [searchEnable]="true"
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
@@ -112,7 +112,7 @@
         [prefixIconClass]="'direction'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectDirection($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedDirections')">
       </app-multiselect>
@@ -131,7 +131,7 @@
         [prefixIconClass]="'date'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (periodSelected)="onSelectDate($event)">
       </app-datepicker>
     </div> -->
@@ -149,7 +149,7 @@
         [prefixIconClass]="'gem'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (periodSelected)="onSelectMinMax($event)">
       </app-minmax>
     </div>

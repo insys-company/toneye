@@ -20,20 +20,28 @@
 
   // For 14px front-size
   &--normal-text {
-    min-height: 16px; //16
+    min-height: 12px; //16
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 
   // For 12px front-size
   &--small-text {
-    min-height: 14px; //14
+    min-height: 10px; //14
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 
   &--field {
-    min-height: 40px;
+    min-height: 36px;
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 
   &--block {
-    min-height: 40px;
+    min-height: 36px;
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 
   &.w-10 {
@@ -59,4 +67,22 @@
   &.w-100 {
     width: 100%;
   }
+}
+
+@media (min-width: $explorer--base__viewer_change_point_basic) {
+
+  .page-details-content__component-wrapper {
+
+    .app-viewer__body-item--skeleton {
+
+      // For 14px front-size
+      .skeleton--normal-text,
+      .skeleton--small-text {
+        box-shadow: 0 0 0 4px white inset
+      }
+
+    }
+
+  }
+
 }

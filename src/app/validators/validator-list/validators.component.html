@@ -10,7 +10,7 @@
   <div class="block-page__content block-content page-details-content">
 
     <!-- General block -->
-    <div class="page-details-content__component-wrapper">
+    <div class="page-details-content__component-wrapper custom">
       <div class="app-viewer border-light" [class.app-viewer--opened]="isGeneralInfoOpen">
         <!-- Header -->
         <div class="app-viewer__header-wrapper">
@@ -95,7 +95,7 @@
   <div class="account-page__content account-content page-list-content">
       <!-- animationDuration="0ms" -->
     <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
-      <mat-tab label="Previos ({{tableViewerDataPrev?.length ? tableViewerDataPrev?.length : 0}})"> 
+      <mat-tab label="Previos ({{tableViewerDataPrev?.length ? tableViewerDataPrev?.length : 0}})">
 
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
@@ -111,7 +111,7 @@
               </div>
             </div>
           </div>
-                
+
           <div class="page-list-content__tabs tab-animation">
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer1
@@ -124,11 +124,11 @@
             </div>
           </div>
         </div>
-          
+
       </mat-tab>
 
 
-      <mat-tab label="Current ({{tableViewerData?.length ? tableViewerData?.length : 0}})"> 
+      <mat-tab label="Current ({{tableViewerData?.length ? tableViewerData?.length : 0}})">
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
             <!-- Sticky block for desctop -->
@@ -143,7 +143,7 @@
               </div>
             </div>
           </div>
-                
+
           <div class="page-list-content__tabs tab-animation">
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer2
@@ -174,7 +174,7 @@
               </div>
             </div>
           </div>
-                
+
           <div class="page-list-content__tabs tab-animation">
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer3

@@ -1,5 +1,6 @@
 @import './../scss/abstracts/colors';
 @import './../scss/abstracts/animation';
+@import './../scss/abstracts/variables';
 
 .explorer {
   min-height: 100%;
@@ -68,11 +69,10 @@
 .header {
   z-index: 99999;
   transition: all .3s ease;
-  border-bottom: 1px solid $explorer--base__white;
 }
 
 .explorer__search {
-  margin: 20px 0;
+  margin: 0 0 $explorer--base__mp_biggest;
   animation: loadContent .5s ease 1 alternate .5s forwards;
 }
 
@@ -111,7 +111,8 @@
     }
 
     &:hover {
-      transform: translateY(-4px);
+      color: $explorer--base__green-dark;
+      text-decoration: underline;
     }
 
     &:not(.active) {
@@ -252,7 +253,7 @@
 .breadcrumbs {
   transition: all .3s ease;
   flex-wrap: wrap;
-  margin: 20px 22px 0 22px;
+  margin: 0 $explorer--base__mp_basic;
   .breadcrumbs__content {
 
     .breadcrumbs__name:not(:last-child),
@@ -267,7 +268,7 @@
       cursor: pointer;
 
       &:hover {
-        transform: translateY(-4px);
+        color: $explorer--base__green-dark;
 
         &::after {
           background-color: $explorer--base__blue;
@@ -294,7 +295,7 @@
       transition: all .3s ease;
       position: relative;
       min-height: 30px;
-      padding: 10px 5px;
+      padding: 0 5px;
       transition: all .3s ease;
       text-transform: capitalize;
       padding-left: 0;
@@ -307,7 +308,7 @@
         height: 1px;
         left: 0;
         right: 5px;
-        bottom: 10px;
+        bottom: -2px;
       }
     }
 
