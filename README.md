@@ -33,4 +33,32 @@ ng serve
 
 ## Server Installation
 
-TODO
+### Requirements
+
+ - Docker Engine 19.03.0 or higher
+ - Docker Compose 1.25.5 or higer
+
+### Installation
+
+Docker CLI
+```
+docker pull insyscompany/toneye:release && \
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye
+```
+
+Docker Compose CLI
+```
+docker-compose up -d toneye
+```
+
+### Build
+
+Docker CLI
+```
+docker build . -t insyscompany/toneye:release
+```
+
+Docker Compose CLI
+```
+docker-compose build toneye
+```
