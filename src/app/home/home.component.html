@@ -1,35 +1,4 @@
 <div class="home-page page">
-  <!-- Info -->
-  <div class="home-page__network-info network-info" [class.network-info--opened]="isGeneralInfoOpen">
-    <div class="network-info__header-wrapper">
-      <div class="network-info__header">
-        <h1>{{locale?.homeInfoTitle}}</h1>
-      </div>
-      <div class="network-info__btn" (click)="onShowOrHideGeneralInfo()">
-        <span class="color-blue link">
-          {{generalInfoBtnPlaceholder}}
-        </span>
-      </div>
-    </div>
-    <div class="network-info__body-wrapper">
-      <div class="network-info__body-item">
-        <span>{{locale?.homeInfoText1}}</span>
-      </div>
-      <div class="network-info__body-item">
-        <span>{{locale?.homeInfoText2}}</span><br>
-        <a href="https://docs.ton.dev" class="color-blue link">https://docs.ton.dev</a>
-      </div>
-      <div class="network-info__body-item">
-        <span>{{locale?.homeInfoText3}}</span>
-      </div>
-      <div class="network-info__body-item">
-        <span>{{locale?.homeInfoText4}}</span>
-      </div>
-      <div class="network-info__body-item">
-        <span class="color-blue link">support@tonlabs.io</span>
-      </div>
-    </div>
-  </div>
   <!-- Page header -->
   <div class="home-page__page-header page-header">
     <div class="page-header__header">
