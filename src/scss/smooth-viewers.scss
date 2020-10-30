@@ -139,9 +139,15 @@
     max-height: 0;
     opacity: 0;
     width: 100%;
+
+    &-subheader {
+      word-break: break-all;
+    }
+
     &.no-link {
       pointer-events: none !important;
     }
+
     &:not(.app-viewer__body-item--skeleton):not(.no-link):not(.no-hover):hover {
       background-color: $explorer--base__blue-light;
       box-shadow: 0 0 0 14px $explorer--base__blue-light;
@@ -238,7 +244,7 @@
     }
 
     .app-viewer__body-item {
-      max-height: 200px;
+      max-height: initial;
       opacity: 1;
 
       &:not(:last-child) {
