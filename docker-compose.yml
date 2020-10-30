@@ -2,6 +2,9 @@ version: "3.8"
 services:
     "toneye":
         image: insyscompany/toneye:release
+        build: 
+            context: .
+            dockerfile: Dockerfile
         container_name: toneye
         restart: always
         ports:
