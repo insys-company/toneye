@@ -2,6 +2,8 @@ FROM nginx:1.19.3
 
 ARG BUILD_CONFIG="prod"
 
+COPY ./nginx/nginx-custom.conf /etc/nginx/conf.d/default.conf
+
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
 RUN apt-get install -y nodejs
 
