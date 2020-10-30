@@ -40,10 +40,12 @@ ng serve
 
 ### Installation
 
+#### English version
+
 Docker CLI
 ```
 docker pull insyscompany/toneye:release && \
-docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release
 ```
 
 Docker Compose CLI
@@ -51,7 +53,22 @@ Docker Compose CLI
 docker-compose up -d toneye
 ```
 
+#### Korean version
+
+Docker CLI
+```
+docker pull insyscompany/toneye:release-korean && \
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye-korean insyscompany/toneye:release-korean
+```
+
+Docker Compose CLI
+```
+docker-compose up -d toneye-korean
+```
+
 ### Build
+
+#### English version
 
 Docker CLI
 ```
@@ -61,4 +78,16 @@ docker build . -t insyscompany/toneye:release
 Docker Compose CLI
 ```
 docker-compose build toneye
+```
+
+#### Korean version
+
+Docker CLI
+```
+docker build . -t insyscompany/toneye:release-korean
+```
+
+Docker Compose CLI
+```
+docker-compose build toneye-korean
 ```

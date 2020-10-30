@@ -13,3 +13,18 @@ services:
         logging:
             options:
                 max-size: 50m
+    "toneye-korean":
+        image: insyscompany/toneye:release-korean
+        build: 
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - BUILD_CONFIG=prod-kor
+        container_name: toneye-korean
+        restart: always
+        ports:
+            - 8080:80
+            - 8443:443
+        logging:
+            options:
+                max-size: 50m
