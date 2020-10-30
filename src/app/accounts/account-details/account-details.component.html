@@ -2,7 +2,7 @@
   <!-- Page header -->
   <div class="account-page__page-header page-header">
     <div class="page-header__header">
-      <h1>Account details</h1>
+      <h1>{{locale?.title}}</h1>
     </div>
   </div>
   <!-- Page content -->
@@ -14,7 +14,7 @@
         <!-- Header -->
         <div class="app-viewer__header-wrapper">
           <div class="app-viewer__header">
-            <span>General</span>
+            <span>{{locale?.general}}</span>
           </div>
           <div class="app-viewer__btn" (click)="onShowOrHideGeneralInfo()">
             <span class="color-blue link">
@@ -48,16 +48,16 @@
           <div class="app-viewer__content-wrapper">
             <div class="general-info">
               <div class="app-viewer__body-item no-link">
-                <div class="app-viewer__body-item-header"><p>Address</p></div>
+                <div class="app-viewer__body-item-header"><p>{{locale?.address}}</p></div>
                 <div class="app-viewer__body-item-subheader"><span>{{model?.id}}</span></div>
               </div>
               <div class="additional-wrapper">
                 <div class="app-viewer__body-item no-link">
-                  <div class="app-viewer__body-item-header"><p>Status</p></div>
+                  <div class="app-viewer__body-item-header"><p>{{locale?.status}}</p></div>
                   <div class="app-viewer__body-item-subheader color-green" [class.color-red]="!model?.acc_type"><span>{{model?.acc_type ? 'Active' : 'Frozen'}}</span></div>
                 </div>
                 <div class="app-viewer__body-item no-link">
-                  <div class="app-viewer__body-item-header"><p>Balance</p></div>
+                  <div class="app-viewer__body-item-header"><p>{{locale?.balance}}</p></div>
                   <div class="app-viewer__body-item-subheader" style="display:flex;flex-direction:row;align-items: center;"><span>{{model?.balance | thousandspipe}}</span><div class="icon icon-gem" style="margin-left:5px;"></div></div>
                 </div>
               </div>
@@ -72,7 +72,7 @@
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
-        [header]="'More details'"
+        [header]="locale?.moreDetails"
         [data]="aditionalViewerData"
         [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
@@ -84,14 +84,14 @@
   <div class="page-content__tabs-buttons single-element">
     <mat-slide-toggle
       [checked]="autoupdate"
-      (change)="updateChange($event.checked)">Autoupdate
+      (change)="updateChange($event.checked)">{{locale?.autoupdate}}
     </mat-slide-toggle>
   </div>
 
   <div class="account-page__content account-content page-list-content">
       <!-- animationDuration="0ms" -->
     <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
-      <mat-tab label="Transactions ({{transactions?.length ? transactions?.length : 0}})">
+      <mat-tab label="{{locale?.transactions}} ({{transactions?.length ? transactions?.length : 0}})">
 
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
@@ -100,8 +100,8 @@
             <div class="page-list-content__filters-sticky-position">
               <div class="page-list-content__component-wrapper">
                 <app-filter #filter1 class="page-list-content__component"
-                  [minMaxPlaceholder]="'With any tons number'"
-                  [datePlaceholder]="'All time'"
+                  [minMaxPlaceholder]="locale?.tons"
+                  [datePlaceholder]="locale?.date"
                   [isFilterOpen]="isGeneralInfoOpen"
                   [settings]="filterSettings"
                   [skeletonArray]="skeletonArrayForFilter"
@@ -119,7 +119,7 @@
                 [data]="tableViewerData"
                 [newData]="newDataAfterUpdate"
                 [newDataName]="'transactions'"
-                footerPlaceholder="Load 25 more"
+                [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
                 (moreEvent)="onLoadMore($event)">
@@ -132,7 +132,7 @@
       </mat-tab>
 
 
-      <mat-tab label="Messages ({{messages?.length ? messages?.length : 0}})">
+      <mat-tab label="{{locale?.messages}} ({{messages?.length ? messages?.length : 0}})">
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
 
@@ -140,8 +140,8 @@
             <div class="page-list-content__filters-sticky-position">
               <div class="page-list-content__component-wrapper">
                 <app-filter #filter2 class="page-list-content__component"
-                  [minMaxPlaceholder]="'With any tons number'"
-                  [datePlaceholder]="'All time'"
+                  [minMaxPlaceholder]="locale?.tons"
+                  [datePlaceholder]="locale?.date"
                   [isFilterOpen]="isGeneralInfoOpen"
                   [settings]="messFilterSettings"
                   [skeletonArray]="messSkeletonArrayForFilter"
@@ -159,7 +159,7 @@
                 [data]="aditionalTableViewerData"
                 [newData]="messNewDataAfterUpdate"
                 [newDataName]="'messages'"
-                footerPlaceholder="Load 25 more"
+                [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="messTableViewersLoading"
                 (exportEvent)="onExport()"
                 (moreEvent)="onLoadMore($event)">

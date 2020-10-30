@@ -8,6 +8,7 @@ import { Account, Message, ViewerData, Transaction, FilterSettings, TabViewerDat
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-account-details',
@@ -17,6 +18,23 @@ import _ from 'underscore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccountDetailsComponent extends BaseComponent<Account> implements OnInit, OnDestroy {
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.accountPage,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+    moreDetails: LocaleText.moreDetails,
+    general: LocaleText.general,
+    address: LocaleText.addressHex,
+    status: LocaleText.status,
+    balance: LocaleText.balance,
+    transactions: LocaleText.transactions,
+    messages: LocaleText.messages,
+  };
+
   /**
    * For skeleton animation
    */
@@ -388,12 +406,12 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   protected mapDataForViews(_model: Account): void {
     // Details
     this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new ViewerData({title: 'Due payment', value: _model.due_payment}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Last transaction lt', value: Number(_model.last_trans_lt), isDate: true}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Code', value: _model.code}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Code hash', value: _model.code_hash}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Data', value: _model.data ? _model.data : ''}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Data hash', value: _model.data_hash ? _model.data_hash : ''}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Boc', value: _model.boc}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.duePayment, value: _model.due_payment != null ? _model.due_payment : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.lastTransactionLt, value: Number(_model.last_trans_lt)}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.code, value: _model.code != null ? _model.code : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.codeHash, value: _model.code_hash != null ? _model.code_hash : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.data, value: _model.data != null ? _model.data : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.dataHash, value: _model.data_hash != null ? _model.data_hash : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.boc, value: _model.boc != null ? _model.boc : '--'}));
   }
 }

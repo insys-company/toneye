@@ -28,6 +28,7 @@ import {
 } from './components';
 
 import {
+  BooleanToWordPipe,
   ThousandsPipe,
   UnixDatePipe,
 } from './pipes';
@@ -47,6 +48,7 @@ import {
     AppDatepickerOverlayComponent,
 
     // pipes
+    BooleanToWordPipe,
     ThousandsPipe,
     UnixDatePipe,
   ],
@@ -75,6 +77,7 @@ import {
     AppDatepickerOverlayComponent,
 
     // pipes
+    BooleanToWordPipe,
     ThousandsPipe,
     UnixDatePipe,
   ],

@@ -2,11 +2,12 @@ import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRe
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ValidatorDetailsService } from './validator-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { TransactionQueries, CommonQueries } from 'src/app/api/queries';
-import { Block, ViewerData, Transaction, BlockMasterConfig, BlockMaster, ValidatorSetList, ValidatorSet } from 'src/app/api';
+import { CommonQueries } from 'src/app/api/queries';
+import { Block, ViewerData, BlockMasterConfig, BlockMaster, ValidatorSetList, ValidatorSet } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 const VALIDATOR_PUBLIC_KEY="ed051c4d6384b13b9ad05a507e3d9cf95d4e4ffc338406603709a3dbf6291d46";
 @Component({
@@ -16,6 +17,15 @@ const VALIDATOR_PUBLIC_KEY="ed051c4d6384b13b9ad05a507e3d9cf95d4e4ffc338406603709
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ValidatorDetailsComponent extends BaseComponent<any> implements OnInit, OnDestroy {
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.validatorPage,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+    moreDetails: LocaleText.moreDetails,
+    signed: LocaleText.valodatorTableTitle
+  };
+
   /**
    * For skeleton animation
    */
@@ -254,17 +264,17 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
       : this.model.total_weight;
 
     this.generalViewerData = [];
-    this.generalViewerData.push(new ViewerData({title: 'Public key hex', value: this.modelId}));
-    this.generalViewerData.push(new ViewerData({title: 'Public key base64', value: this.modelId}));
-    this.generalViewerData.push(new ViewerData({title: 'ADNL address hex', value: this.validatorModel.adnl_addr ? this.validatorModel.adnl_addr : '--'}));
-    this.generalViewerData.push(new ViewerData({title: 'ADNL address base64', value: this.validatorModel.adnl_addr ? this.validatorModel.adnl_addr : '--'}));
-    this.generalViewerData.push(new ViewerData({title: 'Node ID hex', value: '--'}));
-    this.generalViewerData.push(new ViewerData({title: 'Stake', value: '--'}));
-    this.generalViewerData.push(new ViewerData({title: 'Weight', value: Number(((Number(this.validatorModel.weight)/Number(this.model.total_weight))*100).toFixed(2)), isPercent: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Utime since', value: this.model.utime_since, isDate: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Utime until', value: this.model.utime_until, isDate: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Signed masterchain blocks', value: _data.agBS}));
-    this.generalViewerData.push(new ViewerData({title: 'Total number of masterchain blocks', value: _data.agB}));
-    this.generalViewerData.push(new ViewerData({title: 'Uptime', value: '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.publicKeyHex, value: this.modelId}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.publicKeyBase64, value: this.modelId}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.adnlAddressHex, value: this.validatorModel.adnl_addr != null ? this.validatorModel.adnl_addr : '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.adnlAddressBase64, value: this.validatorModel.adnl_addr != null ? this.validatorModel.adnl_addr : '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.nodeIDHe, value: '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.stake, value: '0', isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.weight, value: Number(((Number(this.validatorModel.weight)/Number(this.model.total_weight))*100).toFixed(2)), isPercent: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.utimeSince, value: this.model.utime_since != null ? this.model.utime_since : '--', isDate: this.model.utime_since != null}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.utimeUntil, value: this.model.utime_until != null ? this.model.utime_until : '--', isDate: this.model.utime_until != null}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.signedMasterchainBlocks, value: _data.agBS, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.totalNumberOfMasterchainBlocks, value: _data.agB, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.uptime, value: '0', isNumber: true}));
   }
 }

@@ -6,6 +6,7 @@ import { TransactionQueries } from 'src/app/api/queries';
 import { Message, ViewerData, Transaction } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-message-details',
@@ -14,6 +15,11 @@ import { appRouteMap } from 'src/app/app-route-map';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MessageDetailsComponent extends BaseComponent<Message> implements OnInit, OnDestroy {
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.messagePage,
+    moreDetails: LocaleText.moreDetails,
+  };
   /**
    * For skeleton animation
    */
@@ -97,20 +103,20 @@ export class MessageDetailsComponent extends BaseComponent<Message> implements O
   protected mapDataForViews(_model: Message, _data: Transaction): void {
 
     this.generalViewerData = [];
-    this.generalViewerData.push(new ViewerData({title: 'ID', value: _model.id}));
-    this.generalViewerData.push(new ViewerData({title: 'Type', value: _model.msg_type === 0 ? 'Internal' : '?'}));
-    this.generalViewerData.push(new ViewerData({title: 'Time & Date', value: _model.created_at}));
-    this.generalViewerData.push(new ViewerData({title: 'From', value: _model.src}));
-    this.generalViewerData.push(new ViewerData({title: 'To', value: _model.dst}));
-    this.generalViewerData.push(new ViewerData({title: 'Value', value: _model.value}));
-    this.generalViewerData.push(new ViewerData({title: 'Child transaction', value: _data.id}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.id, value: _model.id}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.type, value: _model.msg_type === 0 ? 'Internal' : '?'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.timeDate, value: _model.created_at != null ? _model.created_at : '--', isDate: _model.created_at != null}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.from, value: _model.src != null ? _model.src : '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.to, value: _model.dst != null ? _model.dst : '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.valid, value: _model.value != null ? parseInt(_model.value, 16) : '0', isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.childTransaction, value: _data.id != null ? _data.id : '--'}));
 
     this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new ViewerData({title: 'Logical time', value: _model.created_lt}));
-    this.aditionalViewerData.push(new ViewerData({title: 'IHR Fee', value: _model.ihr_fee}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Fwd Fee', value: _model.fwd_fee}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Bounce', value: _model.bounce ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Bounced', value: _model.bounced ? 'Yes' : 'No'}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Boc', value: _model.boc}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.logicalTime, value: _model.created_lt != null ? parseInt(_model.created_lt, 16) : '0'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.ihrFee, value: _model.ihr_fee != null ? parseInt(_model.ihr_fee, 16) : '0', isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.fwdFee, value: _model.fwd_fee != null ? parseInt(_model.fwd_fee, 16) : '0', isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.bounce, value: _model.bounce, isBoolean: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.bounced, value: _model.bounced, isBoolean: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.boc, value: _model.boc != null ? _model.boc : '--'}));
   }
 }

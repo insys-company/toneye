@@ -3,11 +3,12 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { HomeService } from './home.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MessageQueries, TransactionQueries, BlockQueries, CommonQueries } from 'src/app/api/queries';
-import { Account, Message, ViewerData, Transaction, Block, SimpleDataFilter } from 'src/app/api';
+import { Message, ViewerData, Transaction, Block, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { Subject } from 'rxjs';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-home',
@@ -16,10 +17,23 @@ import { Subject } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestroy {
+
+  /** Общие тексты для страниц */
+  public locale = {
+    homeTitle: LocaleText.homeTitle,
+    homeInfoTitle: LocaleText.homeInfoTitle,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    homeInfoText1: LocaleText.homeInfoText1,
+    homeInfoText2: LocaleText.homeInfoText2,
+    homeInfoText3: LocaleText.homeInfoText3,
+    homeInfoText4: LocaleText.homeInfoText4,
+    autoupdate: LocaleText.autoupdate,
+  };
   /**
    * For skeleton animation
    */
-  public skeletonArrayForFilter: Array<number> = new Array(6);
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(6);
 
   /**
    * For tabs header (titles)
@@ -93,22 +107,6 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
     this.isAditionalInfoOpen = true;
   }
 
-
-  // constructor(
-  //   private changeDetection: ChangeDetectorRef,
-  //   private homeService: HomeService,
-  //   private router: Router,
-  // ) {
-  //   /** Disable change detection for application optimization */
-  //   this.changeDetection.detach();
-
-  //   this.isInfoOpen = false;
-
-  //   /** Loading animation in children */
-  //   this.generalViewerLoading = true;
-  //   this.tableViewerLoading = true;
-  // }
-
   /**
    * Initialization of the component
    * For details component
@@ -153,7 +151,17 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
-    // TODO
+    this.locale = null;
+    this.tabsTitles = null;
+    this.blocks = null;
+    this.transactions = null;
+    this.messages = null;
+    this.utime_since = null;
+    this.prev_key_block_seqno = null;
+    this.shards_length = null;
+    this.aggregate_transactions = null;
+    this.aggregate_account_count = null;
+    this.aggregate_total_balance = null;
   }
 
 
@@ -430,42 +438,39 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
   private processData(): void {
 
     const aggregateTransactions = new ViewerData({
-      title: 'Total transaction count',
+      title: LocaleText.totalTransactionCount,
       value: this.aggregate_transactions,
       isNumber: true
     });
 
     const getAccountsCount = new ViewerData({
-      title: 'Accounts',
+      title: LocaleText.accounts,
       value: this.aggregate_account_count,
       isNumber: true
     });
 
     const getAccountsTotalBalance = new ViewerData({
-      title: 'Coins',
+      title: LocaleText.coins,
       value: this.aggregate_total_balance,
       isNumber: true
     });
 
     const shards = new ViewerData({
-      title: 'Workchain shards',
+      title: LocaleText.workchainShards,
       value: this.shards_length,
       isNumber: true,
-      // dinamic: true
     });
 
     const headBlocks = new ViewerData({
-      title: 'Head blocks',
+      title: LocaleText.headBlocks,
       value: this.blocks.length ? _.max(this.blocks, function(b){ return b.seq_no; })['seq_no'] : 0,
       isNumber: true,
-      dinamic: true
     });
 
     const averageBlockTime = new ViewerData({
-      title: 'Average block time',
+      title: LocaleText.averageBlockTime,
       value: (this._service.baseFunctionsService.getAverageTime(this.blocks, 'gen_utime') + ' sec').replace('.', ','),
       isNumber: false,
-      dinamic: true
     });
 
     this.generalViewerData = [];

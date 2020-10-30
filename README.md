@@ -1,27 +1,93 @@
-# Tonexplorer
+# Toneye
+[Live Demo (Korean)](http://toneye.app/)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.4.
+[Live Demo (English)](http://en.toneye.app/)
 
-## Development server
+This is a web-based Free TON Network blockchain explorer.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Supported languages:
+- English
+- Korean
 
-## Code scaffolding
+## Development Setup
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Prerequisites
 
-## Build
+- Install [Node.js](https://nodejs.org/) which includes [Node Package Manager](https://www.npmjs.com/get-npm)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+### Quick Start
 
-## Running unit tests
+1. Install packages:
+```
+npm install
+```
+2. Buld the application:
+```
+ng build
+```
+3. Run dev server:
+```
+ng serve
+```
+4. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Server Installation
 
-## Running end-to-end tests
+### Requirements
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+ - Docker Engine 19.03.0 or higher
+ - Docker Compose 1.25.5 or higer
 
-## Further help
+### Installation
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+#### English version
+
+Docker CLI
+```
+docker pull insyscompany/toneye:release && \
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release
+```
+
+Docker Compose CLI
+```
+docker-compose up -d toneye
+```
+
+#### Korean version
+
+Docker CLI
+```
+docker pull insyscompany/toneye:release-korean && \
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye-korean insyscompany/toneye:release-korean
+```
+
+Docker Compose CLI
+```
+docker-compose up -d toneye-korean
+```
+
+### Build
+
+#### English version
+
+Docker CLI
+```
+docker build . -t insyscompany/toneye:release
+```
+
+Docker Compose CLI
+```
+docker-compose build toneye
+```
+
+#### Korean version
+
+Docker CLI
+```
+docker build . -t insyscompany/toneye:release-korean
+```
+
+Docker Compose CLI
+```
+docker-compose build toneye-korean
+```

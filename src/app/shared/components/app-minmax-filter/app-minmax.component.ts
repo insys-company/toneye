@@ -2,16 +2,14 @@ import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestro
 import { AppMinmaxService } from './app-minmax.service';
 import { AppMinmaxOverlayService } from './app-minmax-overlay/app-minmax-overlay.service';
 import { OverlayRef, OverlayConfig } from '@angular/cdk/overlay';
-import { MIN, MAX } from './app-minmax-overlay/app-minmax-overlay.component';
 import { Subscription } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 export type MaterialType = 'legacy' | 'standard' | 'fill' | 'outline';
 
-const DEFAULT_LABEL = 'label';
 const DEFAULT_INPUTNAME = 'minmax';
-const DEFAULT_PLACEHOLDER = 'placeholder';
 const DEFAULT_MATERIAL_THEME = 'outline';
 @Component({
   selector: 'app-minmax',
@@ -131,6 +129,11 @@ export class AppMinmaxComponent implements OnInit, OnDestroy {
    */
   @Output() panelClose: EventEmitter<void>;
 
+  /** Общие тексты для страниц */
+  public locale = {
+    placeholder: LocaleText.searchPlaceholder,
+  };
+
   /**
    * Для подписок
    * @type {Subscription}
@@ -216,10 +219,10 @@ export class AppMinmaxComponent implements OnInit, OnDestroy {
     this.required = false;
     this.disabled = false;
     /** Метка над полем */
-    this.label = DEFAULT_LABEL;
+    this.label = LocaleText.label;
     /** Наименование инпута для формы */
     this.inputName = DEFAULT_INPUTNAME;
-    this.placeholder = DEFAULT_PLACEHOLDER;
+    this.placeholder = LocaleText.placeholder;
     this.materialTheme = DEFAULT_MATERIAL_THEME;
 
 
@@ -277,9 +280,9 @@ export class AppMinmaxComponent implements OnInit, OnDestroy {
     this.disabled = this.disabled != null ? this.disabled : false;
     this.required = this.required != null ? this.required : false;
     this.labelVisible = this.labelVisible != null ? this.labelVisible : false;
-    this.label = this.label != null ? this.label : DEFAULT_LABEL;
+    this.label = this.label != null ? this.label : LocaleText.label;
     this.inputName = this.inputName != null ? this.inputName : DEFAULT_INPUTNAME;
-    this.placeholder = this.placeholder != null ? this.placeholder : DEFAULT_PLACEHOLDER;
+    this.placeholder = this.placeholder != null ? this.placeholder : LocaleText.placeholder;
     this.materialTheme = this.materialTheme != null ? this.materialTheme : DEFAULT_MATERIAL_THEME;
     this.styleClass = this.styleClass != null ? this.styleClass : 'app-default__multiselect';
     this.shadowStyleClass = this.shadowStyleClass != null ? this.shadowStyleClass : 'app-multiselect__multiselect--shadow';
@@ -288,8 +291,8 @@ export class AppMinmaxComponent implements OnInit, OnDestroy {
     this.min = this.min != null ? this.min : null;
     this.max = this.max != null ? this.max : null;
     this.panelClass = this.panelClass != null ? this.panelClass : null;
-    this.minPlaceholder = this.minPlaceholder != null ? this.minPlaceholder : MIN;
-    this.maxPlaceholder = this.maxPlaceholder != null ? this.maxPlaceholder : MAX;
+    this.minPlaceholder = this.minPlaceholder != null ? this.minPlaceholder : LocaleText.min;
+    this.maxPlaceholder = this.maxPlaceholder != null ? this.maxPlaceholder : LocaleText.max;
   }
 
   /**
@@ -299,6 +302,7 @@ export class AppMinmaxComponent implements OnInit, OnDestroy {
   public ngOnDestroy(): void {
     this.overlayUnsubscribe();
 
+    this.locale = null;
     this.disabled = null;
     this.required = null;
     this.labelVisible = null;

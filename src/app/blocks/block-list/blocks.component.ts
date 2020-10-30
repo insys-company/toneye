@@ -7,6 +7,7 @@ import { ViewerData, ItemList, Block } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-blocks',
@@ -38,6 +39,15 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
    * count of blocks
    */
   protected aggregate_blocks: string;
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.blocksPage,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.transactionCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -87,6 +97,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     this.utime_since = null;
     this.shards_length = null;
     this.aggregate_blocks = null;
+    this.locale = null
   }
 
   /**
@@ -262,29 +273,26 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     });
 
     const aggregateBlocks = new ViewerData({
-      title: 'Blocks by current validators',
+      title: LocaleText.blocksByCurrentValidators,
       value: this.aggregate_blocks,
-      dinamic: true,
       isNumber: true
     });
 
     const shards = new ViewerData({
-      title: 'Workchain shards',
+      title: LocaleText.workchainShards,
       value: this.shards_length,
       isNumber: true
     });
 
     const headBlocks = new ViewerData({
-      title: 'Head blocks',
+      title: LocaleText.headBlocks,
       value: this.data.data.length ? _.max(this.data.data, function(b){ return b.seq_no; })['seq_no'] : 0,
-      dinamic: true,
       isNumber: true
     });
 
     const averageBlockTime = new ViewerData({
-      title: 'Average block time',
+      title: LocaleText.averageBlockTime,
       value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'gen_utime') + ' sec').replace('.', ','),
-      dinamic: true,
       isNumber: false
     });
 

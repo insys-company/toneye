@@ -2,7 +2,7 @@
   <!-- Page header -->
   <div class="block-page__page-header page-header">
     <div class="page-header__header">
-      <h1>Block details</h1>
+      <h1>{{locale?.title}}</h1>
     </div>
     <div class="page-header__nav-btns">
       <div class="page-header__nav-btn page-header__nav-btn--previos" [class.disabled]="!previosBlockId" (click)="onPreviosBlock()"></div>
@@ -24,7 +24,7 @@
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #aditionalGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
-        [header]="'More details'"
+        [header]="locale?.moreDetails"
         [data]="aditionalViewerData"
         [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
@@ -34,17 +34,17 @@
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #valueGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
-        [header]="'Value flow'"
+        [header]="locale?.valueFlowGroup"
         [data]="valueViewerData"
         [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 
-    <!-- <div class="page-details-content__component-wrapper">
+    <div class="page-details-content__component-wrapper">
       <app-general-viewer #accountGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
-        [header]="'Account blocks'"
+        [header]="locale?.accountBlocksGroup"
         [data]="accountViewerData"
         [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
@@ -54,17 +54,17 @@
     <div class="page-details-content__component-wrapper">
       <app-general-viewer #shardsGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
-        [header]="'Shards'"
+        [header]="locale?.shardsGroup"
         [data]="shardsViewerData"
         [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
       </app-general-viewer>
     </div>
 
-    <div class="page-details-content__component-wrapper">
+    <!-- <div class="page-details-content__component-wrapper">
       <app-general-viewer #masterGeneralViewer class="page-details-content__component"
         [isGeneralInfoOpen]="isAditionalInfoOpen"
-        [header]="'Master config'"
+        [header]="locale?.masterConfigGroup"
         [data]="masterConfigViewerData"
         [skeletonArray]="skeletonArrayForGeneralViewer"
         [skeletalAnimation]="viewersLoading">
@@ -87,12 +87,10 @@
     </div>
   </div> -->
 
-
-
   <div class="account-page__content account-content page-list-content">
       <!-- animationDuration="0ms" -->
     <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
-      <mat-tab label="Transactions ({{transactions?.length ? transactions?.length : 0}})"> 
+      <mat-tab label="{{locale?.transactions}} ({{transactions?.length ? transactions?.length : 0}})"> 
 
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
@@ -100,8 +98,8 @@
             <div class="page-list-content__filters-sticky-position">
               <div class="page-list-content__component-wrapper">
                 <app-filter #filter class="page-list-content__component"
-                  [minMaxPlaceholder]="'With any tons number'"
-                  [datePlaceholder]="'All time'"
+                  [minMaxPlaceholder]="locale?.tons"
+                  [datePlaceholder]="locale?.date"
                   [isFilterOpen]="isGeneralInfoOpen"
                   [settings]="filterSettings"
                   [skeletonArray]="skeletonArrayForFilter"
@@ -116,7 +114,7 @@
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer1
                 [data]="tableViewerData"
-                footerPlaceholder="Load 25 more"
+                [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
                 (moreEvent)="onLoadMore($event)">
@@ -128,13 +126,13 @@
       </mat-tab>
 
 
-      <mat-tab label="In Messages ({{inMessages?.length ? inMessages?.length : 0}})"> 
+      <mat-tab label="{{locale?.inMessages}} ({{inMessages?.length ? inMessages?.length : 0}})"> 
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__tabs tab-animation" style="flex: 1 1 100%;max-width: 100%;">
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer2
                 [data]="aditionalTableViewerData"
-                footerPlaceholder="Load 25 more"
+                [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
                 (moreEvent)="onLoadMore($event)">
@@ -145,13 +143,13 @@
       </mat-tab>
 
 
-      <mat-tab label="Out Messages ({{outMessages?.length ? outMessages?.length : 0}})">
+      <mat-tab label="{{locale?.outMessages}} ({{outMessages?.length ? outMessages?.length : 0}})">
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__tabs tab-animation" style="flex: 1 1 100%;max-width: 100%;">
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer3
                 [data]="outMessTableViewerData"
-                footerPlaceholder="Load 25 more"
+                [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
                 (moreEvent)="onLoadMore($event)">

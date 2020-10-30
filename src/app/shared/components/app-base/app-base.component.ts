@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { ViewerData, TabViewerData, SimpleDataFilter, ItemList, FilterSettings } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewChecked, OnDestroy {
   // /**
@@ -135,7 +136,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * For button in info
    */
   public get generalInfoBtnPlaceholder(): string {
-    return !this.isGeneralInfoOpen ? 'Show' : 'Hide';
+    return !this.isGeneralInfoOpen ? LocaleText.show : LocaleText.hide;
   }
 
   constructor(
@@ -174,7 +175,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * After children check
    */
   public ngAfterViewChecked(): void {
-    console.log('d');
+    // console.log('datails');
     this.detectChanges();
   }
 

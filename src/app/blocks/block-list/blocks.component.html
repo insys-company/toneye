@@ -2,12 +2,12 @@
   <!-- Page header -->
   <div class="blocks-page__page-header page-header">
     <div class="page-header__header">
-      <h1>Blocks</h1>
+      <h1>{{locale?.title}}</h1>
     </div>
     <div class="page-header__slide-toggle">
       <mat-slide-toggle
         [checked]="autoupdate"
-        (change)="updateChange($event.checked)">Autoupdate
+        (change)="updateChange($event.checked)">{{locale?.autoupdate}}
       </mat-slide-toggle>
     </div>
   </div>
@@ -27,8 +27,8 @@
         </div>
         <div class="page-list-content__component-wrapper">
           <app-filter #filter class="page-list-content__component"
-            [minMaxPlaceholder]="'Any transaction count'"
-            [datePlaceholder]="'All time'"
+            [minMaxPlaceholder]="locale?.tons"
+            [datePlaceholder]="locale?.date"
             [isFilterOpen]="isGeneralInfoOpen"
             [settings]="filterSettings"
             [skeletonArray]="skeletonArrayForFilter"
@@ -44,7 +44,7 @@
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
-          footerPlaceholder="Load 25 more"
+          [footerPlaceholder]="locale?.loadMore"
           [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()"
           (moreEvent)="onLoadMore($event)">

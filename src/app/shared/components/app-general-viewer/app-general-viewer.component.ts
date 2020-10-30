@@ -1,6 +1,7 @@
 import { Component, OnChanges, OnDestroy, Input, ChangeDetectorRef, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
 import { ViewerData } from 'src/app/api';
 import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
+import { LocaleText } from 'src/locale/locale';
 
 /**
  * This component displays general information on list pages.
@@ -28,7 +29,7 @@ export class AppGeneralViewerComponent implements OnChanges, OnDestroy {
   /**
    * Header for block
    */
-  @Input() public header: string = 'General';
+  @Input() public header: string = LocaleText.general;
   /**
    * Flag for main info
    */
@@ -38,7 +39,7 @@ export class AppGeneralViewerComponent implements OnChanges, OnDestroy {
    * For button in info
    */
   public get btnPlaceholder(): string {
-    return !this.isGeneralInfoOpen ? 'Show' : 'Hide';
+    return !this.isGeneralInfoOpen ? LocaleText.show : LocaleText.hide;
   }
 
   constructor(

@@ -7,6 +7,7 @@ import { CommonQueries, AccountQueries } from 'src/app/api/queries';
 import { Account, ItemList } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-contract-details',
@@ -16,6 +17,24 @@ import { appRouteMap } from 'src/app/app-route-map';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContractDetailsComponent extends BaseComponent<Account> implements OnInit, OnDestroy {
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.contractPage,
+    date: LocaleText.activeInPeriod,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+    moreDetails: LocaleText.moreDetails,
+    accounts: LocaleText.accounts,
+    surf: LocaleText.surf,
+    total: LocaleText.totalBalances,
+    codeHash: LocaleText.codeHash,
+    contracts: LocaleText.contracts,
+    deployed: LocaleText.deployed,
+    active: LocaleText.activeInPeriod,
+    new: LocaleText.newInPeriod,
+  };
+
   /**
    * For skeleton animation
    */

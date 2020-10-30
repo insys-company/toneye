@@ -1,13 +1,14 @@
 import { Component, ChangeDetectionStrategy, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { appRouteMap } from './app-route-map';
-import { RouterOutlet, Router, NavigationStart, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { routeAnimation } from './app-animations';
-import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, Validator, BlockMaster, ValidatorSetList } from './api';
+import { Breadcrumbs, Block, Message, Transaction, QueryOrderBy, BlockMaster, ValidatorSetList, MenuItem } from './api';
 import { takeUntil, map } from 'rxjs/operators';
 import { Subject, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { BlockQueries, MessageQueries, AccountQueries, TransactionQueries } from './api/queries';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,26 @@ import _ from 'underscore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnDestroy {
+  private routeMap = {
+    'accounts': LocaleText.accountsPage,
+    'account': LocaleText.accountPage,
+
+    'blocks': LocaleText.blocksPage,
+    'block': LocaleText.blockPage,
+
+    'messages': LocaleText.messagesPage,
+    'message': LocaleText.messagePage,
+
+    'transactions': LocaleText.transactionsPage,
+    'transaction': LocaleText.transactionPage,
+
+    'contracts': LocaleText.contractsPage,
+    'contract': LocaleText.contractPage,
+
+    'validators': LocaleText.validatorsPage,
+    'validator': LocaleText.validatorPage,
+  }
+
   /**
    * for router
    */
@@ -32,6 +53,11 @@ export class AppComponent implements OnDestroy {
     appRouteMap.contracts,
     appRouteMap.validators
   ];
+
+  /**
+   * Menu
+   */
+  public menu: MenuItem[] = LocaleText.menu;
   /**
    * Flag for mobile menu and mobile menu icon
    */
@@ -65,7 +91,7 @@ export class AppComponent implements OnDestroy {
 
     this.isMenuOpened = false;
     this.breadcrumbs = [];
-    this.breadcrumbs = [new Breadcrumbs({ name: appRouteMap.home, url: appRouteMap.home })];
+    this.breadcrumbs = [new Breadcrumbs({ name: LocaleText.homePage, url: appRouteMap.home })];
   }
 
   /** Search input */
@@ -85,6 +111,7 @@ export class AppComponent implements OnDestroy {
   public ngOnDestroy(): void {
     this._unsubscribe.next();
     this._unsubscribe.complete();
+    this.routeMap = null;
     this._unsubscribe = null;
     this.links = null;
     this.isMenuOpened = null;
@@ -151,7 +178,7 @@ export class AppComponent implements OnDestroy {
    * @param index Item index in ngFor
    * @param item Item in ngFor
    */
-  public identifyMenu(index: number, item: string): string { return item; }
+  public identifyMenu(index: number, item: MenuItem): string { return item.title; }
 
   /**
    * Method for ngFor optimization (Breadcrumbs list)
@@ -185,14 +212,27 @@ export class AppComponent implements OnDestroy {
 
           if (_url == appRouteMap.home) { return; }
 
-          if (_urlArray.length === 1) {
-            this.breadcrumbs.push(new Breadcrumbs({ name: _url, url: _url }));
-          }
-          // details
-          else {
-            const parent = _.find(this.links, (l) => { return l.includes(_url)})
-            this.breadcrumbs.push(new Breadcrumbs({ name: `${parent}`, url: `${parent}` }));
-            this.breadcrumbs.push(new Breadcrumbs({ name: `${_url} details`, url: _url }));
+
+          const pageName = _.find(this.routeMap, (name: string, url: string) => {
+            return _url === url;
+          });
+
+          if (pageName != null) {
+
+            if (_urlArray.length === 1) {
+              this.breadcrumbs.push(new Breadcrumbs({ name: pageName, url: _url }));
+            }
+            else {
+              const parent = _.find(this.links, (l) => { return l.includes(_url)});
+
+              const parentName = _.find(this.routeMap, (name: string, url: string) => {
+                return parent === url;
+              });
+
+              this.breadcrumbs.push(new Breadcrumbs({ name: parentName, url: parent }));
+              this.breadcrumbs.push(new Breadcrumbs({ name: pageName, url: _url }));
+            }
+
           }
         }
       });

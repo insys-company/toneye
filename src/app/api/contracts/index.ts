@@ -16,6 +16,7 @@ export { ViewerData } from './viewer-data';
 export { InMsg } from './in-msg';
 export { ItemList } from './item-list';
 export { ListItem } from './list-item';
+export { MenuItem } from './menu-item';
 export { Message } from './message';
 export { MsgEnvelope } from './msg-envelope';
 export { QueryOrderBy } from './query-orderby';

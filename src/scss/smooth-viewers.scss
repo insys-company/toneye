@@ -189,7 +189,6 @@
     width: 100%;
     height: 0;
     box-shadow: -24px 0 0 0 $explorer--base__search-border, 24px 0 0 0 $explorer--base__search-border;
-
   }
 
   &__footer-wrapper {
@@ -237,6 +236,14 @@
 
       &:not(:last-child) {
         margin-bottom: 20px;
+      }
+
+      .app-viewer__body-item-header {
+        &.strong {
+          font-weight: 800;
+        }
+
+        margin-bottom: 5px;
       }
 
     }

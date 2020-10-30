@@ -7,6 +7,7 @@ import { ViewerData, TabViewerData, ItemList, Message } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-messages',
@@ -23,6 +24,16 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
+
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.messagesPage,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   /**
    * Single request for messages by params
@@ -116,7 +127,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
         this.generalViewerData = [];
 
         const aggregateMessages = new ViewerData({
-          title: 'Message count',
+          title: LocaleText.messageCount,
           value: generalData.aggregateMessages[0] ? generalData.aggregateMessages[0] : 0,
           isNumber: true
         });
@@ -208,10 +219,9 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     });
 
     const mps = new ViewerData({
-      title: 'MPS',
+      title: LocaleText.mps,
       value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'created_at') + ' sec').replace('.', ','),
-      isNumber: false,
-      dinamic: true
+      isNumber: false
     });
 
     this.generalViewerData.push(mps);
