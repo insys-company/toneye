@@ -11,13 +11,13 @@ RUN apt-get install -y git
 
 WORKDIR /toneye
 
-RUN git clone https://github.com/insys-company/toneye.git
+COPY ./ /toneye
 
-RUN cd toneye && npm install
+RUN npm install
 
-RUN cd toneye && node ./node_modules/@angular/cli/bin/ng build --configuration=${BUILD_CONFIG}
+RUN node ./node_modules/@angular/cli/bin/ng build --configuration=${BUILD_CONFIG}
 
 RUN rm -rf /usr/share/nginx/html/*
-RUN cd toneye && mv ./dist/tonexplorer/* /usr/share/nginx/html/
+RUN mv ./dist/tonexplorer/* /usr/share/nginx/html/
 
 CMD ["nginx", "-g", "daemon off;"]
