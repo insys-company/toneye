@@ -6,7 +6,7 @@ $archive = "$archive_path\$archive_name"
 $pw = convertto-securestring -AsPlainText -Force -String $password_remote_machine
 $cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $username_remote_machine, $pw
 $so = New-PsSessionOption -SkipCACheck -SkipCNCheck
-$session = New-PSSession -ComputerName $ip_remote_server -Credential $cred -SessionOption $so -UseSSL -Verbose
+$session = New-PSSession -ComputerName $ip_remote_server -Credential $cred -SessionOption $so -Verbose
 
 $createFolder = {
     Param($remote_archive_directory)
@@ -18,7 +18,7 @@ $createFolder = {
 }
 
 # Create a remote directory if it doesnt exist
-Invoke-Command $ip_remote_server -SessionOption $so -UseSSL -ScriptBlock $createFolder -Credential $cred -ArgumentList $remote_archive_directory
+Invoke-Command $ip_remote_server -SessionOption $so -ScriptBlock $createFolder -Credential $cred -ArgumentList $remote_archive_directory
 
 # Upload an archive to server
 Copy-Item -Path $archive -Destination $remote_archive_directory -Recurse -Force -ToSession $session -Verbose

@@ -27,4 +27,4 @@ Set-Location $InetsrvDir
 }
 
 $so = New-PsSessionOption -SkipCACheck -SkipCNCheck
-Invoke-Command $ip_remote_server -SessionOption $so -UseSSL -ScriptBlock $Commands -Credential $cred -ArgumentList $wwwpath, $archive_name, $remote_archive_directory, $seven_zip_remote_directory, $site_name
+Invoke-Command $ip_remote_server -SessionOption $so -ScriptBlock $Commands -Credential $cred -ArgumentList $wwwpath, $archive_name, $remote_archive_directory, $seven_zip_remote_directory, $site_name
