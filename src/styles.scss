@@ -410,7 +410,7 @@ a {
 
   &__tabs {
     flex: 1 1 437px;
-    max-width: calc(100% - 263px - 24px);
+    max-width: 433px;
 
     .page-list-content__component-wrapper:not(:last-child) {
       // margin-bottom: 20px;
@@ -828,15 +828,33 @@ app-search-overlay {
 }
 
 .mat-tab-body {
-  overflow: hidden !important;
+  overflow: visible !important;
   top: unset !important;
   bottom: unset !important;
+  position: absolute;
+
+  .mat-tab-body-content {
+    transform: none !important;
+    opacity: 0;
+  }
+
+  &-active {
+    .mat-tab-body-content {
+      opacity: 1;
+    }
+  }
+
+}
+
+.mat-tab-body-wrapper {
+  overflow: visible !important;
 }
 
 .mat-tab-body-content,
 .mat-tab-body-content__wrapper {
   height: 100%;
-  overflow: hidden !important;
+  overflow: visible !important;
+  //overflow-x: hidden;
 }
 
 .mat-ink-bar {
