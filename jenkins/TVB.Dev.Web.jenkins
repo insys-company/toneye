@@ -32,7 +32,7 @@ pipeline {
         }
 		stage ('cmd ip') {
             steps {
-                bat "winrm set winrm/config/client @{TrustedHosts=92.124.128.60}"
+                bat "winrm set winrm/config/client @{TrustedHosts=\"92.124.128.60\"}"
             }
         }
         stage ('yarn install') {
