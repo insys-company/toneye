@@ -299,6 +299,7 @@
       transition: all .3s ease;
       text-transform: capitalize;
       padding-left: 0;
+      line-height: 24px;
 
       &::after {
         content: '';
@@ -308,7 +309,7 @@
         height: 1px;
         left: 0;
         right: 5px;
-        bottom: -2px;
+        bottom: 2px;
       }
     }
 

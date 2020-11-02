@@ -1,5 +1,13 @@
 @import './../../../scss/abstracts/colors';
 
+.validators-page {
+
+  .page-header__header {
+    margin-bottom: 0;
+  }
+
+}
+
 .app-viewer__body-wrapper {
   transition: all .3s ease;
 }
@@ -39,7 +47,7 @@
     }
 
     &::before {
-      top: 25px;
+      top: 22px;
       -moz-transform: rotate(-45deg);
       -o-transform: rotate(-45deg);
       -webkit-transform: rotate(-45deg);
@@ -47,7 +55,7 @@
     }
 
     &::after {
-      bottom: 23px;
+      bottom: 21px;
       -moz-transform: rotate(45deg);
       -o-transform: rotate(45deg);
       -webkit-transform: rotate(45deg);

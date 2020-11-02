@@ -95,6 +95,7 @@
 
 .page-header__header {
   margin-bottom: 0 !important;
+  margin-top: 20px;
 }
 
 .page-list-content__tabs {
@@ -114,10 +115,6 @@
 }
 
 @media screen and (max-width: $explorer--base__viewer_change_point_basic - 1px) {
-  .contract-page-viewer {
-    flex-direction: column;
-    margin-bottom: 20px;
-  }
 
   .contract-page-viewer__filters-wrapper {
     max-width: 100%;

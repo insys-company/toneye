@@ -391,7 +391,7 @@ a {
 
   &__filters-sticky-position {
     position: sticky;
-    // top: 20px;
+    top: 20px;
     flex-direction: column;
   }
 
@@ -853,10 +853,16 @@ app-search-overlay {
   height: 35px !important;
   &:not(.mat-tab-label-active) {
     color: $explorer--base__gray !important;
+
+    &:hover {
+      color: $explorer--base__black !important;
+    }
+
   }
 
   &.mat-tab-label-active {
     color: $explorer--base__blue !important;
+    font-weight: bold;
   }
 }
 
