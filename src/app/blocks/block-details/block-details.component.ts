@@ -3,12 +3,16 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { BlockDetailsService } from './block-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { TransactionQueries, BlockQueries } from 'src/app/api/queries';
-import { Block, ViewerData, Transaction, MsgData, TabViewerData } from 'src/app/api';
+import { Block, ViewerData, Transaction, MsgData, TabViewerData, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
+import { ExportDialogomponent } from 'src/app/shared/components';
 
+const IN_MSG_CSV_HEADER = 'msg_type,msg_type_name,fwd_fee,transaction_id,__typename,in_msg / msg_id,in_msg / next_addr,in_msg / cur_addr,in_msg / fwd_fee_remaining,in_msg \n';
+const OUT_MSG_CSV_HEADER = 'msg_type,msg_type_name,fwd_fee,transaction_id,__typename,out_msg / msg_id,out_msg / next_addr,out_msg / cur_addr,out_msg / fwd_fee_remaining,out_msg \n';
 @Component({
   selector: 'app-block-details',
   templateUrl: './block-details.component.html',
@@ -86,6 +90,7 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
     protected service: BlockDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private transactionQueries: TransactionQueries,
     private blockQueries: BlockQueries
   ) {
@@ -94,6 +99,7 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
       service,
       route,
       router,
+      dialog
     );
   }
 
@@ -243,10 +249,56 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
   }
 
   /**
-   * Export event
+   * Export method
    */
   public onExport(): void {
-    // TODO
+    if (this.selectedTabIndex === 0 ) {
+      const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+      dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+      dialogRef.componentInstance.data = this.transactions ? _.first(this.transactions, 1) : [];
+      dialogRef.componentInstance.parentId = this.modelId;
+      dialogRef.componentInstance.listName = appRouteMap.transactions;
+    }
+    else if (this.selectedTabIndex === 1 || this.selectedTabIndex === 2) {
+      let csvContent = '';
+      csvContent = this.selectedTabIndex === 1 ? IN_MSG_CSV_HEADER : OUT_MSG_CSV_HEADER;
+
+      let dataString = '';
+
+      let _data  = this.selectedTabIndex === 1 ? this.inMessages : this.outMessages;
+
+      _data.forEach((item: MsgData, i: number) => {
+        dataString = `${item.msg_type ? item.msg_type : 0},`
+        +`"${item.msg_type_name ? item.msg_type_name : 0}",`
+        +`"${item.fwd_fee ? parseInt(item.fwd_fee, 16) : 0}",`
+        +`"${item.transaction_id}","${item.__typename}"`;
+
+        let msg = '';
+
+        if (this.selectedTabIndex === 1) {
+          msg = (item.in_msg ? ',in_msg' : '')
+          + (item.in_msg ? ` / "${item.in_msg.msg_id ? parseInt(item.in_msg.msg_id, 16) : 0}"` : '')
+          + (item.in_msg ? ` / "${item.in_msg.next_addr ? item.in_msg.next_addr : 0}"` : '')
+          + (item.in_msg ? ` / "${item.in_msg.cur_addr ? item.in_msg.cur_addr : 0}"` : '')
+          + (item.in_msg ? ` / "${item.in_msg.fwd_fee_remaining ? parseInt(item.in_msg.fwd_fee_remaining, 16) : 0}"` : '')
+        }
+        else {
+          msg = (item.out_msg ? ',out_msg' : '')
+          + (item.out_msg ? ` / "${item.out_msg.msg_id ? parseInt(item.out_msg.msg_id, 16) : 0}"` : '')
+          + (item.out_msg ? ` / "${item.out_msg.next_addr ? item.out_msg.next_addr : 0}"` : '')
+          + (item.out_msg ? ` / "${item.out_msg.cur_addr ? item.out_msg.cur_addr : 0}"` : '')
+          + (item.out_msg ? ` / "${item.out_msg.fwd_fee_remaining ? parseInt(item.out_msg.fwd_fee_remaining, 16) : 0}"` : '')
+        }
+
+        dataString += msg;
+  
+        csvContent += i < _data.length ? dataString + '\n' : dataString;
+      });
+   
+      this.onDownloadCsv(this.selectedTabIndex === 1 ? `in-${appRouteMap.messages}` : `out-${appRouteMap.messages}`, csvContent);
+
+    }
+
   }
 
   /**

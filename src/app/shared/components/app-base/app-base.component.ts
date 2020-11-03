@@ -7,6 +7,8 @@ import { ViewerData, TabViewerData, SimpleDataFilter, ItemList, FilterSettings }
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { ExportDialogomponent } from '..';
 
 export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewChecked, OnDestroy {
   // /**
@@ -144,6 +146,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     protected _service: BaseService<TModel>,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
   ) {
     /** Disable change detection for application optimization */
     this.changeDetection.detach();
@@ -296,7 +299,11 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Export method
    */
   public onExport(): void {
-    // TODO
+    const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+
+    dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+    dialogRef.componentInstance.data = this.data.data ? _.first(this.data.data, 1) : [];
+    dialogRef.componentInstance.listName = this._service.parentPageName;
   }
 
   /**
@@ -471,5 +478,50 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   protected detectChanges(): void {
     this.changeDetection.detectChanges();
+  }
+
+  /**
+   * Возвращает объект для диалогового окна с общими настройками
+   * width Длинна окна
+   */
+  protected getCommonDialogOption(width: number = null): MatDialogConfig {
+    const options = new MatDialogConfig();
+    options.disableClose = true;
+    options.autoFocus = true;
+    options.restoreFocus = false;
+    options.width = !width ? '290px' : `${width}px`;
+    options.minHeight = '180px';
+    return options;
+  }
+
+  /**
+   * Скачивание
+   */
+  protected onDownloadCsv(fileName:string, csv: any): void {
+
+    let csvContent = csv; //here we load our csv data 
+
+    fileName = `${fileName}_${new Date().getDay()+1}-${new Date().getMonth()+1}-${new Date().getFullYear()}.csv`;
+
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // проверка браузера
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      // для IE
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+    }
+    else {
+      // не для IE
+      const a = document.createElement('a');
+      if (a.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        a.setAttribute('href', url);
+        a.setAttribute('download', fileName);
+        a.style.visibility = 'hidden';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    }
   }
 }

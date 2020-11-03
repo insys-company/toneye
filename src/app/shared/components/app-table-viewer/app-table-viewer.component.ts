@@ -188,6 +188,8 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Export event
    */
   public onExport(): void {
+    if (!this.data || !this.data.length) { return; }
+
     this.exportEvent.next();
   }
 

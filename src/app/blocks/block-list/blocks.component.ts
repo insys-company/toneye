@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-blocks',
@@ -54,6 +55,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     protected _service: BlocksService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private blockQueries: BlockQueries,
   ) {
@@ -62,6 +64,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -98,13 +101,6 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     this.shards_length = null;
     this.aggregate_blocks = null;
     this.locale = null
-  }
-
-  /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
   }
 
   /**

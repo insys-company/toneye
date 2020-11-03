@@ -7,6 +7,7 @@ import { Message, ViewerData, Transaction } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-message-details',
@@ -30,6 +31,7 @@ export class MessageDetailsComponent extends BaseComponent<Message> implements O
     protected service: MessageDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private transactionQueries: TransactionQueries,
   ) {
     super(
@@ -37,6 +39,7 @@ export class MessageDetailsComponent extends BaseComponent<Message> implements O
       service,
       route,
       router,
+      dialog
     );
   }
 

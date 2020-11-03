@@ -9,3 +9,4 @@ export { AppMinmaxComponent } from './app-minmax-filter/app-minmax.component';
 export { AppMinmaxOverlayComponent } from './app-minmax-filter/app-minmax-overlay/app-minmax-overlay.component';
 export { AppDatepickerComponent } from './app-datepicker-filter/app-datepicker.component';
 export { AppDatepickerOverlayComponent } from './app-datepicker-filter/app-datepicker-overlay/app-datepicker-overlay.component';
+export { ExportDialogomponent } from './app-export/app-export.component';

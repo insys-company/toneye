@@ -9,6 +9,7 @@ import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { Subject } from 'rxjs';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-home',
@@ -90,6 +91,7 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
     protected homeService: HomeService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private messageQueries: MessageQueries,
     private transactionQueries: TransactionQueries,
     private blockQueries: BlockQueries,
@@ -100,6 +102,7 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
       homeService,
       route,
       router,
+      dialog
     );
 
      /** Loading animation in children */

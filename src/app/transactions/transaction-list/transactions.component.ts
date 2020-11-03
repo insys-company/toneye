@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-transactions',
@@ -39,6 +40,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
     protected _service: TransactionsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private transactionQueries: TransactionQueries,
   ) {
@@ -47,15 +49,32 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
       _service,
       route,
       router,
+      dialog,
     );
   }
 
-  /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
-  }
+  // /**
+  //  * Export method
+  //  */
+  // public onExport(): void {
+  //   const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption('400'));
+
+  //   dialogRef.componentInstance.filterParams = this.filterParams ? JSON.parse(JSON.stringify(this.filterParams)) : new SimpleDataFilter();
+  //   dialogRef.componentInstance.data = null;
+  //   dialogRef.componentInstance.availabledDataCount = this.dataSource ? this.dataSource.total : 0;
+
+  //   dialogRef.afterClosed().subscribe((wereThereAnyChanges: boolean) => {
+
+  //     if (wereThereAnyChanges) {
+  //       if (this.filterComponent) {
+  //         this.filterComponent.updateListsFromParent();
+  //       }
+  //       /** После закрытия окна обновляем данные */
+  //       this.service.refreshData();
+  //     }
+
+  //   });
+  // }
 
   /**
    * Load more data

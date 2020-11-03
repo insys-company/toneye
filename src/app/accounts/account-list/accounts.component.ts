@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-accounts',
@@ -44,6 +45,7 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
     protected _service: AccountsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private accountQueries: AccountQueries,
   ) {
@@ -52,6 +54,7 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -84,14 +87,6 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
     super.ngOnDestroy();
 
     this.totalBalance = null;
-  }
-
-
-  /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
   }
 
   /**

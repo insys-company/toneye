@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-messages',
@@ -47,6 +48,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     protected _service: MessagesService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private messageQueries: MessageQueries,
   ) {
@@ -55,15 +57,16 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
       _service,
       route,
       router,
+      dialog
     );
   }
 
-  /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
-  }
+  // /**
+  //  * Export method
+  //  */
+  // public onExport(): void {
+  //   // TODO
+  // }
 
   /**
    * Load more data

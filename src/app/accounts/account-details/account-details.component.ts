@@ -4,11 +4,13 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { AccountDetailsService } from './account-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MessageQueries, TransactionQueries } from 'src/app/api/queries';
-import { Account, Message, ViewerData, Transaction, FilterSettings, TabViewerData } from 'src/app/api';
+import { Account, Message, ViewerData, Transaction, FilterSettings, TabViewerData, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
+import { ExportDialogomponent } from 'src/app/shared/components';
 
 @Component({
   selector: 'app-account-details',
@@ -92,6 +94,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
     protected service: AccountDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private messageQueries: MessageQueries,
     private transactionQueries: TransactionQueries,
   ) {
@@ -100,6 +103,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       service,
       route,
       router,
+      dialog
     );
 
     this.messFilterLoading = true;
@@ -202,10 +206,23 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   }
 
   /**
-   * Export event
+   * Export method
    */
   public onExport(): void {
-    // TODO
+    const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+    dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+    dialogRef.componentInstance.accId = this.modelId + '';
+    if (this.selectedTabIndex === 0) {
+   
+      dialogRef.componentInstance.data = this.transactions ? _.first(this.transactions, 1) : [];
+      dialogRef.componentInstance.listName = appRouteMap.transactions;
+    }
+    else if (this.selectedTabIndex === 1) {
+
+      dialogRef.componentInstance.data = this.messages ? _.first(this.messages, 1) : [];
+      dialogRef.componentInstance.listName = appRouteMap.messages;
+    }
+
   }
 
   /**

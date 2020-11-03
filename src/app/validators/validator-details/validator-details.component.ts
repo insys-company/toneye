@@ -3,13 +3,16 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { ValidatorDetailsService } from './validator-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonQueries } from 'src/app/api/queries';
-import { Block, ViewerData, BlockMasterConfig, BlockMaster, ValidatorSetList, ValidatorSet } from 'src/app/api';
+import { Block, ViewerData, BlockMasterConfig, BlockMaster, ValidatorSetList, ValidatorSet, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
+import { ExportDialogomponent } from 'src/app/shared/components';
 
 const VALIDATOR_PUBLIC_KEY="ed051c4d6384b13b9ad05a507e3d9cf95d4e4ffc338406603709a3dbf6291d46";
+const NODE_ID="4cded8178438ca7739b7429f7eabff5961023878a2ffaa2dbf03f040f87c4e04";
 @Component({
   selector: 'app-validator-details',
   templateUrl: './validator-details.component.html',
@@ -55,6 +58,7 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     protected service: ValidatorDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries
   ) {
     super(
@@ -62,6 +66,7 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
       service,
       route,
       router,
+      dialog
     );
   }
 
@@ -94,10 +99,15 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
   }
 
   /**
-   * Export event
+   * Export method
    */
   public onExport(): void {
-    // TODO
+    const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+
+    dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+    dialogRef.componentInstance.data = this.signedBlocks ? _.first(this.signedBlocks, 1) : [];
+    dialogRef.componentInstance.parentId = NODE_ID;
+    dialogRef.componentInstance.listName = appRouteMap.blocksSignatures;
   }
 
   /**
