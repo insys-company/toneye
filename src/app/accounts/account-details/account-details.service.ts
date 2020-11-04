@@ -42,7 +42,7 @@ export class AccountDetailsService extends BaseService<Account> {
    * Get variables
    * @param _id Id for query
    */
-  public getVariablesForTransactions(params: SimpleDataFilter, _id: string): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, _id: string, limit: number = null): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance_delta = params.min != null || params.max != null
@@ -77,11 +77,11 @@ export class AccountDetailsService extends BaseService<Account> {
         {path: 'account_addr', direction: 'DESC'},
         {path: 'lt', direction: 'DESC'}
       ],
-      limit: 50
+      limit: limit != null ? limit : 50
     };
   }
 
-  public getVariablesForMessages(params: SimpleDataFilter, _id: string, srcTypeMess: boolean = null): object {
+  public getVariablesForMessages(params: SimpleDataFilter, _id: string, srcTypeMess: boolean = null, limit: number = null): object {
     params = params ? params : new SimpleDataFilter({});
 
     let id = params.chain != null && !_id.match(`${params.chain}:`) ? {eq: null} : undefined;
@@ -145,7 +145,7 @@ export class AccountDetailsService extends BaseService<Account> {
       orderBy: [
         {path: 'created_at', direction: 'DESC'}
       ],
-      limit: 50
+      limit: limit != null ? limit : 50
     };
   }
 

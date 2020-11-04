@@ -64,6 +64,10 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * For footer button
    */
+  @Input() public isFooterVisible: boolean = true;
+  /**
+   * For footer button
+   */
   @Input() public footerPlaceholder: string = LocaleText.seeAll;
 
   /**
@@ -82,6 +86,10 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Select item from tabs
    */
   @Output() selectItem: EventEmitter<any> = new EventEmitter<any>(null);
+  /**
+   * Click export button
+   */
+  @Output() showNewDataEvent: EventEmitter<void> = new EventEmitter<void>();
 
   /** Общие тексты для страниц */
   public locale = {
@@ -188,6 +196,8 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Export event
    */
   public onExport(): void {
+    if (!this.data || !this.data.length) { return; }
+
     this.exportEvent.next();
   }
 
@@ -228,17 +238,20 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Show new data
    */
   public onShowNewData(): void {
-    this.skeletalAnimation = true;
+    this.showNewDataEvent.next();
+    // this.skeletalAnimation = true;
 
-    let _newData = _.clone(this.newData = this.newData ? this.newData : []);
-    this.newData = [];
+    // let _newData = _.clone(this.newData = this.newData ? this.newData : []);
+    // this.newData = [];
 
-    this.detectChanges();
+    // this.detectChanges();
 
-    // Объединение двух массивов и сортировка
-    this.data = _.clone(_.first(_newData.concat(this.data), 10));
+    // // Объединение двух массивов и сортировка
+    // this.data = _.clone(_.first(_newData.concat(this.data), 10));
 
-    this.detectChanges();
+    // this.skeletalAnimation = false;
+
+    // this.detectChanges();
   }
 
   /**

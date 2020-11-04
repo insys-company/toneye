@@ -4,11 +4,13 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { ValidatorsService } from './validators.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BlockQueries } from 'src/app/api/queries';
-import { ValidatorSet, ViewerData, TabViewerData, BlockMasterConfig, Block, ItemList } from 'src/app/api';
+import { ValidatorSet, ViewerData, TabViewerData, BlockMasterConfig, Block, ItemList, ValidatorSetList } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
+const VALIDATOR_CSV_HEADER = 'public_key,adnl_addr,weight,__typename \n';
 @Component({
   selector: 'app-validators',
   templateUrl: './validators.component.html',
@@ -79,6 +81,7 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
     protected _service: ValidatorsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private blockQueries: BlockQueries,
   ) {
     super(
@@ -86,6 +89,7 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -113,7 +117,31 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    * Export method
    */
   public onExport(): void {
-    // TODO
+    let csvContent = VALIDATOR_CSV_HEADER;
+
+    let dataString = '';
+
+    let _v = this.selectedTabIndex === 0
+      ? this.previosValidators
+      : this.selectedTabIndex === 1
+        ? this.currentValidators
+        : this.nextValidators;
+
+    let _data = _v != null ? _v.list : null;
+
+    if (_data) {
+
+      _data.forEach((item: ValidatorSetList, i: number) => {
+        dataString = `"${item.public_key ? item.public_key : 0}",`
+        +`"${item.adnl_addr ? item.adnl_addr : 0}",`
+        +`"${item.weight ? parseInt(item.weight, 16) : 0}",`
+        +`"${item.__typename}"`;
+  
+        csvContent += i < _data.length ? dataString + '\n' : dataString;
+      });
+   
+      this.onDownloadCsv(appRouteMap.validators, csvContent);
+    }
   }
 
   /**
@@ -280,9 +308,9 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
 
         this.detectChanges();
 
-        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, 10, this.previosValidators.total_weight);
-        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, 10, this.currentValidators.total_weight);
-        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, 10, this.nextValidators.total_weight);
+        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, null, this.previosValidators.total_weight);
+        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, null, this.currentValidators.total_weight);
+        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, null, this.nextValidators.total_weight);
 
         this.tableViewersLoading = false;
 

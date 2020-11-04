@@ -7,7 +7,10 @@ import { ViewerData, TabViewerData, ItemList, DataConfig, Account } from 'src/ap
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
+// const CONTRACT_CSV_HEADER = 'name,code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent,id,avatar \n';
+const CONTRACT_CSV_HEADER = 'code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent \n';
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
@@ -38,6 +41,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
     protected _service: ContractsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
   ) {
     super(
@@ -45,6 +49,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -61,7 +66,24 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * Export method
    */
   public onExport(): void {
-    // TODO
+    let csvContent = CONTRACT_CSV_HEADER;
+
+    let dataString = '';
+
+    if (this.data) {
+
+      this.data.data.forEach((item: Account, i: number) => {
+        dataString = `"${item.code_hash ? item.code_hash : 0}",`
+        +`"${item.aggregateByBalance ? item.aggregateByBalance : 0}",`
+        +`"${item.aggregateByHash ? item.aggregateByHash : 0}",`
+        +`"${item.aggregateByType ? item.aggregateByType : 0}",`
+        +`"${item.aggregateByMess ? item.aggregateByMess : 0}"`;
+  
+        csvContent += i < this.tableViewerData.length ? dataString + '\n' : dataString;
+      });
+   
+      this.onDownloadCsv(appRouteMap.contracts, csvContent);
+    }
   }
 
   /**
@@ -177,6 +199,11 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
                   type: 'string'
                 })
               });
+
+              this.data.data[index].aggregateByBalance = byBalance['aggregateAccounts'][0];
+              this.data.data[index].aggregateByHash = byHash['aggregateAccounts'][0];
+              this.data.data[index].aggregateByType = byType['aggregateAccounts'][0];
+              this.data.data[index].aggregateByMess = mess['aggregateMessages'][0];
 
               this.tableViewerData.push(_item);
 

@@ -4,10 +4,13 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { ContractDetailsService } from './contract-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonQueries, AccountQueries } from 'src/app/api/queries';
-import { Account, ItemList } from 'src/app/api';
+import { Account, ItemList, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
+import { ExportDialogomponent } from 'src/app/shared/components';
+import _ from 'underscore';
 
 @Component({
   selector: 'app-contract-details',
@@ -77,6 +80,7 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
     protected service: ContractDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private accountQueries: AccountQueries,
   ) {
@@ -85,6 +89,7 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
       service,
       route,
       router,
+      dialog
     );
   }
 
@@ -119,10 +124,14 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
   }
 
   /**
-   * Export event
+   * Export method
    */
   public onExport(): void {
-    // TODO
+    const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+    dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+    dialogRef.componentInstance.data = this.data.data ? _.first(this.data.data, 1) : [];
+    dialogRef.componentInstance.parentId = this.modelId;
+    dialogRef.componentInstance.listName = appRouteMap.accounts;
   }
 
   /**

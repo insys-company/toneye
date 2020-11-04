@@ -44,12 +44,14 @@
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
+          [newData]="newDataAfterUpdateForView"
           [skeletalAnimation]="tableViewersLoading"
           [isTabsHeaderMode]="true"
           [tabsTitles]="tabsTitles"
           (exportEvent)="onExport()"
           (moreEvent)="onLoadMore($event)"
-          (tabChange)="onSelectTab($event)">
+          (tabChange)="onSelectTab($event)"
+          (showNewDataEvent)="onShowNewData()">
         </app-table-viewer>
       </div>
     </div>

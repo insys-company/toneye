@@ -3,11 +3,12 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { BlocksService } from './blocks.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonQueries, BlockQueries } from 'src/app/api/queries';
-import { ViewerData, ItemList, Block } from 'src/app/api';
+import { ViewerData, ItemList, Block, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-blocks',
@@ -54,6 +55,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     protected _service: BlocksService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private blockQueries: BlockQueries,
   ) {
@@ -62,6 +64,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -101,46 +104,42 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
   }
 
   /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
-  }
-
-  /**
    * Load more data
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // // this.tableViewerLoading = true;
+    this.tableViewersLoading = true;
 
-    // // this.detectChanges();
+    this.detectChanges();
 
-    // let date = this.data[this.data.length - 1].gen_utime;
+    let date = this.data && this.data.data ? _.last(this.data.data).gen_utime : null;
 
-    // const _variables = {
-    //   filter: {gen_utime: {le: date}},
-    //   orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-    //   limit: 25,
-    // }
+    let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
 
-    // // Get blocks
-    // this.blocksService.getBlocks(_variables)
-    //   .pipe(takeUntil(this.unsubscribe))
-    //   .subscribe((res: Block[]) => {
+    _p.toDate = date + '';
 
-    //     let newData = this.mapData(res);
-    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-    //     // this.tableViewerLoading = false;
+    // Get blocks
+    this._service.getData(
+      this._service.getVariablesForBlocks(this.params, 25),
+      this.blockQueries.getBlocks
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Block[]) => {
 
-    //     this.detectChanges();
+        this.data.data = this.data.data.concat(res ? res : []);
+        this.data.total = this.data.data.length;
 
-    //     // Scroll to bottom
-    //     // window.scrollTo(0, document.body.scrollHeight);
-      
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
+        this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks);
+
+        this.tableViewersLoading = false;
+
+        this.filterLoading = false;
+
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -218,9 +217,11 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
    */
   private getAggregateData(): void {
 
-    this.viewersLoading = true;
-    this.tableViewersLoading = true;
-    this.detectChanges();
+    if (!this.autoupdate) {
+      this.viewersLoading = true;
+      this.tableViewersLoading = true;
+      this.detectChanges();
+    }
 
     this._service.getAggregateData(
       this._service.getVariablesForAggregateData(this.params, this.utime_since),
@@ -251,7 +252,31 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
-        this.processData(res ? res : []);
+        res = res ? res : [];
+
+        if (!this.autoupdate) {
+          this.processData(res);
+        }
+        else {
+          this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+
+          let uniqItems = [];
+
+          res.forEach((item: Block) => {
+            let filterItem = _.findWhere(this.data.data, {id: item.id});
+            let filterNewItem = _.findWhere(this.newDataAfterUpdate, {id: item.id});
+            if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+          });
+
+          if (uniqItems.length) {
+            this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
+            this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.blocks);
+          }
+
+          this.setChangeData();
+
+          this.detectChanges();
+        }
 
       }, (error: any) => {
         console.log(error);
@@ -264,6 +289,9 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
    */
   private processData(_data: Block[]): void {
 
+    this.newDataAfterUpdate = [];
+    this.newDataAfterUpdateForView = [];
+
     /** Blocks */
     this.data = new ItemList({
       data: _data ? _data : [],
@@ -272,6 +300,27 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
       total: _data ? _data.length : 0
     });
 
+    this.setChangeData();
+
+    this.viewersLoading = false;
+
+    this.detectChanges();
+
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks, 25);
+
+    this.tableViewersLoading = false;
+
+    this.filterLoading = false;
+
+    this.initComplete = true;
+
+    this.detectChanges();
+  }
+
+  /**
+   * Change general data
+   */
+  private setChangeData(): void {
     const aggregateBlocks = new ViewerData({
       title: LocaleText.blocksByCurrentValidators,
       value: this.aggregate_blocks,
@@ -286,13 +335,13 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
 
     const headBlocks = new ViewerData({
       title: LocaleText.headBlocks,
-      value: this.data.data.length ? _.max(this.data.data, function(b){ return b.seq_no; })['seq_no'] : 0,
+      value: this.data.data.length ? _.max(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), function(b){ return b.seq_no; })['seq_no'] : 0,
       isNumber: true
     });
 
     const averageBlockTime = new ViewerData({
       title: LocaleText.averageBlockTime,
-      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'gen_utime') + ' sec').replace('.', ','),
+      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'gen_utime') + ' sec').replace('.', ','),
       isNumber: false
     });
 
@@ -302,19 +351,5 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     this.generalViewerData.push(averageBlockTime);
     this.generalViewerData.push(aggregateBlocks);
     this.generalViewerData.push(shards);
-
-    this.viewersLoading = false;
-
-    this.detectChanges();
-
-    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks, 10);
-
-    this.tableViewersLoading = false;
-
-    this.filterLoading = false;
-
-    this.initComplete = true;
-
-    this.detectChanges();
   }
 }

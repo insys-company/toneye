@@ -2,11 +2,13 @@ import { OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular
 import { IModel } from '../../interfaces';
 import { BaseService } from './app-base.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { ViewerData, TabViewerData, SimpleDataFilter, ItemList, FilterSettings } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { ExportDialogomponent } from '..';
 
 export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewChecked, OnDestroy {
   // /**
@@ -21,6 +23,10 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * For subscribers
    */
   public _routeUnsubscribe: Subject<void> = new Subject<void>();
+  /**
+   * Переменная для подписки на таймер
+   */
+  public _updateUnsubscribe: Subject<void> = new Subject<void>();
   /**
    * For subscribers
    */
@@ -82,8 +88,9 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
 
   /**
    * Data for view
+   * After update data for view from `newDataAfterUpdate`
    */
-  public newDataAfterUpdate: Array<TabViewerData>;
+  public newDataAfterUpdateForView: Array<TabViewerData>;
 
   /**
    * For DOM elements
@@ -116,6 +123,11 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   public data: ItemList<TModel>;
   /**
+   * Array of ...
+   * After update data
+   */
+  public newDataAfterUpdate: any[];
+  /**
    * data length
    */
   public total: number = 0;
@@ -144,11 +156,13 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     protected _service: BaseService<TModel>,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
   ) {
     /** Disable change detection for application optimization */
     this.changeDetection.detach();
 
     this._routeUnsubscribe = new Subject<void>();
+    this._updateUnsubscribe = new Subject<void>();
     this._unsubscribe = new Subject<void>();
     this.params = new SimpleDataFilter();
 
@@ -239,6 +253,8 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Destruction of the component
    */
   public ngOnDestroy(): void {
+    this.updateUnsubscribe();
+
     this.routeUnsubscribe();
     this._routeUnsubscribe = null;
 
@@ -262,7 +278,9 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     this.disabled = null;
     this.autoupdate = null;
     this.autoupdateSubscribe = null;
+  
     this.newDataAfterUpdate = null;
+    this.newDataAfterUpdateForView = null;
 
     this.model = null;
     this.modelId =  null;
@@ -293,10 +311,25 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
   }
 
   /**
+   * unsubscribe from qeries by timer
+   */
+  public updateUnsubscribe(): void {
+    if (this._updateUnsubscribe) {
+      this._updateUnsubscribe.next();
+      this._updateUnsubscribe.complete();
+      this._updateUnsubscribe = null;
+    }
+  }
+
+  /**
    * Export method
    */
   public onExport(): void {
-    // TODO
+    const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+
+    dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+    dialogRef.componentInstance.data = this.data.data ? _.first(this.data.data, 1) : [];
+    dialogRef.componentInstance.listName = this._service.parentPageName;
   }
 
   /**
@@ -345,6 +378,54 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
   }
 
   /**
+   * Show new data
+   */
+  public onShowNewData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+    this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+
+    this.data.data = this.data.data ? this.data.data : [];
+    this.data.total = this.data.data.length;
+    this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+
+    this.data.data = _.clone(this.newDataAfterUpdate.concat(this.data.data));
+    this.data.total = this.data.data.length;
+
+    this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 10);
+    
+    this.newDataAfterUpdate = [];
+    this.newDataAfterUpdateForView = [];
+
+    this.viewersLoading = false;
+    this.tableViewersLoading = false;
+    this.detectChanges();
+  }
+
+  /**
+   * Change autoupdate checkbox
+   * @param check Flag
+   */
+  public updateChange(check: boolean) {
+    this.autoupdate = check;
+
+    this.updateUnsubscribe();
+
+    if (!this.autoupdate) {
+      this.onShowNewData();
+    }
+    else {
+      this.subscribeOnUpdate();
+    }
+
+    this.detectChanges();
+  }
+  
+  /**
    * Event of select
    * @param item Selected item from table
    */
@@ -367,17 +448,6 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * @param item Item in ngFor
    */
   public identifyData(index: number, item: ViewerData): string { return item.value; }
-
-  /**
-   * Change autoupdate checkbox
-   * @param check Flag
-   */
-  public updateChange(check: boolean) {
-    this.autoupdate = check;
-
-    this.detectChanges();
-    // TODO
-  }
 
   /**
    * update data
@@ -471,5 +541,69 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   protected detectChanges(): void {
     this.changeDetection.detectChanges();
+  }
+
+  /**
+   * Возвращает объект для диалогового окна с общими настройками
+   * width Длинна окна
+   */
+  protected getCommonDialogOption(width: number = null): MatDialogConfig {
+    const options = new MatDialogConfig();
+    options.disableClose = true;
+    options.autoFocus = true;
+    options.restoreFocus = false;
+    options.width = !width ? '290px' : `${width}px`;
+    options.minHeight = '180px';
+    return options;
+  }
+
+  /**
+   * Скачивание
+   */
+  protected onDownloadCsv(fileName:string, csv: any): void {
+
+    let csvContent = csv; //here we load our csv data 
+
+    fileName = `${fileName}_${new Date().getDay()+1}-${new Date().getMonth()+1}-${new Date().getFullYear()}.csv`;
+
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // проверка браузера
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      // для IE
+      window.navigator.msSaveOrOpenBlob(blob, fileName);
+    }
+    else {
+      // не для IE
+      const a = document.createElement('a');
+      if (a.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        a.setAttribute('href', url);
+        a.setAttribute('download', fileName);
+        a.style.visibility = 'hidden';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    }
+  }
+
+  /**
+   *  For update
+   */
+  protected subscribeOnUpdate(): void {
+    this._updateUnsubscribe = new Subject<void>();
+    /**Отправляем на сервер каждын 2 секунда запрос  */
+    const _timer = timer(Infinity, 2000);
+
+    _timer
+      .pipe(takeUntil(this._updateUnsubscribe))
+      .subscribe(() => {
+
+        this.refreshData();
+
+      }, error => {
+        this.updateUnsubscribe();
+      });
   }
 }

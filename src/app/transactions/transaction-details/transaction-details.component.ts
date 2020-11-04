@@ -7,6 +7,7 @@ import { Transaction, ViewerData, Block } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-transaction-details',
@@ -44,6 +45,7 @@ export class TransactionDetailsComponent extends BaseComponent<Transaction> impl
     protected service: TransactionDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     protected blockQueries: BlockQueries,
   ) {
     super(
@@ -51,6 +53,7 @@ export class TransactionDetailsComponent extends BaseComponent<Transaction> impl
       service,
       route,
       router,
+      dialog
     );
   }
 
@@ -63,13 +66,6 @@ export class TransactionDetailsComponent extends BaseComponent<Transaction> impl
     this.computeViewerData = null;
     this.actionViewerData = null;
     this.finalStateViewerData = null;
-  }
-
-  /**
-   * Export event
-   */
-  public onExport(): void {
-    // TODO
   }
 
   /**

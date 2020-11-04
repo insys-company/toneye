@@ -70,7 +70,7 @@ export class MessagesService extends BaseService<Message> {
    * @param srcTypeMess Только по источнику если true, только по получателю если false
    * все если null
    */
-  public getVariablesForMessages(params: SimpleDataFilter, srcTypeMess: boolean = null): object {
+  public getVariablesForMessages(params: SimpleDataFilter, srcTypeMess: boolean = null, limit: number = null): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _dst: object;
@@ -120,7 +120,7 @@ export class MessagesService extends BaseService<Message> {
       : undefined;
 
     let _created_at = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? { ge: Number(params.fromDate), le: Number(params.toDate) }
       : undefined;
 
     let _msg_type = params.ext_int == 'int'
@@ -138,7 +138,7 @@ export class MessagesService extends BaseService<Message> {
       orderBy: [
         {path: 'created_at', direction: 'DESC'}
       ],
-      limit: 50
+      limit: limit != null ? limit : 50
     };
   }
 }

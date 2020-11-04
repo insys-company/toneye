@@ -39,6 +39,7 @@ $tonexplorer-theme: mat-light-theme($tonexplorer-primary, $tonexplorer-accent, $
 @import './scss/spinner.scss';
 @import './scss/slide-toggle.scss';
 @import './scss/multiselect.scss';
+@import './scss/dialog.scss';
 
 * {
   margin: 0;

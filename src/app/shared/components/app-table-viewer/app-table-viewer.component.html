@@ -78,7 +78,7 @@
   </div>
 
   <!-- Footer -->
-  <div *ngIf="skeletalAnimation || (!skeletalAnimation && data?.length)" class="app-viewer__table-footer-wrapper">
+  <div *ngIf="skeletalAnimation || (!skeletalAnimation && data?.length && isFooterVisible)" class="app-viewer__table-footer-wrapper">
     <!-- Skeleton -->
     <div *ngIf="skeletalAnimation" class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-25"></div>
     <!-- Button -->

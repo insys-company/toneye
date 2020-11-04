@@ -18,6 +18,11 @@ export class Account {
   tock: string; //?
   __typename: string;
 
+  aggregateByBalance: string;
+  aggregateByHash: string;
+  aggregateByType: string;
+  aggregateByMess: string;
+
   constructor(data?: any) {
     if (data) {
       for (const i in data) {
