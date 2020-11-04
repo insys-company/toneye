@@ -58,8 +58,8 @@ export class BlocksService extends BaseService<Block> {
 
     let _gen_utime = gen_utime != null || params.fromDate != null || params.toDate != null
       ? {
-        ge: (params.fromDate != null && (Number(params.fromDate) >= Number(gen_utime)) ? params.fromDate : gen_utime),
-        le: params.toDate
+        ge: params.fromDate != null ? (Number(params.fromDate) >= Number(gen_utime)) ? Number(params.fromDate) : Number(gen_utime) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
       }
       : undefined;
 

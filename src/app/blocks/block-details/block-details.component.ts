@@ -42,6 +42,10 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(6);
   /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
+  /**
    * Value Data for view
    */
   public valueViewerData: Array<ViewerData>;

@@ -663,9 +663,43 @@ textarea:not(:disabled):-ms-input-placeholder {
 
 // .cdk-overlay-pane,
 .app-search-panel,
-.app-multiselect-panel {
+.app-multiselect-panel,
+.app-datepicker-panel {
   transition: all .3s ease;
 }
+
+.datepicker-input .mat-form-field-prefix {
+  position: absolute !important;
+  top: 4px !important;
+  left: 0;
+  bottom: 0;
+  right: 35px;
+  z-index: 2;
+}
+
+.datepicker-input .mat-icon-button {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 3px !important;
+
+  .mat-button-wrapper {
+    display: none;
+  }
+}
+
+.datepicker-input .mat-form-field-flex {
+  padding: 0 10px !important;
+}
+
+.mat-calendar {
+  font-family: "Noto Sans KR", sans-serif !important;
+}
+
+.mat-calendar-body-selected {
+  background-color: #45BAEB !important;
+}
+
+
 
 app-search-overlay {
   width: 100%;

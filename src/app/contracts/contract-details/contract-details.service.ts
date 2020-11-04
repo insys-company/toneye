@@ -65,7 +65,10 @@ export class ContractDetailsService extends BaseService<Account> {
       : undefined;
 
     let _last_paid = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let  _orderBy = isOrderBy
@@ -97,7 +100,10 @@ export class ContractDetailsService extends BaseService<Account> {
     params = params ? params : new SimpleDataFilter({});
 
     let _created_at = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     return {

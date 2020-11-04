@@ -3,6 +3,8 @@ import { AppDatepickerOverlayService } from './app-datepicker-overlay.service';
 import { Subscription, Subject } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
+import { DateTime } from 'src/app/shared/utils';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker/datepicker-input';
 
 export const DATE_PANEL_DATA = new InjectionToken<{}>('DATE_PANEL_DATA');
 export const MIN = 'From';
@@ -41,6 +43,17 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
   public toDate: string;
 
   /**
+   * From date
+   * For datepicker
+   */
+  public from: Date;
+  /**
+   * To date
+   * For datepicker
+   */
+  public to: Date;
+
+  /**
    * Для поля
    * @type {string}
    */
@@ -73,6 +86,22 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
     return  this.toDate != null && this.toDate != ''  ? true : false;
   }
 
+  /**
+   * Таймзона пользователя
+   * @type {number}
+   */
+  public get timezoneOffset(): number {
+    return Math.abs(new Date(Math.round(new Date().getTime() / 1000)).getTimezoneOffset());
+  }
+
+  /**
+   * Минимальная дата для календарей
+   * 1 января 1970
+   * @type {minDate}
+   */
+  public get minDate(): Date {
+    return new DateTime(0).toLocalDate();
+  }
 
   constructor(
     protected service: AppDatepickerOverlayService,
@@ -100,6 +129,15 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
 
     this.fromDate = this.data.data.fromDate;
     this.toDate = this.data.data.toDate;
+
+    this.from = this.fromDate != null
+      ? new Date(new Date(Number(this.fromDate) * 1000).setMinutes(new Date(Number(this.fromDate) * 1000).getMinutes() - this.timezoneOffset))
+      : null;
+
+    this.to = this.toDate != null
+      ? new Date(new Date(Number(this.toDate) * 1000).setMinutes(new Date(Number(this.toDate) * 1000).getMinutes() - this.timezoneOffset))
+      : null;
+
     this.fromPlaceholder = this.data.data.fromPlaceholder;
     this.toPlaceholder = this.data.data.toPlaceholder;
 
@@ -166,6 +204,7 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
    */
   public onClearFromDate(): void {
     this.fromDate = null;
+    this.from = null;
   }
 
   /**
@@ -173,6 +212,7 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
    */
   public onClearToDate(): void {
     this.toDate = null;
+    this.to = null;
   }
 
   /**
@@ -180,7 +220,41 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
    */
   public onResetFilter(): void {
     this.fromDate = null;
+    this.from = null;
     this.toDate = null;
+    this.to = null;
     this.service.periodSelect.next({from: this.fromDate, to: this.toDate});
+  }
+
+  /**
+   * Проверка fromDate
+   * @param {MatDatepickerInputEvent<Date>} date Выбранная дата
+   */
+  public fromDateChange(date: MatDatepickerInputEvent<Date>): void {
+
+    this.fromDate = date && date.value
+      ? Math.round(date.value.setMinutes(date.value.getMinutes() + this.timezoneOffset) / 1000) + ''
+      : null;
+
+    if (date.value && this.to && date.value >= this.to) {
+      let g = date.value;
+      this.to = new Date(g.setDate(g.getDate() + 1));
+      g = null;
+
+      this.toDate = Math.round(this.to.setMinutes(this.to.getMinutes() + this.timezoneOffset) / 1000) + '';      
+    }
+
+  }
+
+  /**
+   * Проверка toDate
+   * @param {MatDatepickerInputEvent<Date>} date Выбранная дата
+   */
+  public toDateChange(date: MatDatepickerInputEvent<Date>): void {
+
+    this.toDate = date && date.value
+      ? Math.round(date.value.setMinutes(date.value.getMinutes() + this.timezoneOffset) / 1000) + ''
+      : null;
+
   }
 }

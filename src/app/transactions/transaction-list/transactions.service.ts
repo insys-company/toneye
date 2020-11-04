@@ -62,7 +62,10 @@ export class TransactionsService extends BaseService<Transaction> {
       : undefined;
 
     let _now = params.fromDate != null || params.toDate != null
-      ? { ge: Number(params.fromDate), le: Number(params.toDate) }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let _workchain_id = params.chain != null

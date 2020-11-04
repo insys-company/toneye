@@ -43,6 +43,10 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(3);
   /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
+  /**
    * Account's balance
    */
   public totalBalance: number;

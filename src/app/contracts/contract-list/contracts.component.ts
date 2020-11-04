@@ -27,6 +27,10 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(1);
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
 
   /** Общие тексты для страниц */
   public locale = {

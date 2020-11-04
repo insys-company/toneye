@@ -25,6 +25,10 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
 
   /** Общие тексты для страниц */
   public locale = {
