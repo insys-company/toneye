@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
 import { MatDialog } from '@angular/material/dialog';
+import _ from 'underscore';
 
 // const CONTRACT_CSV_HEADER = 'name,code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent,id,avatar \n';
 const CONTRACT_CSV_HEADER = 'code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent \n';
@@ -106,11 +107,11 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * @param _model Model
    * @param _data Aditional data
    */
-  protected mapDataForViews(_model: any, _data?: any): void {
+  protected mapDataForViews(_model: any[], _data?: any): void {
     this.generalViewerData = [];
     this.generalViewerData.push(new ViewerData({
       title: LocaleText.uniqueContracts,
-      value: this.data.total,
+      value: _model && _model.length ? _model.length : 0,
       isNumber: true
     }));
   }
@@ -200,16 +201,25 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
                 })
               });
 
-              this.data.data[index].aggregateByBalance = byBalance['aggregateAccounts'][0];
-              this.data.data[index].aggregateByHash = byHash['aggregateAccounts'][0];
-              this.data.data[index].aggregateByType = byType['aggregateAccounts'][0];
-              this.data.data[index].aggregateByMess = mess['aggregateMessages'][0];
+              this.data.data[index].aggregateByBalance = byBalance['aggregateAccounts'][0] ? byBalance['aggregateAccounts'][0] + '' : '0';
+              this.data.data[index].aggregateByHash = byHash['aggregateAccounts'][0] ? byHash['aggregateAccounts'][0] + '' : '0';
+              this.data.data[index].aggregateByType = byType['aggregateAccounts'][0] ? byType['aggregateAccounts'][0] + '' : '0';
+              this.data.data[index].aggregateByMess = mess['aggregateMessages'][0] ? mess['aggregateMessages'][0] + '' : '0';
 
-              this.tableViewerData.push(_item);
+              if (
+                this.data.data[index].aggregateByBalance != '0'
+                && this.data.data[index].aggregateByHash != '0'
+                && this.data.data[index].aggregateByType != '0'
+                && this.data.data[index].aggregateByMess != '0'
+              ) {
+                this.tableViewerData.push(_item);
+              }
 
               if (index === this.data.data.length - 1) {
 
-                this.mapDataForViews(null);
+                this.tableViewerData = (_.sortBy(this.tableViewerData, (item) => { return Number(item.titleRight.text) })).reverse();
+
+                this.mapDataForViews(this.tableViewerData);
 
                 this.viewersLoading = false;
             

@@ -11,7 +11,7 @@
     </div>
   </div>
   <!-- Skeleton -->
-  <div *ngIf="skeletalAnimation" class="app-viewer__body-wrapper">
+  <div *ngIf="skeletalAnimation" class="app-viewer__body-wrapper app-viewer__body-wrapper--skeleton">
     <div *ngFor="let item of skeletonArray;trackBy:identifySkeleton;" class="app-viewer__body-item app-viewer__body-item--skeleton">
       <div class="app-viewer__body-item-header skeleton skeleton--small-text w-50"></div>
       <div class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-75"></div>

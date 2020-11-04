@@ -833,6 +833,7 @@ app-search-overlay {
   top: unset !important;
   bottom: unset !important;
   position: absolute;
+  max-width: 100%;
 
   .mat-tab-body-content {
     transform: none !important;

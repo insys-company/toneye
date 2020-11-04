@@ -337,6 +337,18 @@
 
     }
 
+    .app-viewer__body-wrapper--skeleton {
+      display: flex;
+      .app-viewer__body-item--skeleton {
+        display: flex;
+        margin-bottom: 0;
+        .app-viewer__body-item-header,
+        .app-viewer__body-item-subheader {
+
+        }
+      }
+    }
+
   }
 
 }

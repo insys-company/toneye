@@ -139,7 +139,35 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // TODO
+    this.tableViewersLoading = true;
+
+    this.detectChanges();
+
+    let balance = this.data && this.data.data ? _.last(this.data.data).balance : null;
+
+    let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
+
+    _p.max = balance ? parseInt(balance, 16) + '' : null;
+
+    this._service.getData(
+      this.service.getVariablesForAggregateAccounts(_p, String(this.modelId), false, false, true, 25),
+      this.accountQueries.getAccounts,
+      appRouteMap.accounts
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Account[]) => {
+
+        this.data.data = this.data.data.concat(res ? res : []);
+        this.data.total = this.data.data.length;
+
+        this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 25, this.totalBalance);
+
+        this.tableViewersLoading = false;
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -252,7 +280,7 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
 
     this.detectChanges();
 
-    this.tableViewerData =  this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 10, this.totalBalance);
+    this.tableViewerData =  this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 25, this.totalBalance);
         
     this.detectChanges();
 

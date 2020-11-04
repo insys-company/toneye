@@ -119,7 +119,7 @@ export class ContractsService extends BaseService<Account> {
     return new ItemList<Account>({
       page: 0,
       pageSize: 25,
-      total: 6,
+      total: 7,
       data: new Array<Account>(
         new Account({
           id: 'e2b60b6b602c10ced7ea8ede4bdf96342c97570a3798066f3fb50a4b2b27a208',
@@ -136,6 +136,10 @@ export class ContractsService extends BaseService<Account> {
         new Account({
           id: '5daea8b855140d110ab07d430883bfecdd4cba9bcded8968fae7fa6cdb5adfbd',
           code_hash: '5daea8b855140d110ab07d430883bfecdd4cba9bcded8968fae7fa6cdb5adfbd',
+        }),
+        new Account({
+          id: 'a572fb7ff94747da29e4b423b20a808c1342f7b491d20a2d47ebcc3eea8bc06c',
+          code_hash: 'a572fb7ff94747da29e4b423b20a808c1342f7b491d20a2d47ebcc3eea8bc06c',
         }),
         new Account({
           id: '3afa6b0ac7fe37b73b5010e190d6853578c852c86428091ebd514f7e17b12415',

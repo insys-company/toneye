@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="app-viewer__header-wrapper">
     <div class="app-viewer__header">
-      <span>{{locale?.filters}} {{filterSetCount ? '(' + filterSetCount + ' locale?.set)' : ''}}</span>
+      <span>{{locale?.filters}} {{filterSetCount ? '(' + filterSetCount + ' ' + locale?.set + ')' : ''}}</span>
     </div>
     <div *ngIf="isFilterHideBtnVisible" class="app-viewer__btn" (click)="onShowOrHide()">
       <span class="color-blue link">
@@ -118,7 +118,7 @@
       </app-multiselect>
     </div>
 
-    <!-- <div *ngIf="settings?.filterByDate" class="app-viewer__body-item no-hover">
+    <div *ngIf="settings?.filterByDate" class="app-viewer__body-item no-hover">
       <app-datepicker
         [placeholder]="datePlaceholder"
         [fromDate]="fromDate"
@@ -134,7 +134,7 @@
 
         (periodSelected)="onSelectDate($event)">
       </app-datepicker>
-    </div> -->
+    </div>
 
     <div *ngIf="settings?.filterByMinMax" class="app-viewer__body-item no-hover">
       <app-minmax
