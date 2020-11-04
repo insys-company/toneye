@@ -2,7 +2,7 @@ import { OnInit, AfterViewChecked, OnDestroy, ChangeDetectorRef } from '@angular
 import { IModel } from '../../interfaces';
 import { BaseService } from './app-base.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { ViewerData, TabViewerData, SimpleDataFilter, ItemList, FilterSettings } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
@@ -23,6 +23,10 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * For subscribers
    */
   public _routeUnsubscribe: Subject<void> = new Subject<void>();
+  /**
+   * Переменная для подписки на таймер
+   */
+  public _updateUnsubscribe: Subject<void> = new Subject<void>();
   /**
    * For subscribers
    */
@@ -84,8 +88,9 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
 
   /**
    * Data for view
+   * After update data for view from `newDataAfterUpdate`
    */
-  public newDataAfterUpdate: Array<TabViewerData>;
+  public newDataAfterUpdateForView: Array<TabViewerData>;
 
   /**
    * For DOM elements
@@ -117,6 +122,11 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Array of ...
    */
   public data: ItemList<TModel>;
+  /**
+   * Array of ...
+   * After update data
+   */
+  public newDataAfterUpdate: any[];
   /**
    * data length
    */
@@ -152,6 +162,7 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     this.changeDetection.detach();
 
     this._routeUnsubscribe = new Subject<void>();
+    this._updateUnsubscribe = new Subject<void>();
     this._unsubscribe = new Subject<void>();
     this.params = new SimpleDataFilter();
 
@@ -242,6 +253,8 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Destruction of the component
    */
   public ngOnDestroy(): void {
+    this.updateUnsubscribe();
+
     this.routeUnsubscribe();
     this._routeUnsubscribe = null;
 
@@ -265,7 +278,9 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     this.disabled = null;
     this.autoupdate = null;
     this.autoupdateSubscribe = null;
+  
     this.newDataAfterUpdate = null;
+    this.newDataAfterUpdateForView = null;
 
     this.model = null;
     this.modelId =  null;
@@ -292,6 +307,17 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     if (this._unsubscribe) {
       this._unsubscribe.next();
       this._unsubscribe.complete();
+    }
+  }
+
+  /**
+   * unsubscribe from qeries by timer
+   */
+  public updateUnsubscribe(): void {
+    if (this._updateUnsubscribe) {
+      this._updateUnsubscribe.next();
+      this._updateUnsubscribe.complete();
+      this._updateUnsubscribe = null;
     }
   }
 
@@ -352,6 +378,54 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
   }
 
   /**
+   * Show new data
+   */
+  public onShowNewData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+    this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+
+    this.data.data = this.data.data ? this.data.data : [];
+    this.data.total = this.data.data.length;
+    this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+
+    this.data.data = _.clone(this.newDataAfterUpdate.concat(this.data.data));
+    this.data.total = this.data.data.length;
+
+    this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 10);
+    
+    this.newDataAfterUpdate = [];
+    this.newDataAfterUpdateForView = [];
+
+    this.viewersLoading = false;
+    this.tableViewersLoading = false;
+    this.detectChanges();
+  }
+
+  /**
+   * Change autoupdate checkbox
+   * @param check Flag
+   */
+  public updateChange(check: boolean) {
+    this.autoupdate = check;
+
+    this.updateUnsubscribe();
+
+    if (!this.autoupdate) {
+      this.onShowNewData();
+    }
+    else {
+      this.subscribeOnUpdate();
+    }
+
+    this.detectChanges();
+  }
+  
+  /**
    * Event of select
    * @param item Selected item from table
    */
@@ -374,17 +448,6 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * @param item Item in ngFor
    */
   public identifyData(index: number, item: ViewerData): string { return item.value; }
-
-  /**
-   * Change autoupdate checkbox
-   * @param check Flag
-   */
-  public updateChange(check: boolean) {
-    this.autoupdate = check;
-
-    this.detectChanges();
-    // TODO
-  }
 
   /**
    * update data
@@ -523,5 +586,24 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
         window.URL.revokeObjectURL(url);
       }
     }
+  }
+
+  /**
+   *  For update
+   */
+  protected subscribeOnUpdate(): void {
+    this._updateUnsubscribe = new Subject<void>();
+    /**Отправляем на сервер каждын 2 секунда запрос  */
+    const _timer = timer(Infinity, 2000);
+
+    _timer
+      .pipe(takeUntil(this._updateUnsubscribe))
+      .subscribe(() => {
+
+        this.refreshData();
+
+      }, error => {
+        this.updateUnsubscribe();
+      });
   }
 }

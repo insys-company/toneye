@@ -771,11 +771,11 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
         this.viewersLoading = false;
         this.detectChanges();
 
-        this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
+        this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 10);
 
-        this.aditionalTableViewerData = this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages);
+        this.aditionalTableViewerData = this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages, 10);
 
-        this.outMessTableViewerData = this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
+        this.outMessTableViewerData = this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages, 10);
 
         this.tableViewersLoading = false;
         this.filterLoading = false;

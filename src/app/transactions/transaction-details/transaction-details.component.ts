@@ -69,13 +69,6 @@ export class TransactionDetailsComponent extends BaseComponent<Transaction> impl
   }
 
   /**
-   * Export event
-   */
-  public onExport(): void {
-    // TODO
-  }
-
-  /**
    * Data for model from other queries
    */
   protected getData(): void {

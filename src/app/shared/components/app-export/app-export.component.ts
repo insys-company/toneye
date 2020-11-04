@@ -708,7 +708,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
    */
   private getAccounts(): void {
 
-    this.params.max = _.last(this.data, 1)[0].balance;
+    this.params.max = parseInt(_.last(this.data, 1)[0].balance, 16) + '';
 
     this.service.getData(
       this.service.getVariablesForAccounts(this.params, this.parentId),

@@ -51,7 +51,7 @@ export class TransactionsService extends BaseService<Transaction> {
    * @param params Filter params
    * @pram isForAggregateData For agg data
    */
-  public getVariablesForTransactions(params: SimpleDataFilter, isForAggregateData: boolean = false): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, isForAggregateData: boolean = false, limit: number = null): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance_delta = params.min != null || params.max != null
@@ -62,7 +62,7 @@ export class TransactionsService extends BaseService<Transaction> {
       : undefined;
 
     let _now = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? { ge: Number(params.fromDate), le: Number(params.toDate) }
       : undefined;
 
     let _workchain_id = params.chain != null
@@ -85,7 +85,9 @@ export class TransactionsService extends BaseService<Transaction> {
         now: _now,
       },
       orderBy: _orderBy,
-      limit: !isForAggregateData ? 50 : undefined
+      limit: isForAggregateData
+        ? undefined
+        : limit != null ? limit : 50
     };
   }
 }

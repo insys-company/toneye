@@ -3,7 +3,7 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { AccountsService } from './accounts.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonQueries, MessageQueries, AccountQueries } from 'src/app/api/queries';
-import { ViewerData, TabViewerData, ItemList, Account } from 'src/app/api';
+import { ViewerData, TabViewerData, ItemList, Account, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
@@ -95,37 +95,37 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
    */
   public onLoadMore(index: number): void {
 
-    // // this.tableViewerLoading = true;
+    this.tableViewersLoading = true;
 
-    // // this.detectChanges();
+    this.detectChanges();
 
-    // let balance = this.data[this.data.length - 1].balance;
+    let balance = this.data && this.data.data ? _.last(this.data.data).balance : null;
 
-    // balance = balance && balance.match('x') ? String(parseInt(balance, 16)) : balance;
+    let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
 
-    // const _variables = {
-    //   filter: {balance: {le: balance}},
-    //   orderBy: [{path: 'balance', direction: 'DESC'}],
-    //   limit: 25,
-    // }
+    _p.max = balance ? parseInt(balance, 16) + '' : null;
 
-    // // Get accounts
-    // this.accountsService.getAccounts(_variables)
-    //   .pipe(takeUntil(this.unsubscribe))
-    //   .subscribe((res: Account[]) => {
+    this._service.getData(
+      this._service.getVariablesForAccounts(_p, false, 25),
+      this.accountQueries.getAccounts
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Account[]) => {
 
-    //     let newData = this.mapData(res);
-    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-    //     // this.tableViewerLoading = false;
+        this.data.data = this.data.data.concat(res ? res : []);
+        this.data.total = this.data.data.length;
 
-    //     this.detectChanges();
+        this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts);
 
-    //     // Scroll to bottom
-    //     // window.scrollTo(0, document.body.scrollHeight);
-      
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
+        this.tableViewersLoading = false;
+
+        this.filterLoading = false;
+
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -221,7 +221,7 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
       total: _data ? _data.length : 0
     });
 
-    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 10, this.totalBalance);
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 25, this.totalBalance);
 
     this.tableViewersLoading = false;
 

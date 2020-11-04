@@ -44,13 +44,6 @@ export class MessageDetailsComponent extends BaseComponent<Message> implements O
   }
 
   /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
-  }
-
-  /**
    * Data for model from other queries
    */
   protected getData(): void {

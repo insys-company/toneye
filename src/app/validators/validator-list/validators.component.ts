@@ -308,9 +308,9 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
 
         this.detectChanges();
 
-        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, 10, this.previosValidators.total_weight);
-        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, 10, this.currentValidators.total_weight);
-        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, 10, this.nextValidators.total_weight);
+        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, null, this.previosValidators.total_weight);
+        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, null, this.currentValidators.total_weight);
+        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, null, this.nextValidators.total_weight);
 
         this.tableViewersLoading = false;
 

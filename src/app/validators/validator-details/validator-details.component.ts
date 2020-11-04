@@ -239,7 +239,7 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
               block.shard = _b ? _b.shard : '';
             })
 
-            this.tableViewerData = this._service.mapDataForTable(this.signedBlocks, appRouteMap.blocks);
+            this.tableViewerData = this._service.mapDataForTable(this.signedBlocks, appRouteMap.blocks, 25);
 
             this.tableViewersLoading = false;
 
