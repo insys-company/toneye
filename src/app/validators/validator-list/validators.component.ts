@@ -202,10 +202,10 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
       isHeader: true
     }));
 
-    this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxStake, value: _model.p17.max_stake, isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxStake, value: parseInt(_model.p17.max_stake, 16), isNumber: true}));
     this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxStakeFactor, value: _model.p17.max_stake_factor, isNumber: true}));
-    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minStake, value: _model.p17.min_stake, isNumber: true}));
-    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minTotalStake, value: _model.p17.min_total_stake, isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minStake, value: parseInt(_model.p17.min_stake, 16), isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minTotalStake, value: parseInt(_model.p17.min_total_stake, 16), isNumber: true}));
 
     this.prevViewerData = [];
     this.prevViewerData.push(new ViewerData({

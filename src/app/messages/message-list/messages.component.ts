@@ -90,7 +90,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
           this.data.data = this.data.data.concat(res ? res : []);
           this.data.total = this.data.data.length;
       
-          this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages, 25);
+          this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages);
       
           this.tableViewersLoading = false;
       

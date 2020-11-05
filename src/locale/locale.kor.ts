@@ -102,6 +102,7 @@ export class LocaleText {
   static placeholder = 'Placeholder';
   static items = 'items';
   static new = 'new';
+  static sec = 'sec';
 
   static loadMore = 'Load 25 more';
 
@@ -409,7 +410,7 @@ export class LocaleText {
   static publicKeyBase64 = 'Public key base64';
   static adnlAddressHex = 'ADNL address hex';
   static adnlAddressBase64 = 'ADNL address base64';
-  static nodeIDHe = 'Node ID he';
+  static nodeIDHex = 'Node ID hex';
   static stake = 'Stake';
   static weight = 'Weight';
   static utimeSince = 'Utime since';

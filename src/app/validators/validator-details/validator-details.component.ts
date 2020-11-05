@@ -2,8 +2,8 @@ import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, ChangeDetectorRe
 import { BaseComponent } from 'src/app/shared/components/app-base/app-base.component';
 import { ValidatorDetailsService } from './validator-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { CommonQueries } from 'src/app/api/queries';
-import { Block, ViewerData, BlockMasterConfig, BlockMaster, ValidatorSetList, ValidatorSet, SimpleDataFilter } from 'src/app/api';
+import { CommonQueries, BlockQueries } from 'src/app/api/queries';
+import { Block, ViewerData, BlockMasterConfig, BlockMaster, ValidatorSetList, ValidatorSet, SimpleDataFilter, ItemList } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
@@ -11,8 +11,11 @@ import { LocaleText } from 'src/locale/locale';
 import { MatDialog } from '@angular/material/dialog';
 import { ExportDialogomponent } from 'src/app/shared/components';
 
-const VALIDATOR_PUBLIC_KEY="ed051c4d6384b13b9ad05a507e3d9cf95d4e4ffc338406603709a3dbf6291d46";
-const NODE_ID="4cded8178438ca7739b7429f7eabff5961023878a2ffaa2dbf03f040f87c4e04";
+import Buffer from 'buffer';
+import Sha256 from 'js-sha256';
+
+const VALIDATOR_PUBLIC_KEY="741a757e7022daba881b9eef83e757f6b2bc536d7f6756224b2c4629b2a99a15";
+const NODE_ID="c2f10df9df2a63744448347911b9e987b4b81e0a6155fd3de5d844e6066cab53";
 @Component({
   selector: 'app-validator-details',
   templateUrl: './validator-details.component.html',
@@ -37,21 +40,26 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
   /**
    * Blocks
    */
-  public signedBlocks: Array<Block>;
+  public blocks: ItemList<Block>;
 
   /** For Details component */
   /**
-   * Model
+   * All Validator data
    */
-  public model: ValidatorSet;
+  public validatorData: ValidatorSet;
   /**
-   * Model
+   * Validator without data
    */
-  public validatorModel: ValidatorSetList;
+  public model: ValidatorSetList;
   /**
-   * Model
+   * Master block
    */
   public masterBlock: BlockMaster;
+
+  /**
+   * Node id from public key
+   */
+  public nodeId: string | number;
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
@@ -59,7 +67,8 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     protected route: ActivatedRoute,
     protected router: Router,
     protected dialog: MatDialog,
-    private commonQueries: CommonQueries
+    private commonQueries: CommonQueries,
+    private blockQueries: BlockQueries,
   ) {
     super(
       changeDetection,
@@ -79,7 +88,10 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((params: Params) => {
         this.modelId = params['id'] != null ? params['id'].trim() : null;
-        this.modelId = VALIDATOR_PUBLIC_KEY;
+
+        this.nodeId = this.modelId != null ? Sha256.sha256(Buffer.Buffer.from(this.modelId+'', 'hex')) : null;
+
+        this.nodeId  = NODE_ID;
 
         // Get aditional data
         this.getData();
@@ -93,9 +105,10 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.signedBlocks = null;
+    this.blocks = null;
     this.masterBlock = null;
-    this.validatorModel = null;
+    this.validatorData = null;
+    this.nodeId = null;
   }
 
   /**
@@ -105,8 +118,8 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
 
     dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
-    dialogRef.componentInstance.data = this.signedBlocks ? _.first(this.signedBlocks, 1) : [];
-    dialogRef.componentInstance.parentId = NODE_ID;
+    dialogRef.componentInstance.data = this.blocks && this.blocks.data ? _.first(this.blocks.data, 1) : [];
+    dialogRef.componentInstance.parentId = this.nodeId;
     dialogRef.componentInstance.listName = appRouteMap.blocksSignatures;
   }
 
@@ -115,7 +128,103 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // TODO
+    // this.tableViewersLoading = true;
+
+    // this.detectChanges();
+
+    // let date = this.data && this.data.data ? _.last(this.data.data).gen_utime : null;
+
+
+    // // Get signatures block list
+    // this.service.getData(
+    //   this.service.getVariablesForAggregateBlockSignatures(this.nodeId, date, 25),
+    //   this.blockQueries.getBlocksSignatures,
+    //   appRouteMap.blocksSignatures
+    // )
+    //   .pipe(takeUntil(this._unsubscribe))
+    //   .subscribe((sb: Block[]) => {
+
+    //     sb = sb ? sb : [];
+
+    //     this.data.data = this.data.data.concat(sb);
+    //     this.data.total = this.data.data.length;
+
+
+
+    //     let ids = [];
+
+    //     this.blocks.data.forEach((b: Block) => {
+    //       ids.push(b.id);
+    //     });
+
+    //     if (!ids.length) {
+
+    //       this.tableViewerData = [];
+    //       this.tableViewersLoading = false;
+    //       this.detectChanges();
+
+    //     }
+    //     else {
+
+    //       // Get blocks with tr_count (filter by signatures blocks)
+    //       this.service.getData(
+    //         this.service.getVariablesForFilterBlocks(ids),
+    //         this.blockQueries.getBlocks,
+    //         appRouteMap.blocks
+    //       )
+    //         .pipe(takeUntil(this._unsubscribe))
+    //         .subscribe((b: Block[]) => {
+
+    //           b = b ? b : [];
+
+    //           this.blocks.data.forEach((block: Block) => {
+    //             let _b = _.find(b, (item) => { return item.id === block.id});
+
+    //             block.seq_no = _b ? _b.seq_no : 0;
+    //             block.tr_count = _b ? _b.tr_count : 0;
+    //             block.workchain_id = _b ? _b.workchain_id : 0;
+    //             block.shard = _b ? _b.shard : '';
+    //           });
+
+    //           this.tableViewerData = this._service.mapDataForTable(this.blocks.data, appRouteMap.blocks, 25);
+
+    //           this.tableViewersLoading = false;
+
+    //           this.detectChanges();
+
+    //         }, (error: any) => {
+    //           console.log(error);
+    //         });
+
+    //     }
+
+    //   }, (error: any) => {
+    //     console.log(error);
+    //   });
+
+
+    // // Get blocks
+    // this._service.getData(
+    //   this._service.getVariablesForBlocks(this.params, 25),
+    //   this.blockQueries.getBlocks
+    // )
+    //   .pipe(takeUntil(this._unsubscribe))
+    //   .subscribe((res: Block[]) => {
+
+    //     this.data.data = this.data.data.concat(res ? res : []);
+    //     this.data.total = this.data.data.length;
+
+    //     this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks);
+
+    //     this.tableViewersLoading = false;
+
+    //     this.filterLoading = false;
+
+    //     this.detectChanges();
+
+    //   }, (error: any) => {
+    //     console.log(error);
+    //   });
   }
 
   /**
@@ -125,7 +234,7 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     // Get master block
     this.service.getData(
       this.service.getVariablesForPrevBlockKey(),
-      this._service.graphQueryService['getMasterBlockPrevKey'],
+      this.blockQueries.getMasterBlockPrevKey,
       appRouteMap.blocks
     )
       .pipe(takeUntil(this._unsubscribe))
@@ -135,62 +244,37 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
 
           this.service.getData(
             this.service.getVariablesForPrevBlockConfig(res[0].prev_key_block_seqno),
-            this._service.graphQueryService['getMasterBlockConfig'],
+            this.blockQueries.getMasterBlockConfig,
             appRouteMap.blocks
           )
             .pipe(takeUntil(this._unsubscribe))
-            .subscribe((res: Block[]) => {
+            .subscribe((master: Block[]) => {
 
-              this.masterBlock = res ? new BlockMaster(res[0].master) : new BlockMaster(null);
+              this.masterBlock = master && master[0] ? new BlockMaster(master[0].master) : new BlockMaster();
 
               if (this.masterBlock.config && this.masterBlock.config.p32 && this.masterBlock.config.p32.list) {
-                this.validatorModel = _.find(this.masterBlock.config.p32.list, (item: ValidatorSetList) => { return item.public_key === this.modelId});
-                this.model = this.validatorModel ? this.masterBlock.config.p32 : null;
+                this.model = _.find(this.masterBlock.config.p32.list, (item: ValidatorSetList) => { return item.public_key === this.modelId });
+                this.validatorData = this.model != null ? this.masterBlock.config.p32 : null;
               }
 
               if (!this.model && this.masterBlock.config && this.masterBlock.config.p34 && this.masterBlock.config.p34.list) {
-                this.validatorModel = _.find(this.masterBlock.config.p34.list, (item: ValidatorSetList) => { return item.public_key === this.modelId});
-                this.model = this.validatorModel ? this.masterBlock.config.p34 : null;
+                this.model = _.find(this.masterBlock.config.p34.list, (item: ValidatorSetList) => { return item.public_key === this.modelId });
+                this.validatorData = this.model != null ? this.masterBlock.config.p34 : null;
               }
 
               if (!this.model && this.masterBlock.config && this.masterBlock.config.p36 && this.masterBlock.config.p36.list) {
-                this.validatorModel = _.find(this.masterBlock.config.p36.list, (item: ValidatorSetList) => { return item.public_key === this.modelId});
-                this.model = this.validatorModel ? this.masterBlock.config.p36 : null;
+                this.model = _.find(this.masterBlock.config.p36.list, (item: ValidatorSetList) => { return item.public_key === this.modelId });
+                this.validatorData = this.model != null ? this.masterBlock.config.p36 : null;
               }
 
-              // Aggregate Block Signatures total
-              this.service.getAggregateData(
-                this.service.getVariablesForAggregateBlockSignaturesTotal(),
-                this.commonQueries.getValidatorAggregateBlockSignatures
-              )
-                .pipe(takeUntil(this._unsubscribe))
-                .subscribe((agBS: any) => {
-
-                  const _agBS = agBS.aggregateBlockSignatures[0];
-
-                  // Aggregate Block total
-                  this.service.getAggregateData(
-                    this.service.getVariablesForAggregateBlocks(this.model ? this.model.utime_until : null, this.model ? this.model.utime_since : null),
-                    this.commonQueries.getAggregateBlocks
-                  )
-                    .pipe(takeUntil(this._unsubscribe))
-                    .subscribe((agB: any) => {
-
-                      const _agB = agB.aggregateBlocks[0];
-
-                      this.mapDataForViews(this.masterBlock.config, { agBS: _agBS, agB: _agB });
-                      this.viewersLoading = false;
-                      this.detectChanges();
-    
-                    }, (error: any) => {
-                      console.log(error);
-                    });
-
-                }, (error: any) => {
-                  console.log(error);
-                });
 
 
+              if (!this.model) {
+
+              }
+              else {
+                this.getAggregateData();
+              }
 
             }, (error: any) => {
               console.log(error);
@@ -202,47 +286,89 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
       console.log(error);
     });
 
-    // Get signatures block list
-    this.service.getData(
-      this.service.getVariablesForAggregateBlockSignatures(),
-      this._service.graphQueryService['getBlocksSignatures'],
-      appRouteMap.blocksSignatures
+    this.getBlocks();
+
+    console.log(parseInt("0xecc530e7d78c86", 16))
+
+    
+  }
+
+  /**
+   * Map for viewer
+   * @param _model Model
+   * @param _data Aditional data
+   */
+  protected mapDataForViews(_model: BlockMasterConfig, _data: { agBS: number, agB: number }): void {
+
+    this.model = this.model ? this.model : new ValidatorSetList();
+
+    this.validatorData = this.validatorData ? this.validatorData : new ValidatorSet();
+
+    // let _publicKeyBase64 = this.modelId;
+
+    // let _adnlAddressBase64 = this.model.adnl_addr != null ? this.model.adnl_addr : '--';
+    
+    let _publicKeyBase64 = Buffer.Buffer.from(this.modelId + '', 'hex').toString('base64');
+
+    let _adnlAddressBase64 = this.model.adnl_addr != null ? Buffer.Buffer.from(this.model.adnl_addr, 'hex').toString('base64') : '--';
+    
+    console.log(Sha256.sha256(Buffer.Buffer.from(this.modelId+'', 'hex')));
+    console.log(Sha256.sha256(this.modelId+''));
+
+    this.model.weight = this.model.weight
+      ? String(parseInt(this.model.weight, 16))
+      : '0';
+
+    this.validatorData.total_weight = this.validatorData.total_weight
+      ? String(parseInt(this.validatorData.total_weight, 16))
+      : '0';
+
+    let _weight = Number(((Number(this.model.weight)/Number(this.validatorData.total_weight))*100).toFixed(2));
+
+    let _stake = Number(this.model.weight);
+
+    this.generalViewerData = [];
+    this.generalViewerData.push(new ViewerData({title: LocaleText.publicKeyHex, value: this.modelId}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.publicKeyBase64, value: _publicKeyBase64}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.adnlAddressHex, value: this.model.adnl_addr != null ? this.model.adnl_addr : '--'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.adnlAddressBase64, value: _adnlAddressBase64}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.nodeIDHex, value: this.nodeId}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.stake, value: _stake ? _stake : 0, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.weight, value: _weight ? _weight : 0, isPercent: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.utimeSince, value: this.validatorData.utime_since != null ? this.validatorData.utime_since : '--', isDate: this.validatorData.utime_since != null}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.utimeUntil, value: this.validatorData.utime_until != null ? this.validatorData.utime_until : '--', isDate: this.validatorData.utime_until != null}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.signedMasterchainBlocks, value: _data.agBS ? _data.agBS : 0, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.totalNumberOfMasterchainBlocks, value: _data.agB ? _data.agB : 0, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.uptime, value: ((_data.agBS ? _data.agBS : 0)/(_data.agB ? _data.agB : 0)).toFixed(9)}));
+  }
+
+  /**
+   * Get aggregate data count
+   */
+  private getAggregateData(): void {
+    // Aggregate Block Signatures total
+    this.service.getAggregateData(
+      this.service.getVariablesForAggregateBlockSignaturesTotal(this.nodeId),
+      this.commonQueries.getValidatorAggregateBlockSignatures
     )
       .pipe(takeUntil(this._unsubscribe))
-      .subscribe((sb: Block[]) => {
+      .subscribe((agBS: any) => {
 
-        this.signedBlocks = sb ? sb : [];
+        const _agBS = agBS.aggregateBlockSignatures[0];
 
-        let ids = [];
-
-        this.signedBlocks.forEach((b: Block) => {
-          ids.push(b.id);
-        });
-
-        // Get blocks with tr_count (filter by signatures blocks)
-        this.service.getData(
-          this.service.getVariablesForFilterBlocks(ids),
-          this._service.graphQueryService['getBlocks'],
-          appRouteMap.blocks
+        // Aggregate Block total
+        this.service.getAggregateData(
+          this.service.getVariablesForAggregateBlocks(this.validatorData ? this.validatorData.utime_until : null, this.validatorData ? this.validatorData.utime_since : null),
+          this.commonQueries.getAggregateBlocks
         )
           .pipe(takeUntil(this._unsubscribe))
-          .subscribe((b: Block[]) => {
+          .subscribe((agB: any) => {
 
-            b = b ? b : [];
+            const _agB = agB.aggregateBlocks[0];
 
-            this.signedBlocks.forEach((block: Block) => {
-              let _b = _.find(b, (item) => { return item.id === block.id});
+            this.mapDataForViews(this.masterBlock.config, { agBS: Number(_agBS), agB: Number(_agB) });
 
-              block.seq_no = _b ? _b.seq_no : 0;
-              block.tr_count = _b ? _b.tr_count : 0;
-              block.workchain_id = _b ? _b.workchain_id : 0;
-              block.shard = _b ? _b.shard : '';
-            })
-
-            this.tableViewerData = this._service.mapDataForTable(this.signedBlocks, appRouteMap.blocks, 25);
-
-            this.tableViewersLoading = false;
-
+            this.viewersLoading = false;
             this.detectChanges();
 
           }, (error: any) => {
@@ -255,36 +381,76 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
   }
 
   /**
-   * Map for viewer
-   * @param _model Model
-   * @param _data Aditional data
+   * Get blocks
    */
-  protected mapDataForViews(_model: BlockMasterConfig, _data: any): void {
+  private getBlocks(): void {
+    // Get signatures block list
+    this.service.getData(
+      this.service.getVariablesForAggregateBlockSignatures(this.nodeId),
+      this.blockQueries.getBlocksSignatures,
+      appRouteMap.blocksSignatures
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((sb: Block[]) => {
 
-    this.validatorModel = this.validatorModel ? this.validatorModel : new ValidatorSetList();
+        this.blocks = new ItemList({
+          data: sb ? sb : [],
+          page: 0,
+          pageSize: 25,
+          total: sb ? sb.length : 0
+        });
 
-    this.model = this.model ? this.model : new ValidatorSet();
+        this.blocks.data = _.first(this.blocks.data, 25);
 
-    this.validatorModel.weight = this.validatorModel.weight && this.validatorModel.weight.match('x')
-      ? String(parseInt(this.validatorModel.weight, 16))
-      : this.validatorModel.weight;
+        let ids = [];
 
-    this.model.total_weight = this.model.total_weight && this.model.total_weight.match('x')
-      ? String(parseInt(this.model.total_weight, 16))
-      : this.model.total_weight;
+        this.blocks.data.forEach((b: Block) => {
+          ids.push(b.id);
+        });
 
-    this.generalViewerData = [];
-    this.generalViewerData.push(new ViewerData({title: LocaleText.publicKeyHex, value: this.modelId}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.publicKeyBase64, value: this.modelId}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.adnlAddressHex, value: this.validatorModel.adnl_addr != null ? this.validatorModel.adnl_addr : '--'}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.adnlAddressBase64, value: this.validatorModel.adnl_addr != null ? this.validatorModel.adnl_addr : '--'}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.nodeIDHe, value: '--'}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.stake, value: '0', isNumber: true}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.weight, value: Number(((Number(this.validatorModel.weight)/Number(this.model.total_weight))*100).toFixed(2)), isPercent: true}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.utimeSince, value: this.model.utime_since != null ? this.model.utime_since : '--', isDate: this.model.utime_since != null}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.utimeUntil, value: this.model.utime_until != null ? this.model.utime_until : '--', isDate: this.model.utime_until != null}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.signedMasterchainBlocks, value: _data.agBS, isNumber: true}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.totalNumberOfMasterchainBlocks, value: _data.agB, isNumber: true}));
-    this.generalViewerData.push(new ViewerData({title: LocaleText.uptime, value: '0', isNumber: true}));
+        if (!ids.length) {
+
+          this.tableViewerData = [];
+          this.tableViewersLoading = false;
+          this.detectChanges();
+
+        }
+        else {
+
+          // Get blocks with tr_count (filter by signatures blocks)
+          this.service.getData(
+            this.service.getVariablesForFilterBlocks(ids),
+            this.blockQueries.getBlocks,
+            appRouteMap.blocks
+          )
+            .pipe(takeUntil(this._unsubscribe))
+            .subscribe((b: Block[]) => {
+
+              b = b ? b : [];
+
+              this.blocks.data.forEach((block: Block) => {
+                let _b = _.find(b, (item) => { return item.id === block.id});
+
+                block.seq_no = _b ? _b.seq_no : 0;
+                block.tr_count = _b ? _b.tr_count : 0;
+                block.workchain_id = _b ? _b.workchain_id : 0;
+                block.shard = _b ? _b.shard : '';
+              });
+
+              this.tableViewerData = this._service.mapDataForTable(this.blocks.data, appRouteMap.blocks, 25);
+
+              this.tableViewersLoading = false;
+
+              this.detectChanges();
+
+            }, (error: any) => {
+              console.log(error);
+            });
+
+        }
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 }

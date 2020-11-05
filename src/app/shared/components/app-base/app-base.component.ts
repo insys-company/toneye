@@ -101,6 +101,11 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    */
   public initComplete: boolean;
 
+  /**
+   * For load more
+   */
+  public isFooterVisible: boolean = true;
+
 
   /** For Details component */
   /**

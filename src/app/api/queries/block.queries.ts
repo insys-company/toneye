@@ -73,6 +73,7 @@ export class BlockQueries extends GraphQueryService {
               stake_held_for
             }
             p16 {
+              max_main_validators
               max_validators
 	            min_validators
             }
@@ -309,6 +310,7 @@ export class BlockQueries extends GraphQueryService {
               stake_held_for
             }
             p16 {
+              max_main_validators
               max_validators
 	            min_validators
             }
@@ -599,6 +601,7 @@ export class BlockQueries extends GraphQueryService {
               stake_held_for
             }
             p16 {
+              max_main_validators
               max_validators
 	            min_validators
             }
