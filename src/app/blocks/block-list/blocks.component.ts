@@ -48,6 +48,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     tons: LocaleText.transactionCountFilterPlaceholder,
     loadMore: LocaleText.loadMore,
     autoupdate: LocaleText.autoupdate,
+    items: LocaleText.blocks
   };
 
   constructor(

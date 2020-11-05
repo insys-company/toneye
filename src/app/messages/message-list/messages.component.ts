@@ -34,6 +34,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     tons: LocaleText.tonCountFilterPlaceholder,
     loadMore: LocaleText.loadMore,
     autoupdate: LocaleText.autoupdate,
+    items: LocaleText.messages
   };
 
   /**

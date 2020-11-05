@@ -45,6 +45,7 @@
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
           [newData]="newDataAfterUpdateForView"
+          [newDataName]="locale?.items"
           [footerPlaceholder]="locale?.loadMore"
           [skeletalAnimation]="tableViewersLoading"
           (exportEvent)="onExport()"

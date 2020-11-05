@@ -33,6 +33,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
     tons: LocaleText.tonCountFilterPlaceholder,
     loadMore: LocaleText.loadMore,
     autoupdate: LocaleText.autoupdate,
+    items: LocaleText.transactions
   };
 
   constructor(

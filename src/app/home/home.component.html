@@ -45,6 +45,7 @@
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
           [newData]="newDataAfterUpdateForView"
+          [newDataName]="selectedTabIndex == 0 ? locale?.blocks : selectedTabIndex == 1 ? locale?.transactions : locale?.messages"
           [skeletalAnimation]="tableViewersLoading"
           [isTabsHeaderMode]="true"
           [tabsTitles]="tabsTitles"

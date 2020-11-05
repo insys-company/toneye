@@ -30,6 +30,9 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
     homeInfoText3: LocaleText.homeInfoText3,
     homeInfoText4: LocaleText.homeInfoText4,
     autoupdate: LocaleText.autoupdate,
+    blocks: LocaleText.blocks,
+    transactions: LocaleText.transactions,
+    messages: LocaleText.messages,
   };
   /**
    * For skeleton animation

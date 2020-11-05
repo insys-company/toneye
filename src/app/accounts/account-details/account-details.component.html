@@ -118,7 +118,7 @@
               <app-table-viewer #tableViewer1
                 [data]="tableViewerData"
                 [newData]="newDataAfterUpdateForView"
-                [newDataName]="'transactions'"
+                [newDataName]="locale?.transactions"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
@@ -159,7 +159,7 @@
               <app-table-viewer #tableViewer2
                 [data]="aditionalTableViewerData"
                 [newData]="messNewDataAfterUpdateForView"
-                [newDataName]="'messages'"
+                [newDataName]="locale?.messages"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="messTableViewersLoading"
                 (exportEvent)="onExport()"
