@@ -169,7 +169,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
 
           const tps = new ViewerData({
             title: LocaleText.tps,
-            value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'now') + ' sec').replace('.', ','),
+            value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'now') + '').replace('.', ','),
             isNumber: false
           });
 
@@ -205,7 +205,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
 
     const tps = new ViewerData({
       title: LocaleText.tps,
-      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'now') + ' sec').replace('.', ','),
+      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'now') + '').replace('.', ','),
       isNumber: false
     });
 

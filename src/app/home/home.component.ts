@@ -752,7 +752,7 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
 
     const averageBlockTime = new ViewerData({
       title: LocaleText.averageBlockTime,
-      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newBlocks.concat(this.blocks)), 50), 'gen_utime') + ' sec').replace('.', ','),
+      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newBlocks.concat(this.blocks)), 50), 'gen_utime') + ` ${LocaleText.sec}`).replace('.', ','),
       isNumber: false,
     });
 

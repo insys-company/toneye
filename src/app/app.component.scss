@@ -67,7 +67,7 @@
 }
 
 .header {
-  z-index: 9999;
+  z-index: 999;
   transition: all .3s ease;
 }
 
@@ -191,7 +191,7 @@
   display: none;
 
   background-color: $explorer--base__white;
-  z-index: 9998;
+  z-index: 998;
   position: absolute;
   width: 0;
   opacity: 0;

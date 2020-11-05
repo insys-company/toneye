@@ -102,6 +102,7 @@ export class LocaleText {
   static placeholder = 'Placeholder';
   static items = 'items';
   static new = 'new';
+  static sec = 'sec';
 
   static loadMore = 'Load 25 more';
 

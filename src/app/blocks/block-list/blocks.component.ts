@@ -342,7 +342,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
 
     const averageBlockTime = new ViewerData({
       title: LocaleText.averageBlockTime,
-      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'gen_utime') + ' sec').replace('.', ','),
+      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'gen_utime') + ` ${LocaleText.sec}`).replace('.', ','),
       isNumber: false
     });
 

@@ -668,6 +668,10 @@ textarea:not(:disabled):-ms-input-placeholder {
   transition: all .3s ease;
 }
 
+.datepicker-input {
+  width: 100%;
+}
+
 .datepicker-input .mat-form-field-prefix {
   position: absolute !important;
   top: 4px !important;

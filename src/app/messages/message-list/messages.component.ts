@@ -232,7 +232,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
   
             const mps = new ViewerData({
               title: LocaleText.mps,
-              value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'created_at') + ' sec').replace('.', ','),
+              value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'created_at') + '').replace('.', ','),
               isNumber: false
             });
 
@@ -296,7 +296,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
       
                 const mps = new ViewerData({
                   title: LocaleText.mps,
-                  value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'created_at') + ' sec').replace('.', ','),
+                  value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'created_at') + '').replace('.', ','),
                   isNumber: false
                 });
 
@@ -335,7 +335,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
 
     const mps = new ViewerData({
       title: LocaleText.mps,
-      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'created_at') + ' sec').replace('.', ','),
+      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'created_at') + '').replace('.', ','),
       isNumber: false
     });
 
