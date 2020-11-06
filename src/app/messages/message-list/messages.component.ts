@@ -237,6 +237,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
               this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
               this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.messages);
             }
+
+            uniqItems = null;
   
             const mps = new ViewerData({
               title: LocaleText.mps,
@@ -302,6 +304,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
                   this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
                   this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.messages);
                 }
+
+                uniqItems = null;
       
                 const mps = new ViewerData({
                   title: LocaleText.mps,

@@ -474,6 +474,8 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
                 this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newMessages, appRouteMap.messages);
               }
             }
+
+            uniqItems = null;
   
             this.detectChanges();
           }
@@ -540,6 +542,8 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
                     this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newMessages, appRouteMap.messages);
                   }
                 }
+
+                uniqItems = null;
       
                 this.detectChanges();
               }
@@ -598,6 +602,8 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
             }
           }
 
+          uniqItems = null;
+
           this.processData();
 
           this.detectChanges();
@@ -650,6 +656,8 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
               this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newTransactions, appRouteMap.transactions);
             }
           }
+
+          uniqItems = null;
 
           this.detectChanges();
         }

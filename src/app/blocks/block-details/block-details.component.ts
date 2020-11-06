@@ -256,6 +256,9 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
    * Export method
    */
   public onExport(): void {
+
+    if (this.selectedTabIndex === 0 && !this.initComplete) { return; }
+
     if (this.selectedTabIndex === 0 ) {
       const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
       dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
@@ -310,7 +313,43 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // TODO
+    if (this.selectedTabIndex === 0) {
+      this.tableViewersLoading = true;
+      this.detectChanges();
+  
+      let date = this.transactions && this.transactions ? _.last(this.transactions).now : null;
+  
+      let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
+  
+      _p.toDate = date + '';
+
+      this._service.getData(
+        this.service.getVariablesForTransactions(this.params, String(this.modelId), 25),
+        this.transactionQueries.getTransactions,
+        appRouteMap.transactions
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((res: Transaction[]) => {
+  
+          res = res ? res : [];
+  
+          // hide load more btn
+          if (!res.length || res.length < 25) {
+            this.isFooterVisible = false;
+          }
+  
+          this.transactions = _.union(this.transactions, res);
+          this.transactions = _.uniq(this.transactions, 'id');
+  
+          this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.transactions);
+  
+          this.tableViewersLoading = false;
+          this.detectChanges();
+  
+        }, (error: any) => {
+          console.log(error);
+        });
+    }
   }
 
   /**
@@ -756,14 +795,22 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
 
     // Get transactions
     this.service.getData(
-      this.service.getVariablesForTransactions(this.params, String(this.modelId)),
+      this.service.getVariablesForTransactions(this.params, String(this.modelId), (this.initComplete ? 25 : 50)),
       this.transactionQueries.getTransactions,
       appRouteMap.transactions
     )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Transaction[]) => {
 
-        this.transactions = res ? res : [];
+        res = res ? res : [];
+
+        // hide load more btn
+        if (!res.length || res.length <= 25) {
+          this.isFooterVisible = false;
+        }
+
+        this.transactions = _.first(res, 25);
+
         this.inMessages = this.model.in_msg_descr ? this.model.in_msg_descr : [];
         this.outMessages = this.model.out_msg_descr ? this.model.out_msg_descr : [];
 
@@ -775,15 +822,18 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
         this.viewersLoading = false;
         this.detectChanges();
 
-        this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 10);
+        this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 25);
 
-        this.aditionalTableViewerData = this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages, 10);
+        this.aditionalTableViewerData = this._service.mapDataForTable(this.inMessages, appRouteMap.inOutMessages);
 
-        this.outMessTableViewerData = this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages, 10);
+        this.outMessTableViewerData = this._service.mapDataForTable(this.outMessages, appRouteMap.inOutMessages);
 
         this.tableViewersLoading = false;
+
         this.filterLoading = false;
+
         this.initComplete = true;
+
         this.detectChanges();
 
     }, (error: any) => {

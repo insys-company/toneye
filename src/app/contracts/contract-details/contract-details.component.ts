@@ -141,6 +141,9 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
    * Export method
    */
   public onExport(): void {
+
+    if (!this.initComplete) { return; }
+
     const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
     dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
     dialogRef.componentInstance.data = this.data.data ? _.first(this.data.data, 1) : [];

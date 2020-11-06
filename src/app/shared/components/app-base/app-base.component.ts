@@ -328,6 +328,8 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
    * Export method
    */
   public onExport(): void {
+    if (!this.initComplete) { return; }
+
     const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
 
     dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();

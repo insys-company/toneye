@@ -94,6 +94,16 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   public newDataAfterUpdate: Transaction[];
 
   /**
+   * show load more in message table
+   */
+  public isMessFooterVisible: boolean;
+
+  /**
+   * init message list
+   */
+  public messInitComplete: boolean;
+
+  /**
    * Single request for messages by params
    */
   public get isSingleQuery(): boolean {
@@ -119,6 +129,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
     this.messFilterLoading = true;
     this.messTableViewersLoading = true;
+    this.isMessFooterVisible = true;
   }
 
   /**
@@ -194,33 +205,19 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
     this.messTableViewersLoading = null;
     this.messNewDataAfterUpdateForView = null;
     this.messNewDataAfterUpdate = null;
-  }
-
-  /**
-   * Destruction of the component
-   */
-  public clearData(): void {
-    this.viewersLoading = true;
-    this.disabled = false;
-    this.generalViewerData = [];
-    this.aditionalViewerData = [];
-    this.model = null;
-    this.modelId =  null;
-    this.transactions = [];
-    this.messages = [];
-
-    this.tableViewersLoading = true;
-    this.messTableViewersLoading = true;
-    this.tableViewerData = [];
-    this.aditionalViewerData = [];
-
-    this.detectChanges();
+    this.isMessFooterVisible = null;
+    this.messInitComplete = null;
   }
 
   /**
    * Export method
    */
   public onExport(): void {
+
+    if (this.selectedTabIndex === 0 && !this.initComplete) { return; }
+
+    if (this.selectedTabIndex === 1 && !this.messInitComplete) { return; }
+    
     const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
     dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
     dialogRef.componentInstance.accId = this.modelId + '';
@@ -242,9 +239,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-
     this.tableViewersLoading = true;
-
     this.detectChanges();
 
     let date: number;
@@ -263,15 +258,20 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       )
         .pipe(takeUntil(this._unsubscribe))
         .subscribe((res: Transaction[]) => {
-  
-          this.transactions = this.transactions.concat(res = res ? res : []);
+
+          res = res ? res : [];
+
+          // hide load more btn
+          if (!res.length || res.length < 25) {
+            this.isFooterVisible = false;
+          }
+
+          this.transactions = _.union(this.transactions, res);
+          this.transactions = _.uniq(this.transactions, 'id');
   
           this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
   
           this.tableViewersLoading = false;
-  
-          this.filterLoading = false;
-  
           this.detectChanges();
   
         }, (error: any) => {
@@ -294,14 +294,19 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
         .pipe(takeUntil(this._unsubscribe))
         .subscribe((m: Message[]) => {
 
-          this.messages = this.messages.concat(m ? m : []);
+          m = m ? m : [];
+
+          // hide load more btn
+          if (!m.length || m.length < 25) {
+            this.isMessFooterVisible = false;
+          }
+
+          this.messages = _.union(this.messages, m);
+          this.messages = _.uniq(this.messages, 'id');
   
           this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
   
           this.messTableViewersLoading = false;
-  
-          this.messFilterLoading = false;
-  
           this.detectChanges();
 
         }, (error: any) => {
@@ -336,14 +341,19 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
                 res = (_.sortBy(res, 'created_at')).reverse();
 
-                this.messages = this.messages.concat(res ? res : []);
+                res= res ? res : [];
 
+                // hide load more btn
+                if (!res.length || res.length < 25) {
+                  this.isMessFooterVisible = false;
+                }
+      
+                this.messages = _.union(this.messages, res);
+                this.messages = _.uniq(this.messages, 'id');
+        
                 this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-
+        
                 this.messTableViewersLoading = false;
-
-                this.messFilterLoading = false;
-
                 this.detectChanges();
         
               }, (error: any) => {
@@ -365,7 +375,6 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   public onShowNewData(): void {
 
     if (this.selectedTabIndex === 0) {
-      this.viewersLoading = true;
       this.tableViewersLoading = true;
       this.detectChanges();
   
@@ -376,13 +385,16 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
   
       this.transactions = _.clone(this.newDataAfterUpdate.concat(this.transactions));
-  
+
+      if (this.transactions.length > 25) {this.isFooterVisible = true;}
+
+      this.transactions = _.first(this.transactions, 25);
+
       this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 25);
       
       this.newDataAfterUpdate = [];
       this.newDataAfterUpdateForView = [];
   
-      this.viewersLoading = false;
       this.tableViewersLoading = false;
       this.detectChanges();
     }
@@ -396,7 +408,11 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       this.messages = this.messages ? this.messages : [];
       this.aditionalTableViewerData = this.aditionalTableViewerData ? this.aditionalTableViewerData : [];
   
-      this.messages= _.clone(this.messNewDataAfterUpdate.concat(this.messages));
+      this.messages = _.clone(this.messNewDataAfterUpdate.concat(this.messages));
+
+      if (this.messages.length > 25) {this.isMessFooterVisible = true;}
+
+      this.messages = _.first(this.messages, 25);
   
       this.aditionalTableViewerData = _.first(_.clone(this.messNewDataAfterUpdateForView.concat(this.aditionalTableViewerData)), 25);
       
@@ -414,7 +430,6 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   public onShowAllNewData(): void {
 
-    this.viewersLoading = true;
     this.tableViewersLoading = true;
     this.messTableViewersLoading = true;
     this.detectChanges();
@@ -433,7 +448,15 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
     this.transactions = _.clone(this.newDataAfterUpdate.concat(this.transactions));
 
+    if (this.transactions.length > 25) {this.isFooterVisible = true;}
+
+    this.transactions = _.first(this.transactions, 25);
+
     this.messages= _.clone(this.messNewDataAfterUpdate.concat(this.messages));
+
+    if (this.messages.length > 25) {this.isMessFooterVisible = true;}
+
+    this.messages = _.first(this.messages, 25);
 
     this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 25);
 
@@ -445,7 +468,6 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
     this.messNewDataAfterUpdate = [];
     this.messNewDataAfterUpdateForView = [];
 
-    this.viewersLoading = false;
     this.tableViewersLoading = false;
     this.messTableViewersLoading = false;
     this.detectChanges();
@@ -524,28 +546,40 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
     // Get transactions
     this.service.getData(
-      this.service.getVariablesForTransactions(this.params, String(this.modelId)),
+      this.service.getVariablesForTransactions(this.params, String(this.modelId), (this.initComplete ? 25 : 50)),
       this.transactionQueries.getTransactions,
       appRouteMap.transactions
     )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Transaction[]) => {
 
+        res = res ? res : [];
+
         if (!this.autoupdate) {
-          this.transactions = res ? res : [];
+
+          this.newDataAfterUpdate = [];
+          this.newDataAfterUpdateForView = []; 
+          
+          // hide load more btn
+          if (!res.length || res.length <= 25) {
+            this.isFooterVisible = false;
+          }
+
+          this.transactions = _.first(res, 25);
   
           this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 25);
   
           this.tableViewersLoading = false;
-  
+
           this.filterLoading = false;
-  
+
           this.initComplete = true;
-  
+
           this.detectChanges();
         }
         else {
           this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+          this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
 
           let uniqItems = [];
 
@@ -559,6 +593,8 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
             this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
             this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.transactions);
           }
+
+          uniqItems = null;
 
           this.detectChanges();
         }
@@ -582,29 +618,41 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
       // Get messages
       this.service.getData(
-        this.service.getVariablesForMessages(this.params, String(this.modelId)),
+        this.service.getVariablesForMessages(this.params, String(this.modelId), null, (this.messInitComplete ? 25 : 50)),
         this.messageQueries.getMessages,
         appRouteMap.messages
       )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Message[]) => {
 
+        res = res ? res : [];
+
         if (!this.autoupdate) {
-          this.messages = res ? res : [];
+
+          this.newDataAfterUpdate = [];
+          this.newDataAfterUpdateForView = []; 
+          
+          // hide load more btn
+          if (!res.length || res.length <= 25) {
+            this.isMessFooterVisible = false;
+          }
+
+          this.messages = _.first(res, 25);
   
           this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25);
   
           this.messTableViewersLoading = false;
   
           this.messFilterLoading = false;
-  
-          this.initComplete = true;
-  
+
+          this.messInitComplete = true;
+
           this.detectChanges();
         }
         else {
-          this.messNewDataAfterUpdate = this.messNewDataAfterUpdate ? this.messNewDataAfterUpdate : [];
-  
+          this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+          this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+
           let uniqItems = [];
 
           res.forEach((item: Message) => {
@@ -618,6 +666,8 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
             this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages);
           }
 
+          uniqItems = null;
+
           this.detectChanges();
         }
 
@@ -629,7 +679,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
     else {
 
       this._service.getData(
-        this.service.getVariablesForMessages(this.params, String(this.modelId), true),
+        this.service.getVariablesForMessages(this.params, String(this.modelId), true, (this.messInitComplete ? 25 : 50)),
         this.messageQueries.getMessages,
         appRouteMap.messages
       )
@@ -639,7 +689,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
           srcData = srcData ? srcData : [];
 
           this._service.getData(
-            this.service.getVariablesForMessages(this.params, String(this.modelId), false),
+            this.service.getVariablesForMessages(this.params, String(this.modelId), false, (this.messInitComplete ? 25 : 50)),
             this.messageQueries.getMessages,
             appRouteMap.messages
           )
@@ -654,21 +704,31 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
               res = (_.sortBy(res, 'created_at')).reverse();
 
               if (!this.autoupdate) {
-                this.messages = res ? res : [];
+      
+                this.newDataAfterUpdate = [];
+                this.newDataAfterUpdateForView = []; 
+                
+                // hide load more btn
+                if (!res.length || res.length <= 25) {
+                  this.isMessFooterVisible = false;
+                }
+      
+                this.messages = _.first(res, 25);
         
                 this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25);
         
                 this.messTableViewersLoading = false;
         
                 this.messFilterLoading = false;
-        
-                this.initComplete = true;
-        
+      
+                this.messInitComplete = true;
+      
                 this.detectChanges();
               }
               else {
-                this.messNewDataAfterUpdate = this.messNewDataAfterUpdate ? this.messNewDataAfterUpdate : [];
-        
+                this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+                this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+      
                 let uniqItems = [];
       
                 res.forEach((item: Message) => {
@@ -681,6 +741,8 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
                   this.messNewDataAfterUpdate = _.clone(uniqItems.concat(this.messNewDataAfterUpdate));
                   this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages);
                 }
+
+                uniqItems = null;
       
                 this.detectChanges();
               }
