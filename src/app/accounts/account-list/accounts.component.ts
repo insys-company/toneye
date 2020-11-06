@@ -37,6 +37,7 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
     tons: LocaleText.tonCountFilterPlaceholder,
     loadMore: LocaleText.loadMore,
     autoupdate: LocaleText.autoupdate,
+    tabHeader: LocaleText.counsTop
   };
 
   /**

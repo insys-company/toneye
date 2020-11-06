@@ -92,7 +92,7 @@ export class LocaleText {
   static download = 'Download';
   static ok = 'Okay';
   static exported = 'Exported';
-  static rows = 'rows';
+  static rowsExported = 'rows exported';
   static search = 'Search';
   static selectAll = 'Select All';
   static notFound = 'Not Found';
@@ -103,6 +103,7 @@ export class LocaleText {
   static items = 'items';
   static new = 'new';
   static sec = 'sec';
+  static active = 'active';
 
   static loadMore = 'Load 25 more';
 

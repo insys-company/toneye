@@ -13,6 +13,9 @@ export class Message {
   boc: string;
   __typename: string;
 
+  isFromTran?: boolean; // for messages
+  isToTran?: boolean; // for messages
+
   constructor(data?: any) {
     if (data) {
       for (const i in data) {
@@ -38,6 +41,9 @@ export class Message {
       bounced: this.bounced,
       boc: this.boc,
       __typename: this.__typename,
+
+      isFromTran: this.isFromTran,
+      isToTran: this.isToTran
     };
   }
 }

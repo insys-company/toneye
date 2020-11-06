@@ -3,7 +3,7 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { ContractsService } from './contracts.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonQueries } from 'src/app/api/queries';
-import { ViewerData, TabViewerData, ItemList, DataConfig, Account } from 'src/app/api';
+import { ViewerData, TabViewerData, DataConfig, Account } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import _ from 'underscore';
 
 // const CONTRACT_CSV_HEADER = 'name,code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent,id,avatar \n';
-const CONTRACT_CSV_HEADER = 'code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent \n';
+const CONTRACT_CSV_HEADER = 'name, code_hash, totalBalances, contractsCount / total, contractsCount / active, contractsCount / recent \n';
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
@@ -23,6 +23,10 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * Details or list
    */
   protected listMode: boolean = true;
+  /**
+   * Id
+   */
+  protected timerId: NodeJS.Timer;
   /**
    * For skeleton animation
    */
@@ -64,13 +68,17 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
   public ngOnDestroy(): void {
     super.ngOnDestroy();
 
-    // this.uniqueAccountsIds = null;
+    if (this.timerId) { clearTimeout(this.timerId); }
+
+    this.timerId = null;
   }
 
   /**
    * Export method
    */
   public onExport(): void {
+    if (!this.initComplete) { return; }
+
     let csvContent = CONTRACT_CSV_HEADER;
 
     let dataString = '';
@@ -78,7 +86,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
     if (this.data) {
 
       this.data.data.forEach((item: Account, i: number) => {
-        dataString = `"${item.code_hash ? item.code_hash : 0}",`
+        dataString = `"${item.name ? item.name : 'Name'}", "${item.code_hash ? item.code_hash : 0}",`
         +`"${item.aggregateByBalance ? item.aggregateByBalance : 0}",`
         +`"${item.aggregateByHash ? item.aggregateByHash : 0}",`
         +`"${item.aggregateByType ? item.aggregateByType : 0}",`
@@ -125,26 +133,26 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    */
   private getContracts(): void {
 
+    if (this.timerId) { clearTimeout(this.timerId); }
+
     this.viewersLoading = true;
     this.tableViewersLoading = true;
     this.detectChanges();
 
-    this._service.getAccounts()
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe((res: ItemList<Account>) => {
+    this.data = this._service.baseFunctionsService.smartContracts();
 
-        this.data = res;
+    this.tableViewerData = [];
 
-        this.data.data = this.data.data ? this.data.data : [];
+    this.data.data.forEach((item: Account, index: number) => {
+      this.getStatistic(item, index);
+    });
 
-        this.tableViewerData = [];
+    // this._service.getAccounts()
+    //   .pipe(takeUntil(this._unsubscribe))
+    //   .subscribe((res: ItemList<Account>) => {
 
-        this.data.data.forEach((item: Account, index: number) => {
-
-          this.getStatistic(item.code_hash, index);
-        });
-
-      });
+    //     this.data = res;
+    //   });
   }
 
   /**
@@ -152,10 +160,10 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * @param hash Account's Hash
    * @param index Account's index
    */
-  private getStatistic(hash: string, index: number): void {
+  private getStatistic(item: Account, index: number): void {
     // get by balance
     this._service.getAggregateData(
-      this._service.getVariablesForAggregateAccounts(this.params, hash, true),
+      this._service.getVariablesForAggregateAccounts(this.params, item.code_hash, true),
       this.commonQueries.getValidatorAggregateAccounts
     )
       .pipe(takeUntil(this._unsubscribe))
@@ -163,7 +171,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
 
         // Get by type
         this._service.getAggregateData(
-          this._service.getVariablesForAggregateAccounts(this.params, hash, false, true),
+          this._service.getVariablesForAggregateAccounts(this.params, item.code_hash, false, true),
           this.commonQueries.getValidatorAggregateAccounts
         )
         .pipe(takeUntil(this._unsubscribe))
@@ -171,7 +179,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
 
           // Get by hash only
           this._service.getAggregateData(
-            this._service.getVariablesForAggregateAccounts(this.params, hash),
+            this._service.getVariablesForAggregateAccounts(this.params, item.code_hash),
             this.commonQueries.getValidatorAggregateAccounts
           )
           .pipe(takeUntil(this._unsubscribe))
@@ -179,61 +187,68 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
 
             // Get message
             this._service.getAggregateData(
-              this._service.getVariablesForAggregateMessages(this.params, hash),
+              this._service.getVariablesForAggregateMessages(this.params, item.code_hash),
               this.commonQueries.getAggregateMessages
             )
             .pipe(takeUntil(this._unsubscribe))
             .subscribe((mess: any[]) => {
 
               let _item = new TabViewerData({
-                id: hash,
+                id: item.code_hash,
                 url: appRouteMap.contract,
-                titleLeft: hash,
+                titleLeft: item.code_hash,
                 subtitleLeft: new DataConfig({
-                  text: ``,
-                  type: 'string'
+                  text: item.name
                 }),
                 titleRight: new DataConfig({
                   text: byBalance['aggregateAccounts'][0],
-                  icon: true,
+                  isIcon: true,
                   iconClass: 'icon-gem',
-                  type: 'number'
+                  isNumber: true
                 }),
                 subtitleRight: new DataConfig({
-                  text: `Contracts: ${byHash['aggregateAccounts'][0]} | Active: ${byType['aggregateAccounts'][0]} | New: ${mess['aggregateMessages'][0]}`,
-                  type: 'string'
+                  text: `${LocaleText.contracts}: ${byHash['aggregateAccounts'][0]} | ${LocaleText.active}: ${byType['aggregateAccounts'][0]} | ${LocaleText.new}: ${mess['aggregateMessages'][0]}`
                 })
               });
 
-              this.data.data[index].aggregateByBalance = byBalance['aggregateAccounts'][0] ? byBalance['aggregateAccounts'][0] + '' : '0';
-              this.data.data[index].aggregateByHash = byHash['aggregateAccounts'][0] ? byHash['aggregateAccounts'][0] + '' : '0';
-              this.data.data[index].aggregateByType = byType['aggregateAccounts'][0] ? byType['aggregateAccounts'][0] + '' : '0';
-              this.data.data[index].aggregateByMess = mess['aggregateMessages'][0] ? mess['aggregateMessages'][0] + '' : '0';
+              item.aggregateByBalance = byBalance['aggregateAccounts'][0] ? byBalance['aggregateAccounts'][0] + '' : '0';
+              item.aggregateByHash = byHash['aggregateAccounts'][0] ? byHash['aggregateAccounts'][0] + '' : '0';
+              item.aggregateByType = byType['aggregateAccounts'][0] ? byType['aggregateAccounts'][0] + '' : '0';
+              item.aggregateByMess = mess['aggregateMessages'][0] ? mess['aggregateMessages'][0] + '' : '0';
 
               if (
-                this.data.data[index].aggregateByBalance != '0'
-                && this.data.data[index].aggregateByHash != '0'
-                && this.data.data[index].aggregateByType != '0'
-                && this.data.data[index].aggregateByMess != '0'
+                item.aggregateByBalance != '0'
+                && item.aggregateByHash != '0'
+                && item.aggregateByType != '0'
+                && item.aggregateByMess != '0'
               ) {
                 this.tableViewerData.push(_item);
               }
 
               if (index === this.data.data.length - 1) {
 
-                this.tableViewerData = (_.sortBy(this.tableViewerData, (item) => { return Number(item.titleRight.text) })).reverse();
+                this.timerId = setTimeout(() => {
 
-                this.mapDataForViews(this.tableViewerData);
+                  this.tableViewerData = (_.sortBy(this.tableViewerData, (item) => { return Number(item.titleRight.text) })).reverse();
 
-                this.viewersLoading = false;
-            
-                this.detectChanges();
-        
-                this.tableViewersLoading = false;
+                  this.tableViewerData = _.uniq(this.tableViewerData, 'id');
+
+                  this.mapDataForViews(this.tableViewerData);
   
-                this.filterLoading = false;
-            
-                this.detectChanges();
+                  this.viewersLoading = false;
+              
+                  this.detectChanges();
+          
+                  this.tableViewersLoading = false;
+    
+                  this.filterLoading = false;
+
+                  this.initComplete = true;
+              
+                  this.detectChanges();
+
+                }, 1200);
+
               }
 
             }, (error: any) => {
@@ -247,7 +262,6 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
         }, (error: any) => {
           console.log(error);
         });
-
 
       }, (error: any) => {
         console.log(error);

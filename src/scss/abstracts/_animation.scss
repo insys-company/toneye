@@ -201,3 +201,13 @@
 		opacity: 1;
 	}
 }
+
+// анимация прогресс бара
+@keyframes smallProgressBar {
+	0% {
+	  background-position: -300px 0;
+	}
+	100% {
+	  background-position: 300px 0;
+	}
+}

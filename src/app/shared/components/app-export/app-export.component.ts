@@ -10,15 +10,12 @@ import { BlockQueries, MessageQueries, TransactionQueries, AccountQueries } from
 import { takeUntil } from 'rxjs/operators';
 import _ from 'underscore';
 
-const TRANSACTION_CSV_HEADER = 'id,now,tr_type,block_id,account_addr,balance_delta,total_fees,lt,aborted,status,orig_status,end_status,compute / gas_limit,compute / gas_used,compute / gas_fees,compute / \n';
+const TRANSACTION_CSV_HEADER = 'id, now, tr_type, block_id, account_addr, balance_delta, total_fees, lt, aborted, status, orig_status, end_status, compute / gas_limit, compute / gas_used, compute / gas_fees, compute / \n';
 // const MESSAGE_CSV_HEADER = 'id,value,src,dst,created_at,msg_type,status,created_lt,ihr_fee,fwd_fee,bounce,bounced,__typename,parent_tr,child_tr \n';
-const MESSAGE_CSV_HEADER = 'id,value,src,dst,created_at,msg_type,created_lt,ihr_fee,fwd_fee,bounce,bounced,__typename \n';
-const BLOCK_CSV_HEADER = 'id,seq_no,workchain_id,shard,gen_utime,tr_count,status,global_id,want_split,after_merge,gen_catchain_seqno,prev_ref / end_lt,prev_ref / seq_no,prev_ref / root_hash,prev_ref / \n';
+const MESSAGE_CSV_HEADER = 'id, value, src, dst, created_at, msg_type, created_lt, ihr_fee, fwd_fee, bounce, bounced, __typename \n';
+const BLOCK_CSV_HEADER = 'id, seq_no, workchain_id, shard, gen_utime, tr_count, status, global_id, want_split, after_merge, gen_catchain_seqno, prev_ref / end_lt, prev_ref / seq_no, prev_ref / root_hash, prev_ref / \n';
 // const ACCOUNT_CSV_HEADER = 'id,balance,last_paid,acc_type,last_trans_lt,code_hash,data_hash,__typename,creator,name \n';
-const ACCOUNT_CSV_HEADER = 'id,balance,last_paid,acc_type,last_trans_lt,code_hash,data_hash,__typename \n';
-const VALIDATOR_CSV_HEADER = 'public_key,adnl_addr,weight,__typename \n';
-const SMART_CONTRACT_CSV_HEADER = 'name,code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent,id,avatar \n';
-const SIG_BLOCK_CSV_HEADER = 'msg_type,msg_type_name,in_msg / msg_id,in_msg / next_addr,in_msg / cur_addr,in_msg / fwd_fee_remaining,in_msg / __typename,fwd_fee,transaction_id,__typename \n';
+const ACCOUNT_CSV_HEADER = 'id, balance, last_paid, acc_type, last_trans_lt, code_hash, data_hash, __typename \n';
 @Component({
   selector: 'app-export',
   templateUrl: './app-export.component.html',
@@ -59,8 +56,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
     title: LocaleText.export,
     cancel: LocaleText.cancel,
     enough: LocaleText.enough,
-    exported: LocaleText.exported,
-    rows: LocaleText.rows,
+    rowsExported: LocaleText.rowsExported,
     inputPlaceholder: LocaleText.exportPlaceholder,
     // abort: LocaleText.abortFilterPlaceholder,
     // direstion: LocaleText.directionFilterPlaceholder,
@@ -103,6 +99,10 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
    * Блокировка
    */
   disabled: boolean;
+  /**
+   * Блокировка
+   */
+  progress: boolean;
 
   /**
    * csv
@@ -170,6 +170,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
    * Инициализация компонента
    */
   public ngOnInit(): void {
+    this.service.init();
     this.service.response
       .pipe(takeUntil(this.serviceUnsubscribe))
       .subscribe((response: boolean) => {
@@ -186,6 +187,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
     /** Если запрос в процессе, а мы закрываем окно, то отписка */
     this.ngUnsubscribe();
     this.ngServiceUnsubscribe();
+    this.service.destroy();
     this.links = null;
     this.locale = null;
     this.data = null;
@@ -225,6 +227,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
    * Закрытие
    */
   public onCancel(): void {
+    this.progress = false;
     this.disabled = true;
     this.ngUnsubscribe();
     this.ngServiceUnsubscribe();
@@ -238,6 +241,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
 
     if (this.disabled) { return; }
 
+    this.progress = true;
     this.isShowCountFiled = false;
     this.unsubscribe.next();
     this.unsubscribe.complete();
@@ -251,6 +255,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
   public onEnough(): void {
     if (this.disabled) { return; }
 
+    this.progress = false;
     this.disabled = true;
     this.ngUnsubscribe();
     this.ngServiceUnsubscribe();
@@ -367,11 +372,10 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
       +`${item.status ? item.status : 0},${item.global_id ? item.global_id : 0},`
       +`${item.want_split ? 'TRUE' : 'FALSE'},`
       +`${item.after_merge ? 'TRUE' : 'FALSE'},`
-      +`${item.gen_catchain_seqno ? item.gen_catchain_seqno : 0}`
-      + (item.prev_ref ? ',prev_ref' : '')
-      + (item.prev_ref ? ` / "${item.prev_ref.end_lt ? parseInt(item.prev_ref.end_lt, 16) : 0}"` : '')
-      + (item.prev_ref ? ` / "${item.prev_ref.seq_no ? item.prev_ref.seq_no : 0}"` : '')
-      + (item.prev_ref ? ` / "${item.prev_ref.root_hash ? item.prev_ref.root_hash : 0}"` : '');
+      +`${item.gen_catchain_seqno ? item.gen_catchain_seqno : 0},`
+      + (item.prev_ref ? `"${item.prev_ref.end_lt ? parseInt(item.prev_ref.end_lt, 16) : 0}",` : '0,')
+      + (item.prev_ref ? `"${item.prev_ref.seq_no ? item.prev_ref.seq_no : 0}",` : '0,')
+      + (item.prev_ref ? `"${item.prev_ref.root_hash ? item.prev_ref.root_hash : 0}",` : '0');
   }
 
   /**
@@ -392,16 +396,15 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
    */
   private getStringForTransaction(item: Transaction): string {
     return `${item.id},${item.now},${item.tr_type},`
-      + `"${item.block_id}","${item.account_addr}","${item.balance_delta}",`
-      +`"${item.total_fees ? item.total_fees : 0}","${item.lt ? parseInt(item.lt, 16) : 0}",`
+      + `"${item.block_id}","${item.account_addr}","${item.balance_delta ? parseInt(item.balance_delta, 16): 0}",`
+      +`"${item.total_fees ?  parseInt(item.total_fees, 16) : 0}","${item.lt ? parseInt(item.lt, 16) : 0}",`
       +`${item.aborted ? 'TRUE' : 'FALSE'},`
       +`${item.status ? item.status : 0},`
       +`${item.orig_status ? item.orig_status : 0},`
-      +`${item.end_status ? item.end_status : 0}`
-      + (item.compute ? ',compute' : '')
-      + (item.compute ? ` / "${item.compute.gas_limit ? item.compute.gas_limit : 0}"` : '')
-      + (item.compute ? ` / "${item.compute.gas_used ? item.compute.gas_used : 0}"` : '')
-      + (item.compute ? ` / "${item.compute.gas_fees ? item.compute.gas_fees : 0}"` : '');
+      +`${item.end_status ? item.end_status : 0},`
+      + (item.compute ? `"${item.compute.gas_limit ?  parseInt(item.compute.gas_limit, 16) : 0}",` : '0,')
+      + (item.compute ? `"${item.compute.gas_used ?  parseInt(item.compute.gas_used, 16) : 0}",` : '0,')
+      + (item.compute ? `"${item.compute.gas_fees ?  parseInt(item.compute.gas_fees, 16) : 0}"` : '0');
   }
 
   /**
@@ -411,7 +414,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
     return `${item.id},"${item.balance ? parseInt(item.balance, 16) : 0}",`
       +`${item.last_paid ? item.last_paid : 0},`
       + `${item.acc_type ? item.acc_type : 0},`
-      +`"${item.last_trans_lt ? item.last_trans_lt : 0}","${item.code_hash ? item.code_hash : 0}",`
+      +`"${item.last_trans_lt ? parseInt(item.last_trans_lt, 16) : 0}","${item.code_hash ? item.code_hash : 0}",`
       +`"${item.data_hash ? item.data_hash : 0}",`
       +`"${item.__typename}"`;
   }
@@ -425,11 +428,10 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
       +`${item.status ? item.status : 0},${item.global_id ? item.global_id : 0},`
       +`${item.want_split ? 'TRUE' : 'FALSE'},`
       +`${item.after_merge ? 'TRUE' : 'FALSE'},`
-      +`${item.gen_catchain_seqno ? item.gen_catchain_seqno : 0}`
-      + (item.prev_ref ? ',prev_ref' : '')
-      + (item.prev_ref ? ` / "${item.prev_ref.end_lt ? parseInt(item.prev_ref.end_lt, 16) : 0}"` : '')
-      + (item.prev_ref ? ` / "${item.prev_ref.seq_no ? item.prev_ref.seq_no : 0}"` : '')
-      + (item.prev_ref ? ` / "${item.prev_ref.root_hash ? item.prev_ref.root_hash : 0}"` : '');
+      +`${item.gen_catchain_seqno ? item.gen_catchain_seqno : 0},`
+      + (item.prev_ref ? `"${item.prev_ref.end_lt ? parseInt(item.prev_ref.end_lt, 16) : 0}",` : '0,')
+      + (item.prev_ref ? `"${item.prev_ref.seq_no ? item.prev_ref.seq_no : 0}",` : '0,')
+      + (item.prev_ref ? `"${item.prev_ref.root_hash ? item.prev_ref.root_hash : 0}",` : '0');
   }
 
   /**
@@ -491,9 +493,12 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
    * Signatures Blocks for validator
    */
   private getSignaturesBlocks(): void {
+
+    let date = _.last(this.data, 1)[0].gen_utime;
+
     // Get signatures block list
     this.service.getData(
-      this.service.getVariablesForBlockSignatures(this.parentId),
+      this.service.getVariablesForBlockSignatures(this.parentId, date),
       this.blockQueries.getBlocksSignatures,
       appRouteMap.blocksSignatures
     )
@@ -508,40 +513,49 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
           ids.push(b.id);
         });
 
-        // Get blocks with tr_count (filter by signatures blocks)
-        this.service.getData(
-          this.service.getVariablesForFilterBlocks(ids),
-          this.blockQueries.getBlocks,
-          appRouteMap.blocks
-        )
-          .pipe(takeUntil(this.unsubscribe))
-          .subscribe((b: Block[]) => {
+        if (!ids.length) {
 
-            b = b ? b : [];
+          this.processData([]);
 
-            sb.forEach((block: Block) => {
-              let _b = _.find(b, (item) => { return item.id === block.id});
+        }
+        else {
 
-              block.id = _b ? _b.id : '0';
-              block.seq_no = _b ? _b.seq_no : 0;
-              block.tr_count = _b ? _b.tr_count : 0;
-              block.workchain_id = _b ? _b.workchain_id : 0;
-              block.shard = _b ? _b.shard : '';
+          // Get blocks with tr_count (filter by signatures blocks)
+          this.service.getData(
+            this.service.getVariablesForFilterBlocks(ids),
+            this.blockQueries.getBlocks,
+            appRouteMap.blocks
+          )
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((fb: Block[]) => {
 
-              block.gen_utime = _b ? _b.gen_utime : 0;
-              block.status = _b ? _b.status : 0;
-              block.global_id = _b ? _b.global_id : 0;
-              block.want_split = _b.want_split;
-              block.after_merge = _b.after_merge;
-              block.gen_catchain_seqno = _b ? _b.gen_catchain_seqno : 0;
-              block.prev_ref = _b ? _b.prev_ref : null;
+              fb = fb ? fb : [];
+
+              sb.forEach((block: Block) => {
+                let _b = _.find(fb, (item) => { return item.id === block.id});
+
+                block.id = _b ? _b.id : '0';
+                block.seq_no = _b ? _b.seq_no : 0;
+                block.tr_count = _b ? _b.tr_count : 0;
+                block.workchain_id = _b ? _b.workchain_id : 0;
+                block.shard = _b ? _b.shard : '';
+
+                block.gen_utime = _b ? _b.gen_utime : 0;
+                block.status = _b ? _b.status : 0;
+                block.global_id = _b ? _b.global_id : 0;
+                block.want_split = _b.want_split;
+                block.after_merge = _b.after_merge;
+                block.gen_catchain_seqno = _b ? _b.gen_catchain_seqno : 0;
+                block.prev_ref = _b ? _b.prev_ref : null;
+              });
+
+              this.processData(sb);
+
+            }, (error: any) => {
+              console.log(error);
             });
 
-            this.processData(sb ? sb : []);
-
-          }, (error: any) => {
-            console.log(error);
-          });
+        }
 
       }, (error: any) => {
         console.log(error);
@@ -733,8 +747,10 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
 
     if (this.data && this.data.length === 1) { this.data = []; }
 
-    this.data = this.data ? this.data : [];
-    this.data = this.data.concat(_data ? _data : []);
+    let isDone = !_data.length || _data.length < 10 ? true : false;
+
+    this.data = _.union(this.data, _data);
+    this.data = _.uniq(this.data, 'id');
 
     if (this.data.length >= Number(this.total)) {
       this.data = this.data.slice(0, Number(this.total));
@@ -742,7 +758,7 @@ export class ExportDialogomponent implements OnInit, OnDestroy {
 
     this.loadCount = this.data.length + '';
 
-    ((this.data.length < Number(this.total)) && _data.length >= 50)
+    (this.data.length < Number(this.total) && !isDone)
       ? this.service.response.next(true)
       : this.createFileAndDownload();
 

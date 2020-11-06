@@ -84,6 +84,7 @@
   <div class="page-content__tabs-buttons single-element">
     <mat-slide-toggle
       [checked]="autoupdate"
+      [disabled]="!initComplete || !messInitComplete"
       (change)="updateChange($event.checked)">{{locale?.autoupdate}}
     </mat-slide-toggle>
   </div>
@@ -118,6 +119,7 @@
               <app-table-viewer #tableViewer1
                 [data]="tableViewerData"
                 [newData]="newDataAfterUpdateForView"
+                [isFooterVisible]="isFooterVisible"
                 [newDataName]="locale?.transactions"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
@@ -159,6 +161,7 @@
               <app-table-viewer #tableViewer2
                 [data]="aditionalTableViewerData"
                 [newData]="messNewDataAfterUpdateForView"
+                [isFooterVisible]="isMessFooterVisible"
                 [newDataName]="locale?.messages"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="messTableViewersLoading"

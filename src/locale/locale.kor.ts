@@ -4,8 +4,8 @@ import { appRouteMap } from 'src/app/app-route-map';
 export class LocaleText {
 
   static chainFilter: ListItem[] = [
-    { id: '-1', name: 'Masterchain' },
-    { id: '0', name: 'Workchain' }
+    { id: '-1', name: '마스터체인 샤드' },
+    { id: '0', name: '워크체인 샤드' }
   ];
 
   static extintFilter: ListItem[] = [
@@ -62,13 +62,13 @@ export class LocaleText {
   static delete = 'Delete';
   static edit = 'Edit';
   static add = 'Add';
-  static save = 'Save';
+  static save = '저장';
   static update = 'Update';
   static rename = 'Rename';
   static done = 'Done';
   static enough = '충분';
   static create = 'Create';
-  static clearAll = 'Clear all';
+  static clearAll = '모두 지우기';
   static import = 'Import';
   static export = '내보내기';
   static exportTo = 'CSV로 내보내기';
@@ -91,8 +91,8 @@ export class LocaleText {
   static to = '까지';
   static download = 'Download';
   static ok = '확인';
-  static exported = 'Exported';
-  static rows = 'rows';
+  static exported = '내보냄';
+  static rowsExported = '갯수를 내보냄';
   static search = '검색';
   static selectAll = 'Select All';
   static notFound = '찾을 수 없음';
@@ -101,8 +101,9 @@ export class LocaleText {
   static label = 'Label';
   static placeholder = 'Placeholder';
   static items = 'items';
-  static new = 'new';
+  static new = '새로운';
   static sec = '둘째';
+  static active = '활동중인';
 
   static loadMore = '25개 더 보기';
 
@@ -118,7 +119,7 @@ export class LocaleText {
   static seeAllBlocks = '모든 블록 보기';
   static seeAllTransactions = '모든 트랜잭션 보기';
   static seeAllMessages = '모든 메시지 보기';
-  static set = 'set';
+  static set = '세트';
 
   // Filters
   static chainsFilterPlaceholder = '모든 체인';
@@ -131,7 +132,7 @@ export class LocaleText {
   static extIntFilterPlaceholder = '외부+내부';
   static abortFilterPlaceholder = '실패 여부';
   static transactionDateFilterPlaceholder = '트랜잭션 날짜';
-  static directionFilterPlaceholder = 'Any direction';
+  static directionFilterPlaceholder = '모든 방향';
   static transactionCountFilterPlaceholder = '트랜잭션 개수';
   static tonCountFilterPlaceholder = '톤 개수';
 
@@ -284,8 +285,8 @@ export class LocaleText {
   static fundsCreated = '생성된 자금';
 
   // Подзаголовок
-  static shardFee = 'Shard fee №';
-  static fees = 'Fees';
+  static shardFee = '샤드 수수료 번호';
+  static fees = '수수료';
 
   // Master config нет
 

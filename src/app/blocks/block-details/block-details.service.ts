@@ -42,7 +42,7 @@ export class BlockDetailsService extends BaseService<Block> {
    * Get variables
    * @param _id Id for query
    */
-  public getVariablesForTransactions(params: SimpleDataFilter, _id: string): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, _id: string, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance_delta = params.min != null || params.max != null
@@ -80,7 +80,7 @@ export class BlockDetailsService extends BaseService<Block> {
         {path: 'account_addr', direction: 'DESC'},
         {path: 'lt', direction: 'DESC'}
       ],
-      limit: 50
+      limit: limit
     };
   }
 

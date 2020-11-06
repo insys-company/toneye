@@ -93,7 +93,7 @@ export class BaseService<TModel extends IModel> {
         return this.baseFunctionsService.mapContractForTable(item);
       }
       else if (type === appRouteMap.messages) {
-        return this.baseFunctionsService.mapMessageForTable(item);
+        return this.baseFunctionsService.mapMessageForTable(item, _data);
       }
       else if (type === appRouteMap.inOutMessages) {
         return this.baseFunctionsService.mapInOutMsgsForTable(item);

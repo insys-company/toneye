@@ -64,17 +64,17 @@ export class BaseFunctionsService {
       titleLeft: _item.id,
       subtitleLeft: new DataConfig({
         text: _item.last_paid == 0 ? '' : `${_item.last_paid}`,
-        type: _item.last_paid == 0 ? 'string' : 'date'
+        isDate: _item.last_paid
       }),
       titleRight: new DataConfig({
         text: _item.balance,
-        icon: true,
+        isIcon: true,
         iconClass: 'icon-gem',
-        type: 'number'
+        isNumber: true
       }),
       subtitleRight: new DataConfig({
         text: Number(((Number(_item.balance)/totalBalance)*100).toFixed(2)),
-        type: 'percent'
+        isPercent: true
       })
     });
   }
@@ -91,18 +91,17 @@ export class BaseFunctionsService {
       url: appRouteMap.block,
       titleLeft: _item.seq_no,
       subtitleLeft: new DataConfig({
-        text: `${_item.workchain_id}:${_item.shard ? _item.shard.substring(0, 3) : _item.shard}`,
-        type: 'string'
+        text: `${_item.workchain_id}:${_item.shard ? _item.shard.substring(0, 3) : _item.shard}`
       }),
       titleRight: new DataConfig({
         text: (_item.tr_count ? _item.tr_count : ''),
-        icon: true,
+        isIcon: true,
         iconClass: 'icon-transactions',
-        type: 'number'
+        isNumber: true
       }),
       subtitleRight: new DataConfig({
         text: _item.gen_utime,
-        type: 'date'
+        isDate: _item.gen_utime ? true : false
       })
     });
   }
@@ -123,30 +122,44 @@ export class BaseFunctionsService {
    * Get message format for common table
    * @param _item Item For maping
    */
-  public mapMessageForTable(_item: Message): TabViewerData {
+  public mapMessageForTable(_item: Message, fromToTranClassEnable: boolean): TabViewerData {
     if (!_item) { return null; }
 
     _item.value = _item.value && _item.value.match('x')
       ? String(parseInt(_item.value, 16))
       : _item.value;
 
+    let _text = '';
+
+    if (fromToTranClassEnable && (_item.isFromTran || _item.isToTran)) {
+
+      _text = _item.isFromTran
+        ? `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`
+        : `${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)} | ${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)}`;
+    }
+    else {
+      _text = `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`;
+    }
+
     return new TabViewerData({
       id: _item.id,
       url: appRouteMap.message,
       titleLeft: _item.id,
       subtitleLeft: new DataConfig({
-        text: `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} -> ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`,
-        type: 'string'
+        text: _text,
+        isFromTran: _item.isFromTran,
+        isToTran: _item.isToTran,
+        fromTranClass: fromToTranClassEnable ? _item.isFromTran ? 'red' : 'green' : ''
       }),
       titleRight: new DataConfig({
         text: _item.value,
-        icon: true,
+        isIcon: true,
         iconClass: 'icon-gem',
-        type: 'number'
+        isNumber: true
       }),
       subtitleRight: new DataConfig({
         text: _item.created_at,
-        type: 'date'
+        isDate: _item.created_at ? true : false
       })
     });
   }
@@ -188,19 +201,18 @@ export class BaseFunctionsService {
       url: appRouteMap.transaction,
       titleLeft: _item.id,
       subtitleLeft: new DataConfig({
-        text: _item.account_addr ? _item.account_addr.substring(0, 6) : '',
-        type: 'string'
+        text: _item.account_addr ? _item.account_addr.substring(0, 6) : ''
       }),
       titleRight: new DataConfig({
         text: tr_type,
-        icon: (_item.balance_delta && _item.balance_delta != '0') ? true : false,
+        isIcon: (_item.balance_delta && _item.balance_delta != '0') ? true : false,
         iconClass: 'icon-gem',
         textColorClass: (_item.balance_delta && _item.balance_delta != '0') ? '' : 'color-gray',
-        type: (_item.balance_delta && _item.balance_delta != '0') ? 'number' : 'string'
+        isNumber: (_item.balance_delta && _item.balance_delta != '0') ? true : false
       }),
       subtitleRight: new DataConfig({
         text: _item.now,
-        type: 'date'
+        isDate: _item.now ? true : false
       })
     });
   }
@@ -229,13 +241,13 @@ export class BaseFunctionsService {
       }),
       titleRight: new DataConfig({
         text: _item.weight,
-        icon: _item.weight ? true : false,
+        isIcon: _item.weight ? true : false,
         iconClass: 'icon-gem',
-        type: _item.weight ? 'number' : 'string'
+        isNumber: _item.weight ? true : false
       }),
       subtitleRight: new DataConfig({
         text: Number(((Number(_item.weight)/Number(totalWeight))*100).toFixed(2)),
-        type: 'percent'
+        isPercent: true
       })
     });
   }

@@ -279,6 +279,8 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
             this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.blocks);
           }
 
+          uniqItems = null;
+
           this.setChangeData();
 
           this.detectChanges();

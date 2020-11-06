@@ -88,6 +88,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
   
           res = res ? res : [];
 
+          res.forEach((item: Message) => {
+            item.isFromTran = true;
+          });
+
           // hide load more btn
           if (!res.length || res.length < 25) {
             this.isFooterVisible = false;
@@ -120,6 +124,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
   
           srcData = srcData ? srcData : [];
 
+          srcData.forEach((item: Message) => {
+            item.isFromTran = true;
+          });
+
           this._service.getData(
             this._service.getVariablesForMessages(this.params, false, 25),
             this.messageQueries.getMessages
@@ -128,6 +136,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
             .subscribe((dstData: Message[]) => {
 
               dstData = dstData ? dstData : [];
+
+              dstData.forEach((item: Message) => {
+                item.isToTran = true;
+              });
 
               // Объединение двух массивов и сортировка
               let res = srcData.concat(dstData);
@@ -218,6 +230,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
   
           res = res ? res : [];
 
+          res.forEach((item: Message) => {
+            item.isFromTran = true;
+          });
+
           if (!this.autoupdate) {
             this.processData(res);
           }
@@ -237,6 +253,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
               this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
               this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.messages);
             }
+
+            uniqItems = null;
   
             const mps = new ViewerData({
               title: LocaleText.mps,
@@ -269,6 +287,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
   
           srcData = srcData ? srcData : [];
 
+          srcData.forEach((item: Message) => {
+            item.isFromTran = true;
+          });
+
           this._service.getData(
             this._service.getVariablesForMessages(this.params, false),
             this.messageQueries.getMessages
@@ -277,6 +299,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
             .subscribe((dstData: Message[]) => {
 
               dstData = dstData ? dstData : [];
+
+              dstData.forEach((item: Message) => {
+                item.isToTran = true;
+              });
 
               // Объединение двух массивов и сортировка
               let res = srcData.concat(dstData);
@@ -302,6 +328,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
                   this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
                   this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.messages);
                 }
+
+                uniqItems = null;
       
                 const mps = new ViewerData({
                   title: LocaleText.mps,

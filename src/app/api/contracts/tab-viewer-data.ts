@@ -30,10 +30,19 @@ export class TabViewerData {
 
 export class DataConfig {
   text: string;
-  icon: boolean;
-  iconClass: string;
   textColorClass: string;
-  type: DataType;
+
+  isIcon: boolean;
+  iconClass?: string; // for icon
+
+  isNumber?: boolean; // for number pipe
+  isPercent?: boolean; // for percent
+  isDate?: boolean; // for date pipe
+  isTime?: boolean; // for time pipe
+  isBoolean?: boolean; // for bool
+  isFromTran?: boolean; // for messages
+  isToTran?: boolean; // for messages
+  fromTranClass: string;
 
   constructor(data?: any) {
     if (data) {
@@ -48,9 +57,17 @@ export class DataConfig {
   serialize() {
     return {
       text: this.text,
-      icon: this.icon,
+      textColorClass: this.textColorClass,
+      isIcon: this.isIcon,
       iconClass: this.iconClass,
-      type: this.type,
+      isNumber: this.isNumber,
+      isPercent: this.isPercent,
+      isDate: this.isDate,
+      isTime: this.isTime,
+      isBoolean: this.isBoolean,
+      isFromTran: this.isFromTran,
+      isToTran: this.isToTran,
+      fromTranClass: this.fromTranClass,
     };
   }
 }

@@ -114,7 +114,7 @@
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer1
                 [data]="tableViewerData"
-                [isFooterVisible]="false"
+                [isFooterVisible]="isFooterVisible"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"

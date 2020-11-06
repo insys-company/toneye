@@ -172,6 +172,8 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
             this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.transactions);
           }
 
+          uniqItems = null;
+
           const tps = new ViewerData({
             title: LocaleText.tps,
             value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'now') + '').replace('.', ','),

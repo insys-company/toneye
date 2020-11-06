@@ -368,3 +368,26 @@
 .icon-gem {
   background: url($ico-gem);
 }
+
+.from-to {
+  display: flex;
+  align-items: center;
+
+  span, p {
+    overflow: visible;
+  }
+
+  .icon {
+    margin: 0 5px;
+    background: url($ico-arrow);
+
+    &.green {
+      transform: rotate(180deg);
+      background: url($ico-arrow-green);
+    }
+
+    &.red {
+      background: url($ico-arrow-red);
+    }
+  }
+}
