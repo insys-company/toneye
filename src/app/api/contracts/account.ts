@@ -1,4 +1,5 @@
 export class Account {
+  name?: string;
   acc_type: number;
   balance: string;
   balance_other: {}; //?

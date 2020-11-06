@@ -9,18 +9,18 @@ export class LocaleText {
   ];
 
   static extintFilter: ListItem[] = [
-    { id: 'ext', name: 'Ext' },
-    { id: 'int', name: 'Int' }
+    { id: 'ext', name: 'Extertnal' },
+    { id: 'int', name: 'Internal' }
   ];
 
   static diractionFilter: ListItem[] = [
-    { id: 'srt', name: 'Src' },
+    { id: 'src', name: 'Src' },
     { id: 'dst', name: 'Dst' }
   ];
 
   static abortFilter: ListItem[] = [
-    { id: 'true', name: 'Aborted' },
-    { id: 'false', name: 'Not Aborted' }
+    { id: 'true', name: 'Only aborted' },
+    { id: 'false', name: 'Only not aborted' }
   ];
 
   /** Menu */
@@ -115,6 +115,9 @@ export class LocaleText {
 
   static moreDetails = 'More details';
   static seeAll = 'See all';
+  static seeAllBlocks = 'See all blocks';
+  static seeAllTransactions = 'See all transactions';
+  static seeAllMessages = 'See all messages';
   static set = 'set';
 
   // Filters
@@ -160,6 +163,9 @@ export class LocaleText {
   static homeInfoText2 = 'The goal of TON Labs Dev Net is to provide stable development environment for application developers. It is optimized to connect with TON Labs’ SDK. Read more here:';
   static homeInfoText3 = 'You can receive  currency using our giver or by installing one of our wallets.';
   static homeInfoText4 = 'If you are interested in running a validator Node, please contact us at ';
+  static lastBlocks = 'Last Blocks';
+  static lastTransactions = 'Last Transactions';
+  static lastMessages = 'Last Messages';
 
   // Block text
   static blockMiddleTableTitle = 'In messages';
@@ -250,7 +256,7 @@ export class LocaleText {
   static minted = 'Minted';
   static feesImported = 'Fees imported';
   // Подзаголовок
-  static accountBlocks = 'Account blocks';
+  static accountBlocks = 'Account block №';
 
   static accountAddr = 'Account addr';
   static oldHash = 'Old hash';
@@ -260,7 +266,8 @@ export class LocaleText {
   static minShardGenUtime = 'Min shard gen utime';
   static maxShardGenUtime = 'Max shard gen utime';
   // Подзаголовок
-  static shardHash = 'Shard hash';
+  static shardHash = 'Shard hash №';
+  static workchainShard = 'Workchain:Shard';
 
   static seqNo = 'Seq no';
   static regMcSeqno = 'Reg mc seqno';
@@ -277,7 +284,7 @@ export class LocaleText {
   static fundsCreated = 'Funds created';
 
   // Подзаголовок
-  static shardFee = 'Shard fee';
+  static shardFee = 'Shard fee №';
   static fees = 'Fees';
 
   // Master config нет
@@ -360,6 +367,7 @@ export class LocaleText {
   static codeHash = 'Code hash';
   static data = 'Data';
   static dataHash = 'Data hash';
+  static lastPaid = 'Last paid';
 
   // Contracts general
   static uniqueContracts = 'Unique contracts';

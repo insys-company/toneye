@@ -243,8 +243,6 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
 
         this.params = _.clone(this._service.baseFunctionsService.getFilterParams(queryParams, this.params));
 
-        console.log(this.params);
-
         this.detectChanges();
 
         this.refreshData();

@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { AccountQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Account, SimpleDataFilter, FilterSettings } from 'src/app/api';
+import { Account, SimpleDataFilter, FilterSettings, ItemList } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({

@@ -17,8 +17,8 @@ export class AppMinmaxOverlayComponent implements OnInit, AfterViewInit, OnDestr
   public locale = {
     save: LocaleText.save,
     clearAll: LocaleText.clearAll,
-    min: LocaleText.min,
-    max: LocaleText.max
+    from: LocaleText.from,
+    to: LocaleText.to
   };
   /**
    * Для отписок на запросы
@@ -111,11 +111,11 @@ export class AppMinmaxOverlayComponent implements OnInit, AfterViewInit, OnDestr
 
     this.minPlaceholder = this.minPlaceholder
       ? this.minPlaceholder
-      : this.locale.min;
+      : this.locale.from;
 
     this.maxPlaceholder = this.maxPlaceholder
       ? this.maxPlaceholder
-      : this.locale.max;
+      : this.locale.to;
 
     this.panelClass = this.data.data.panelClass;
   }

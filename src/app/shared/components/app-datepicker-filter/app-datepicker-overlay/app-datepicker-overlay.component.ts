@@ -5,6 +5,7 @@ import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
 import { DateTime } from 'src/app/shared/utils';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker/datepicker-input';
+import { LocaleText } from 'src/locale/locale';
 
 export const DATE_PANEL_DATA = new InjectionToken<{}>('DATE_PANEL_DATA');
 export const MIN = 'From';
@@ -143,11 +144,11 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
 
     this.fromPlaceholder = this.fromPlaceholder
       ? this.fromPlaceholder
-      : MIN;
+      : LocaleText.from;
 
     this.toPlaceholder = this.toPlaceholder
       ? this.toPlaceholder
-      : MAX;
+      : LocaleText.to;
 
     this.panelClass = this.data.data.panelClass;
   }

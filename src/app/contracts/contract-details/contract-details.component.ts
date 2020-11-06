@@ -63,6 +63,11 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
    */
   public newContracts: number;
 
+  /**
+   * Account's name
+   */
+  public name: string;
+
 
   /**
    * Flag for filter open\hide
@@ -107,6 +112,10 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
       .subscribe((params: Params) => {
         this.modelId = params['id'] != null ? params['id'].trim() : null;
 
+        let contracts = this.service.baseFunctionsService.smartContracts();
+
+        this.model = _.find(contracts.data, (item: Account) => { return item.id === this.modelId });
+
         this.initList();
 
       })
@@ -125,6 +134,7 @@ export class ContractDetailsComponent extends BaseComponent<Account> implements 
     this.isFilterOpen = null;
     this.isFilterHideBtnVisible = null;
     this.isFilterFooterVisible = null;
+    this.name = null;
   }
 
   /**

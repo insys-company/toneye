@@ -291,8 +291,8 @@ export class AppMinmaxComponent implements OnInit, OnDestroy {
     this.min = this.min != null ? this.min : null;
     this.max = this.max != null ? this.max : null;
     this.panelClass = this.panelClass != null ? this.panelClass : null;
-    this.minPlaceholder = this.minPlaceholder != null ? this.minPlaceholder : LocaleText.min;
-    this.maxPlaceholder = this.maxPlaceholder != null ? this.maxPlaceholder : LocaleText.max;
+    this.minPlaceholder = this.minPlaceholder != null ? this.minPlaceholder : LocaleText.from;
+    this.maxPlaceholder = this.maxPlaceholder != null ? this.maxPlaceholder : LocaleText.to;
   }
 
   /**

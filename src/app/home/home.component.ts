@@ -43,9 +43,9 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
    * For tabs header (titles)
    */
   public tabsTitles: Array<string> = [
-    `${appRouteMap.blocks}`,
-    `${appRouteMap.transactions}`,
-    `${appRouteMap.messages}`
+    LocaleText.lastBlocks,
+    LocaleText.lastTransactions,
+    LocaleText.lastMessages
   ];
 
   /** Array of ... */

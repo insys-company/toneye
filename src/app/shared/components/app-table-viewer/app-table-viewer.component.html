@@ -12,11 +12,11 @@
   </div>
 
   <div *ngIf="isHeaderVisible && isTabsHeaderMode" class="app-viewer__tabs-header-wrapper">
-    <div *ngFor="let item of tabsTitles;let index = index;trackBy:identifyTabs;"
+    <div *ngFor="let tabName of tabsTitles;let index = index;trackBy:identifyTabs;"
       class="app-viewer__tab-header" [class.app-viewer__tab-header--active]="index === selectedTabIndex"
       (click)="onChangeTab(index)">
 
-      <span class="color-gray" [class.color-blue]="index === selectedTabIndex">{{locale?.list}} {{item}}</span>
+      <span class="color-gray" [class.color-blue]="index === selectedTabIndex">{{tabName}}</span>
     </div>
   </div>
 
@@ -67,7 +67,7 @@
       </div>
 
       <div class="app-viewer__body-item-row">
-        <p *ngIf="item.subtitleLeft?.type === 'date'">Last Tx: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
+        <p *ngIf="item.subtitleLeft?.type === 'date'">{{locale?.lastTx}}: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
         <p *ngIf="item.subtitleLeft?.type !== 'date'">{{item.subtitleLeft?.text ? item.subtitleLeft?.text : ''}}</p>
 
         <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>

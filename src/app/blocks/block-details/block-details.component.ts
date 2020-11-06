@@ -619,7 +619,7 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
         }));
 
         this.shardsViewerData.push(new ViewerData({
-          title: `${LocaleText.workchain} + ${LocaleText.shard}`,
+          title: `${LocaleText.workchainShard}`,
           value: `${item.workchain_id}:${item.shard}`
         }));
         this.shardsViewerData.push(new ViewerData({
@@ -714,11 +714,11 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
           }));
           this.shardsViewerData.push(new ViewerData({
             title: LocaleText.fees,
-            value: item.fees != null ? item.fees : '--'
+            value: item.fees != null ? parseInt(item.fees, 16) : '--'
           }));
           this.shardsViewerData.push(new ViewerData({
             title: LocaleText.created,
-            value: item.create != null ? item.create : '--'
+            value: item.create != null ? parseInt(item.create, 16) : '--'
           }));
         });
 

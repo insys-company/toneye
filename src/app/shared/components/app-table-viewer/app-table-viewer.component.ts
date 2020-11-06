@@ -48,7 +48,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * For tabs header (titles)
    */
-  @Input() public tabsTitles: Array<string> = [ '1', '2'];
+  @Input() public tabsTitles: Array<string> = [ 'List 1', 'List 2'];
   /**
    * Header for block
    */
@@ -96,7 +96,8 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
     list: LocaleText.list,
     notFound: LocaleText.notFound,
     show: LocaleText.show,
-    new: LocaleText.new
+    new: LocaleText.new,
+    lastTx: LocaleText.lastTx
   };
 
   /**
@@ -111,7 +112,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   public get footerBtnPlaceholder(): string {
     if (!this.isTabsHeaderMode) { return this.footerPlaceholder };
 
-    return `${LocaleText.seeAll} ${this.selectedTabIndex == 0 ? LocaleText.blocks.toLocaleLowerCase() : this.selectedTabIndex == 1 ? LocaleText.transactions.toLocaleLowerCase() : LocaleText.messages.toLocaleLowerCase()}`;
+    return `${this.selectedTabIndex == 0 ? LocaleText.seeAllBlocks.toLocaleLowerCase() : this.selectedTabIndex == 1 ? LocaleText.seeAllTransactions.toLocaleLowerCase() : LocaleText.seeAllMessages.toLocaleLowerCase()}`;
   }
 
   constructor(
