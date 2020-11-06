@@ -25,9 +25,11 @@ import {
   AppMinmaxOverlayComponent,
   AppDatepickerComponent,
   AppDatepickerOverlayComponent,
+  ExportDialogomponent,
 } from './components';
 
 import {
+  BooleanToWordPipe,
   ThousandsPipe,
   UnixDatePipe,
 } from './pipes';
@@ -45,8 +47,10 @@ import {
     AppMinmaxOverlayComponent,
     AppDatepickerComponent,
     AppDatepickerOverlayComponent,
+    ExportDialogomponent,
 
     // pipes
+    BooleanToWordPipe,
     ThousandsPipe,
     UnixDatePipe,
   ],
@@ -73,8 +77,10 @@ import {
     AppMinmaxOverlayComponent,
     AppDatepickerComponent,
     AppDatepickerOverlayComponent,
+    ExportDialogomponent,
 
     // pipes
+    BooleanToWordPipe,
     ThousandsPipe,
     UnixDatePipe,
   ],
@@ -83,6 +89,7 @@ import {
     AppSearchOverlayComponent,
     AppMinmaxOverlayComponent,
     AppDatepickerOverlayComponent,
+    ExportDialogomponent,
   ],
 })
 export class SharedModule {}

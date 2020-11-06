@@ -5,20 +5,38 @@
     <div class="app-multiselect-panel__option-fields">
 
       <div class="app-multiselect-panel__option-field">
-        <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+        <!-- <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
           <input matInput type="text" readonly class="" [placeholder]="fromPlaceholder" disabled
             [(ngModel)]="fromDate" tabindex="0" autocomplete="off">
           <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForFrom" (click)="onClearFromDate()"></div>
-        </mat-form-field>
+        </mat-form-field> -->
+
+          <mat-form-field appearance="outline" class="app-multiselect-panel__option-input datepicker-input" floatLabel="never">
+            <mat-datepicker-toggle matPrefix [for]="pickerFrom" disableRipple></mat-datepicker-toggle>
+            <input matInput [ngxMatDatetimePicker]="pickerFrom" readonly [placeholder]="fromPlaceholder"
+              [min]="minDate" [(ngModel)]="from" [disabled]="disabled" (dateChange)="fromDateChange($event)">
+            <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForFrom" (click)="onClearFromDate()"></div>
+            <ngx-mat-datetime-picker #pickerFrom></ngx-mat-datetime-picker>
+          </mat-form-field>
+
+
       </div>
 
 
       <div class="app-multiselect-panel__option-field">
-        <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+        <!-- <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
           <input matInput type="text" readonly class="" [placeholder]="toPlaceholder" disabled
             [(ngModel)]="toDate" tabindex="0" autocomplete="off">
           <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForTo" (click)="onClearToDate()"></div>
-        </mat-form-field>
+        </mat-form-field> -->
+
+          <mat-form-field appearance="outline" class="app-multiselect-panel__option-input datepicker-input" floatLabel="never">
+            <mat-datepicker-toggle matPrefix [for]="pickerTo" disableRipple></mat-datepicker-toggle>
+            <input matInput [ngxMatDatetimePicker]="pickerTo" readonly [placeholder]="toPlaceholder"
+              [min]="from ? from : minDate" [(ngModel)]="to" [disabled]="disabled" (dateChange)="toDateChange($event)">
+            <div matSuffix class="app-multiselect-panel__option-icon-clear" [class.app-multiselect-panel__option-icon-clear--show]="setShowClassForClearIconForTo" (click)="onClearToDate()"></div>
+            <ngx-mat-datetime-picker #pickerTo></ngx-mat-datetime-picker>
+          </mat-form-field>
       </div>
     </div>
     <div class="app-multiselect-panel__option-btn">

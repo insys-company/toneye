@@ -8,6 +8,7 @@ import { Block, Message, Transaction, Validator } from 'src/app/api';
 import { NOT_FOUND } from './app-search-overlay/app-search-overlay.component';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import { LocaleText } from 'src/locale/locale';
 
 @Component({
   selector: 'app-search',
@@ -65,6 +66,11 @@ export class AppSearchComponent implements OnChanges, OnInit, OnDestroy {
    * Select event
    */
   @Output() public selectChange: EventEmitter<{type: string, option: any}>;
+
+  /** Общие тексты для страниц */
+  public locale = {
+    placeholder: LocaleText.searchPlaceholder,
+  };
 
   /**
    * фокус на поле
@@ -205,6 +211,7 @@ export class AppSearchComponent implements OnChanges, OnInit, OnDestroy {
     if (this.searchSub) {
       this.searchSub.unsubscribe();
     }
+    this.locale = null;
     this.searchSub = null;
     this.overlayUnsubscribe();
     this.notFoundTitle = null;

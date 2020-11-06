@@ -1,5 +1,7 @@
 @import './../../scss/abstracts/colors';
 @import './../../scss/abstracts/animation';
+@import './../../scss/abstracts/variables';
+@import './../../scss/abstracts/mixins';
 
 .home-page,
 .network-info,
@@ -16,10 +18,11 @@
   // min-height: 80px;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: $explorer--base__mp_basic;
   background-color: $explorer--base__blue-light;
   border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 20px;
 
   &__header-wrapper {
     display: flex;
@@ -50,6 +53,20 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
+
+    span {
+      transition: all .3s ease;
+      text-decoration: none;
+    }
+
+    &:hover {
+
+      span {
+        color: $explorer--base__green-dark;
+      }
+
+    }
+
   }
 
   &__body-item {
@@ -61,7 +78,7 @@
   &--opened {
 
     .network-info__header-wrapper {
-      margin-bottom: 30px;
+      margin-bottom: $explorer--base__mp_basic;
     }
 
     .network-info__body-item {

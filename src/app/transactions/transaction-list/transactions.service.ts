@@ -51,7 +51,7 @@ export class TransactionsService extends BaseService<Transaction> {
    * @param params Filter params
    * @pram isForAggregateData For agg data
    */
-  public getVariablesForTransactions(params: SimpleDataFilter, isForAggregateData: boolean = false): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, isForAggregateData: boolean = false, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance_delta = params.min != null || params.max != null
@@ -62,7 +62,10 @@ export class TransactionsService extends BaseService<Transaction> {
       : undefined;
 
     let _now = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let _workchain_id = params.chain != null
@@ -85,107 +88,9 @@ export class TransactionsService extends BaseService<Transaction> {
         now: _now,
       },
       orderBy: _orderBy,
-      limit: !isForAggregateData ? 50 : undefined
+      limit: isForAggregateData
+        ? undefined
+        : limit
     };
   }
-
-  // constructor(
-  //   private apollo: Apollo,
-  //   private blockQueries: BlockQueries,
-  //   private commonQueries: CommonQueries,
-  //   private messageQueries: MessageQueries,
-  //   private transactionQueries: TransactionQueries,
-  // ) {
-  //   // TODO
-  // }
-
-  // ngUnsubscribe(): void {
-  //   this._unsubscribe.next();
-  //   this._unsubscribe.complete();
-  // }
-
-  // /**
-  //  * Get general information
-  //  *
-  //  * queries:
-  //  * getAccountsCount
-  //  * aggregateTransactions
-  //  * getAccountsTotalBalance
-  //  */
-  // getGeneralData(): Observable<any>{
-  //   return this.apollo.watchQuery<any>({
-  //     query: this.commonQueries.getAggregateTransactions,
-  //     variables: {},
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data))
-  // }
-
-  // /**
-  //  * Get block list
-  //  * @param params Variables by filters for query
-  //  */
-  // getBlocks(params?: any): Observable<Block[]> {
-
-  //   const _variables = {
-  //     filter: {},
-  //     orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-  //     limit: 50,
-  //   }
-
-  //   return this.apollo.watchQuery<Block[]>({
-  //     query: this.blockQueries.getBlocks,
-  //     variables: params ? params : _variables,
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.blocks]))
-  // }
-
-  // /**
-  //  * Get message list
-  //  * @param params Variables by filters for query
-  //  */
-  // getMessages(params?: any): Observable<Message[]> {
-
-  //   const _variables = {
-  //     filter: {},
-  //     orderBy: [{path: 'created_at', direction: 'DESC'}],
-  //     limit: 50,
-  //   }
-
-  //   return this.apollo.watchQuery<Message[]>({
-  //     query: this.messageQueries.getMessages,
-  //     variables: params ? params : _variables,
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.messages]))
-  // }
-
-  // /**
-  //  * Get transaction list
-  //  * @param params Variables by filters for query
-  //  */
-  // getTransaction(params?: any): Observable<Transaction[]> {
-
-  //   const _variables = {
-  //     filter: {},
-  //     orderBy:  [
-  //       {path: 'now', direction: 'DESC'},
-  //       {path: 'account_addr', direction: 'DESC'},
-  //       {path: 'lt', direction: 'DESC'}
-  //     ],
-  //     limit: 50,
-  //   }
-
-  //   return this.apollo.watchQuery<Transaction[]>({
-  //     query: this.transactionQueries.getTransaction,
-  //     variables: params ? params : _variables,
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.transactions]))
-  // }
 }

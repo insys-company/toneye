@@ -7,7 +7,6 @@ import { BaseFunctionsService } from 'src/app/shared/services';
 import { Block, FilterSettings } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
-const NODE_ID="4cded8178438ca7739b7429f7eabff5961023878a2ffaa2dbf03f040f87c4e04";
 @Injectable({
   providedIn: ValidatorDetailsServicesModule
 })
@@ -43,7 +42,7 @@ export class ValidatorDetailsService extends BaseService<any> {
    * Get variables
    * @param node_id Id for query
    */
-  public getVariablesForAggregateBlockSignaturesTotal(node_id: string | number = NODE_ID): object {
+  public getVariablesForAggregateBlockSignaturesTotal(node_id: string | number): object {
     return {filter: {signatures: {any: {node_id: {eq: node_id}}}}};
   }
 
@@ -51,11 +50,21 @@ export class ValidatorDetailsService extends BaseService<any> {
    * Get variables
    * @param node_id Id for query
    */
-  public getVariablesForAggregateBlockSignatures(node_id: string | number = NODE_ID): object {
+  public getVariablesForBlockSignatures(node_id: string | number, data: number = null, limit: number = 50): object {
+
+    let _gen_utime = data != null
+      ? {
+        le: data != null ? Number(data) : undefined
+      }
+      : undefined;
+
     return {
-      filter: {signatures: {any: {node_id: {eq: node_id}}}},
+      filter: {
+        gen_utime: _gen_utime,
+        signatures: {any: {node_id: {eq: node_id}}}
+      },
       orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-      limit: 50
+      limit: limit
     };
   }
 
@@ -63,8 +72,20 @@ export class ValidatorDetailsService extends BaseService<any> {
    * Get variables
    * @param _id Id for query
    */
-  public getVariablesForBlocks(_id: string | number): object {
-    return {filter: {}, orderBy: [{path: 'gen_utime', direction: 'DESC'}], limit: 50};
+  public getVariablesForBlocks(_id: string | number, data: number = null, limit: number = 50): object {
+    let _gen_utime = data != null
+      ? {
+        le: data != null ? Number(data) : undefined
+      }
+      : undefined;
+
+    return {
+      filter: {
+        gen_utime: _gen_utime
+      },
+      orderBy: [{path: 'gen_utime', direction: 'DESC'}],
+      limit: limit
+    };
   }
 
   /**

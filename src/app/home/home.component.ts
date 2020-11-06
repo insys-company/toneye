@@ -3,11 +3,13 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { HomeService } from './home.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MessageQueries, TransactionQueries, BlockQueries, CommonQueries } from 'src/app/api/queries';
-import { Account, Message, ViewerData, Transaction, Block, SimpleDataFilter } from 'src/app/api';
+import { Message, ViewerData, Transaction, Block, SimpleDataFilter, TabViewerData } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
+import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-home',
@@ -16,24 +18,44 @@ import { Subject } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestroy {
+
+  /** Общие тексты для страниц */
+  public locale = {
+    homeTitle: LocaleText.homeTitle,
+    homeInfoTitle: LocaleText.homeInfoTitle,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    homeInfoText1: LocaleText.homeInfoText1,
+    homeInfoText2: LocaleText.homeInfoText2,
+    homeInfoText3: LocaleText.homeInfoText3,
+    homeInfoText4: LocaleText.homeInfoText4,
+    autoupdate: LocaleText.autoupdate,
+    blocks: LocaleText.blocks,
+    transactions: LocaleText.transactions,
+    messages: LocaleText.messages,
+  };
   /**
    * For skeleton animation
    */
-  public skeletonArrayForFilter: Array<number> = new Array(6);
+  public skeletonArrayForGeneralViewer: Array<number> = new Array(6);
 
   /**
    * For tabs header (titles)
    */
   public tabsTitles: Array<string> = [
-    `${appRouteMap.blocks}`,
-    `${appRouteMap.transactions}`,
-    `${appRouteMap.messages}`
+    LocaleText.lastBlocks,
+    LocaleText.lastTransactions,
+    LocaleText.lastMessages
   ];
 
   /** Array of ... */
   public blocks: Block[] = [];
   public messages: Message[] = [];
   public transactions: Transaction[] = [];
+
+  public newBlocks: Block[] = [];
+  public newMessages: Message[] = [];
+  public newTransactions: Transaction[] = [];
 
   /**
    * Min time for aggregate data
@@ -76,6 +98,7 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
     protected homeService: HomeService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private messageQueries: MessageQueries,
     private transactionQueries: TransactionQueries,
     private blockQueries: BlockQueries,
@@ -86,28 +109,13 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
       homeService,
       route,
       router,
+      dialog
     );
 
      /** Loading animation in children */
     this.isGeneralInfoOpen = false;
     this.isAditionalInfoOpen = true;
   }
-
-
-  // constructor(
-  //   private changeDetection: ChangeDetectorRef,
-  //   private homeService: HomeService,
-  //   private router: Router,
-  // ) {
-  //   /** Disable change detection for application optimization */
-  //   this.changeDetection.detach();
-
-  //   this.isInfoOpen = false;
-
-  //   /** Loading animation in children */
-  //   this.generalViewerLoading = true;
-  //   this.tableViewerLoading = true;
-  // }
 
   /**
    * Initialization of the component
@@ -153,7 +161,21 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
    */
   public ngOnDestroy(): void {
     super.ngOnDestroy();
-    // TODO
+    this.locale = null;
+    this.tabsTitles = null;
+    this.blocks = null;
+    this.transactions = null;
+    this.messages = null;
+    this.utime_since = null;
+    this.prev_key_block_seqno = null;
+    this.shards_length = null;
+    this.aggregate_transactions = null;
+    this.aggregate_account_count = null;
+    this.aggregate_total_balance = null;
+
+    this.newBlocks = null;
+    this.newMessages = null;
+    this.newTransactions = null;
   }
 
 
@@ -177,24 +199,129 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
   }
 
   /**
+   * Show new data
+   */
+  public onShowNewData(): void {
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+    this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+
+    if (this.selectedTabIndex == 0) {
+
+      this.blocks = this.blocks ? this.blocks : [];
+      this.blocks = _.clone(this.newBlocks.concat(this.blocks));
+      this.tableViewerData = this._service.mapDataForTable(this.blocks, appRouteMap.blocks, 10);
+      this.newBlocks = [];
+    }
+    else if (this.selectedTabIndex == 1) {
+
+      this.transactions = this.transactions ? this.transactions : [];
+      this.transactions = _.clone(this.newTransactions.concat(this.transactions));
+      this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 10);
+      this.newTransactions = [];
+    }
+    else {
+
+      this.messages = this.messages ? this.messages : [];
+      this.messages= _.clone(this.newMessages.concat(this.messages));
+      this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 10);
+      this.newMessages = [];
+    }
+
+    this.newDataAfterUpdateForView = [];
+
+    this.viewersLoading = false;
+    this.tableViewersLoading = false;
+    this.detectChanges();
+
+  }
+
+  /**
+   * Show new data
+   */
+  public onShowAllNewData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
+
+    this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+    this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+
+    this.blocks = this.blocks ? this.blocks : [];
+    this.messages = this.messages ? this.messages : [];
+    this.transactions = this.transactions ? this.transactions : [];
+
+    this.blocks = _.clone(this.newBlocks.concat(this.blocks));
+    this.transactions = _.clone(this.newTransactions.concat(this.transactions));
+    this.messages= _.clone(this.newMessages.concat(this.messages));
+
+    this.tableViewerData = this.selectedTabIndex == 0
+      ? this._service.mapDataForTable(this.blocks, appRouteMap.blocks, 10)
+      : this.selectedTabIndex == 1
+        ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 10)
+        : this._service.mapDataForTable(this.messages, appRouteMap.messages, 10);
+    
+    
+    this.newBlocks = [];
+    this.newTransactions = [];
+    this.newMessages = [];
+    this.newDataAfterUpdateForView = [];
+
+    this.viewersLoading = false;
+    this.tableViewersLoading = false;
+    this.detectChanges();
+
+  }
+
+  /**
+   * Change autoupdate checkbox
+   * @param check Flag
+   */
+  public updateChange(check: boolean) {
+    this.autoupdate = check;
+
+    this.updateUnsubscribe();
+
+    if (!this.autoupdate) {
+      this.onShowAllNewData();
+    }
+    else {
+      this.subscribeOnUpdate();
+    }
+
+    this.detectChanges();
+  }
+
+  /**
    * Change tab
    * @param index Index of selected tab
    */
   public onSelectTab(index: number): void {
+
+    this.selectedTabIndex = index;
 
     this.tableViewersLoading = true;
     this.tableViewerData = [];
     this.detectChanges();
 
     this.tableViewerData = index == 0
-      ? this._service.mapDataForTable(this.blocks, appRouteMap.blocks)
+      ? this._service.mapDataForTable(this.blocks, appRouteMap.blocks, 10)
       : index == 1
-        ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions)
-        : this._service.mapDataForTable(this.messages, appRouteMap.messages);
+        ? this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 10)
+        : this._service.mapDataForTable(this.messages, appRouteMap.messages, 10);
+
+    this.newDataAfterUpdateForView = index == 0
+      ? this._service.mapDataForTable(this.newBlocks, appRouteMap.blocks)
+      : index == 1
+        ? this._service.mapDataForTable(this.newTransactions, appRouteMap.transactions)
+        : this._service.mapDataForTable(this.newMessages, appRouteMap.messages);       
 
     this.tableViewersLoading = false;
     this.detectChanges();
-
   }
 
   /**
@@ -224,40 +351,91 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
   /**
    * Получение данных
    */
+  protected subscribeData(): void {
+    if (this.selectedTabIndex == 0) {
+      this.getBlocks();
+    }
+    else if (this.selectedTabIndex == 1) {
+      this.getTransactions();
+    }
+    else {
+      this.getMessages();
+    }
+  }
+
+  /**
+   * Получение данных
+   */
   protected refreshData(): void {
     this.getData();
   }
 
-  protected getData(): void {
-
-    this.tableViewersLoading = true;
-    this.detectChanges();
-
-    // Get Blocks
-    this._service.getData(
-      this.homeService.getVariablesForBlocks(this.params),
-      this.blockQueries.getBlocks,
-      appRouteMap.blocks
+  /**
+   * Get aggregate messages count
+   */
+  private getAggregateData(): void {
+    this._service.getAggregateData(
+      this.homeService.getVariablesForAggregateData(),
+      this.commonQueries.getGeneralData
     )
       .pipe(takeUntil(this._unsubscribe))
-      .subscribe((res: Block[]) => {
+      .subscribe((res: any) => {
 
-        this.blocks = res ? res : [];
+        this.aggregate_transactions = res && res.aggregateTransactions[0] ? res.aggregateTransactions[0] : 0;
+        this.aggregate_account_count = res && res.getAccountsCount[0] ? res.getAccountsCount[0] : 0;
+        this.aggregate_total_balance = res && res.getAccountsTotalBalance[0] ? res.getAccountsTotalBalance[0] : 0;
 
-        this.processData();
-
-        this.tableViewerData = this._service.mapDataForTable(this.blocks, appRouteMap.blocks);
-        this.tableViewersLoading = false;
-        this.filterLoading = false;
-        this.initComplete = true;
-        this.detectChanges();
+        this.getPrevBlockKey();
 
     }, (error: any) => {
       console.log(error);
     });
+  }
 
+  /**
+   * Get data
+   */
+  protected getData(): void {
+
+    if (!this.autoupdate) {
+      this.tableViewersLoading = true;
+      this.detectChanges();
+    }
+
+    this.getBlocks();
+
+    this.getMessages();
+
+    this.getTransactions();
+  }
+
+  /**
+   *  For update
+   */
+  protected subscribeOnUpdate(): void {
+    this._updateUnsubscribe = new Subject<void>();
+    /**Отправляем на сервер каждын 2 секунда запрос  */
+    const _timer = timer(Infinity, 2000);
+
+    _timer
+      .pipe(takeUntil(this._updateUnsubscribe))
+      .subscribe(() => {
+
+        // this.refreshData();
+        this.subscribeData();
+
+      }, error => {
+        this.updateUnsubscribe();
+      });
+  }
+
+  /**
+   * Get message list
+   */
+  private getMessages(): void {
     // Одиночный вызов сообщений
     if (this.isSingleQuery) {
+
       // Get Messages
       this._service.getData(
         this.homeService.getVariablesForMessages(this.params),
@@ -267,18 +445,45 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
         .pipe(takeUntil(this._unsubscribe))
         .subscribe((res: Message[]) => {
 
-          this.messages = res ? res : [];
-          this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-          this.tableViewersLoading = false;
-          this.filterLoading = false;
-          this.initComplete = true;
-          this.detectChanges();
+          res = res ? res : [];
+
+          if (!this.autoupdate) {
+            this.messages = res;
+            if (this.selectedTabIndex == 2) {
+              this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 10);
+            }
+            this.tableViewersLoading = false;
+            this.filterLoading = false;
+            this.initComplete = true;
+            this.detectChanges();
+          }
+          else {
+            this.newMessages = this.newMessages ? this.newMessages : [];
+  
+            let uniqItems = [];
+  
+            res.forEach((item: Message) => {
+              let filterItem = _.findWhere(this.messages, {id: item.id});
+              let filterNewItem = _.findWhere(this.newMessages, {id: item.id});
+              if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+            });
+  
+            if (uniqItems.length) {
+              this.newMessages = _.clone(uniqItems.concat(this.newMessages));
+              if (this.selectedTabIndex == 2) {
+                this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newMessages, appRouteMap.messages);
+              }
+            }
+  
+            this.detectChanges();
+          }
 
       }, (error: any) => {
         console.log(error);
       });
-    }
 
+  
+    }
     // Запросы на сообщения по источникам и получателям
     else {
       // Get Messages
@@ -304,16 +509,40 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
               dstData = dstData ? dstData : [];
 
               // Объединение двух массивов и сортировка
-              let _data = srcData.concat(dstData);
+              let res = srcData.concat(dstData);
 
-              _data = (_.sortBy(_data, 'created_at')).reverse();
+              res = (_.sortBy(res, 'created_at')).reverse();
 
-              this.messages = _data ? _data : [];
-              this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-              this.tableViewersLoading = false;
-              this.filterLoading = false;
-              this.initComplete = true;
-              this.detectChanges();
+              if (!this.autoupdate) {
+                this.messages = res;
+                if (this.selectedTabIndex == 2) {
+                  this.tableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 10);
+                }
+                this.tableViewersLoading = false;
+                this.filterLoading = false;
+                this.initComplete = true;
+                this.detectChanges();
+              }
+              else {
+                this.newMessages = this.newMessages ? this.newMessages : [];
+      
+                let uniqItems = [];
+      
+                res.forEach((item: Message) => {
+                  let filterItem = _.findWhere(this.messages, {id: item.id});
+                  let filterNewItem = _.findWhere(this.newMessages, {id: item.id});
+                  if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+                });
+      
+                if (uniqItems.length) {
+                  this.newMessages = _.clone(uniqItems.concat(this.newMessages));
+                  if (this.selectedTabIndex == 2) {
+                    this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newMessages, appRouteMap.messages);
+                  }
+                }
+      
+                this.detectChanges();
+              }
 
           }, (error: any) => {
             console.log(error);
@@ -323,8 +552,66 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
         console.log(error);
       });
     }
+  }
 
+  /**
+   * Get block list
+   */
+  private getBlocks(): void {
+    // Get Blocks
+    this._service.getData(
+      this.homeService.getVariablesForBlocks(this.params),
+      this.blockQueries.getBlocks,
+      appRouteMap.blocks
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Block[]) => {
 
+        res = res ? res : [];
+
+        if (!this.autoupdate) {
+          this.blocks = res;
+          this.processData();
+          if (this.selectedTabIndex == 0) {
+            this.tableViewerData = this._service.mapDataForTable(this.blocks, appRouteMap.blocks, 10);
+          }
+          this.tableViewersLoading = false;
+          this.filterLoading = false;
+          this.initComplete = true;
+          this.detectChanges();
+        }
+        else {
+          this.newBlocks = this.newBlocks ? this.newBlocks : [];
+
+          let uniqItems = [];
+
+          res.forEach((item: Block) => {
+            let filterItem = _.findWhere(this.blocks, {id: item.id});
+            let filterNewItem = _.findWhere(this.newBlocks, {id: item.id});
+            if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+          });
+
+          if (uniqItems.length) {
+            this.newBlocks = _.clone(uniqItems.concat(this.newBlocks));
+            if (this.selectedTabIndex == 0) {
+              this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newBlocks, appRouteMap.blocks);
+            }
+          }
+
+          this.processData();
+
+          this.detectChanges();
+        }
+
+      }, (error: any) => {
+        console.log(error);
+      });
+  }
+
+  /**
+   * Get transaction list
+   */
+  private getTransactions(): void {
     // Get transactions
     this._service.getData(
       this.homeService.getVariablesForTransactions(this.params),
@@ -334,38 +621,42 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Transaction[]) => {
 
-        this.transactions = res ? res : [];
-        this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
-        this.tableViewersLoading = false;
-        this.filterLoading = false;
-        this.initComplete = true;
-        this.detectChanges();
+        res = res ? res : [];
 
-    }, (error: any) => {
-      console.log(error);
-    });
-  }
+        if (!this.autoupdate) {
+          this.transactions = res;
+          if (this.selectedTabIndex == 1) {
+            this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 10);
+          }
+          this.tableViewersLoading = false;
+          this.filterLoading = false;
+          this.initComplete = true;
+          this.detectChanges();
+        }
+        else {
+          this.newTransactions = this.newTransactions ? this.newTransactions : [];
 
-  /**
-   * Get aggregate messages count
-   */
-  private getAggregateData(): void {
-    this._service.getAggregateData(
-      this.homeService.getVariablesForAggregateData(),
-      this.commonQueries.getGeneralData
-    )
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe((res: any) => {
+          let uniqItems = [];
 
-        this.aggregate_transactions = res && res.aggregateTransactions[0] ? res.aggregateTransactions[0] : 0;
-        this.aggregate_account_count = res && res.getAccountsCount[0] ? res.getAccountsCount[0] : 0;
-        this.aggregate_total_balance = res && res.getAccountsTotalBalance[0] ? res.getAccountsTotalBalance[0] : 0;
+          res.forEach((item: Transaction) => {
+            let filterItem = _.findWhere(this.transactions, {id: item.id});
+            let filterNewItem = _.findWhere(this.newTransactions, {id: item.id});
+            if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+          });
 
-        this.getPrevBlockKey();
+          if (uniqItems.length) {
+            this.newTransactions = _.clone(uniqItems.concat(this.newTransactions));
+            if (this.selectedTabIndex == 1) {
+              this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newTransactions, appRouteMap.transactions);
+            }
+          }
 
-    }, (error: any) => {
-      console.log(error);
-    });
+          this.detectChanges();
+        }
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -430,42 +721,39 @@ export class HomeComponent extends BaseComponent<any> implements OnInit, OnDestr
   private processData(): void {
 
     const aggregateTransactions = new ViewerData({
-      title: 'Total transaction count',
+      title: LocaleText.totalTransactionCount,
       value: this.aggregate_transactions,
       isNumber: true
     });
 
     const getAccountsCount = new ViewerData({
-      title: 'Accounts',
+      title: LocaleText.accounts,
       value: this.aggregate_account_count,
       isNumber: true
     });
 
     const getAccountsTotalBalance = new ViewerData({
-      title: 'Coins',
+      title: LocaleText.coins,
       value: this.aggregate_total_balance,
       isNumber: true
     });
 
     const shards = new ViewerData({
-      title: 'Workchain shards',
+      title: LocaleText.workchainShards,
       value: this.shards_length,
       isNumber: true,
-      // dinamic: true
     });
 
     const headBlocks = new ViewerData({
-      title: 'Head blocks',
-      value: this.blocks.length ? _.max(this.blocks, function(b){ return b.seq_no; })['seq_no'] : 0,
+      title: LocaleText.headBlocks,
+      value: this.blocks.length ? _.max(_.first(_.clone(this.newBlocks.concat(this.blocks)), 50), function(b){ return b.seq_no; })['seq_no'] : 0,
       isNumber: true,
-      dinamic: true
     });
 
     const averageBlockTime = new ViewerData({
-      title: 'Average block time',
-      value: (this._service.baseFunctionsService.getAverageTime(this.blocks, 'gen_utime') + ' sec').replace('.', ','),
+      title: LocaleText.averageBlockTime,
+      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newBlocks.concat(this.blocks)), 50), 'gen_utime') + ` ${LocaleText.sec}`).replace('.', ','),
       isNumber: false,
-      dinamic: true
     });
 
     this.generalViewerData = [];

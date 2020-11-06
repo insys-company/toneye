@@ -4,7 +4,7 @@ import { BaseService } from 'src/app/shared/components/app-base/app-base.service
 import { Apollo } from 'apollo-angular';
 import { AccountQueries } from '../../api/queries';
 import { BaseFunctionsService } from 'src/app/shared/services';
-import { Account, SimpleDataFilter, FilterSettings } from 'src/app/api';
+import { Account, SimpleDataFilter, FilterSettings, ItemList } from 'src/app/api';
 import { appRouteMap } from '../../app-route-map';
 
 @Injectable({
@@ -42,14 +42,14 @@ export class ContractDetailsService extends BaseService<Account> {
    * Get variables
    * @param hash for query
    */
-  public getVariablesForAggregateAccounts(params: SimpleDataFilter, hash: string, isBalanse: boolean = false, isType: boolean = false, isOrderBy: boolean = false): object {
+  public getVariablesForAggregateAccounts(params: SimpleDataFilter, hash: string, isBalance: boolean = false, isType: boolean = false, isOrderBy: boolean = false, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _acc_type = isType
       ? {eq: 1}
       : undefined;
 
-    let  _fields = isBalanse
+    let  _fields = isBalance
       ? [{field: 'balance', fn: 'SUM'}]
       : undefined;
 
@@ -65,7 +65,10 @@ export class ContractDetailsService extends BaseService<Account> {
       : undefined;
 
     let _last_paid = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let  _orderBy = isOrderBy
@@ -85,7 +88,7 @@ export class ContractDetailsService extends BaseService<Account> {
         code_hash: {eq: hash}
       },
       orderBy: _orderBy,
-      limit: isOrderBy ? 50 : undefined
+      limit: isOrderBy ? limit : undefined
     };
   }
 
@@ -97,7 +100,10 @@ export class ContractDetailsService extends BaseService<Account> {
     params = params ? params : new SimpleDataFilter({});
 
     let _created_at = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     return {

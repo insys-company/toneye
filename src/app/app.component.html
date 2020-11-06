@@ -14,8 +14,8 @@
 
       <!-- Toolbar -->
       <div class="header__toolbar">
-        <a *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="header__toolbar-link span-class">
-          <span>{{item}}</span>
+        <a *ngFor="let item of menu;trackBy:identifyMenu;" routerLink="{{item.routerLink}}" routerLinkActive="active" class="header__toolbar-link span-class">
+          <span>{{item?.title}}</span>
         </a>
       </div>
     </header>
@@ -56,8 +56,8 @@
 <!-- Mobile menu -->
 <div class="mobile-menu mobile-menu__wrapper" [class.mobile-menu--opened]="isMenuOpened">
   <div class="mobile-menu__content">
-    <a *ngFor="let item of links;trackBy:identifyMenu;" routerLink="/{{item}}" routerLinkActive="active" class="mobile-menu__link" (click)="isMenuOpened=false;">
-      <span>{{item}}</span>
+    <a *ngFor="let item of menu;trackBy:identifyMenu;" routerLink="{{item.routerLink}}" routerLinkActive="active" class="mobile-menu__link" (click)="isMenuOpened=false;">
+      <span>{{item?.title}}</span>
     </a>
   </div>
 </div>

@@ -6,7 +6,12 @@ import { CommonQueries } from 'src/app/api/queries';
 import { ViewerData, TabViewerData, ItemList, DataConfig, Account } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
+import _ from 'underscore';
 
+// const CONTRACT_CSV_HEADER = 'name,code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent,id,avatar \n';
+const CONTRACT_CSV_HEADER = 'code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent \n';
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
@@ -22,12 +27,26 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(1);
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.contractsPage,
+    date: LocaleText.activeInPeriod,
+    tons: LocaleText.transactionCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   constructor(
     protected changeDetection: ChangeDetectorRef,
     protected _service: ContractsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
   ) {
     super(
@@ -35,6 +54,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -51,7 +71,24 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * Export method
    */
   public onExport(): void {
-    // TODO
+    let csvContent = CONTRACT_CSV_HEADER;
+
+    let dataString = '';
+
+    if (this.data) {
+
+      this.data.data.forEach((item: Account, i: number) => {
+        dataString = `"${item.code_hash ? item.code_hash : 0}",`
+        +`"${item.aggregateByBalance ? item.aggregateByBalance : 0}",`
+        +`"${item.aggregateByHash ? item.aggregateByHash : 0}",`
+        +`"${item.aggregateByType ? item.aggregateByType : 0}",`
+        +`"${item.aggregateByMess ? item.aggregateByMess : 0}"`;
+  
+        csvContent += i < this.tableViewerData.length ? dataString + '\n' : dataString;
+      });
+   
+      this.onDownloadCsv(appRouteMap.contracts, csvContent);
+    }
   }
 
   /**
@@ -74,12 +111,11 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
    * @param _model Model
    * @param _data Aditional data
    */
-  protected mapDataForViews(_model: any, _data?: any): void {
+  protected mapDataForViews(_model: any[], _data?: any): void {
     this.generalViewerData = [];
     this.generalViewerData.push(new ViewerData({
-      title: 'Unique contracts',
-      value: this.data.total,
-      dinamic: true,
+      title: LocaleText.uniqueContracts,
+      value: _model && _model.length ? _model.length : 0,
       isNumber: true
     }));
   }
@@ -169,11 +205,25 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
                 })
               });
 
-              this.tableViewerData.push(_item);
+              this.data.data[index].aggregateByBalance = byBalance['aggregateAccounts'][0] ? byBalance['aggregateAccounts'][0] + '' : '0';
+              this.data.data[index].aggregateByHash = byHash['aggregateAccounts'][0] ? byHash['aggregateAccounts'][0] + '' : '0';
+              this.data.data[index].aggregateByType = byType['aggregateAccounts'][0] ? byType['aggregateAccounts'][0] + '' : '0';
+              this.data.data[index].aggregateByMess = mess['aggregateMessages'][0] ? mess['aggregateMessages'][0] + '' : '0';
+
+              if (
+                this.data.data[index].aggregateByBalance != '0'
+                && this.data.data[index].aggregateByHash != '0'
+                && this.data.data[index].aggregateByType != '0'
+                && this.data.data[index].aggregateByMess != '0'
+              ) {
+                this.tableViewerData.push(_item);
+              }
 
               if (index === this.data.data.length - 1) {
 
-                this.mapDataForViews(null);
+                this.tableViewerData = (_.sortBy(this.tableViewerData, (item) => { return Number(item.titleRight.text) })).reverse();
+
+                this.mapDataForViews(this.tableViewerData);
 
                 this.viewersLoading = false;
             

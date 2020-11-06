@@ -1,8 +1,8 @@
-<div class="app-viewer bg-light app-filter" [class.app-viewer--opened]="isFilterOpen">
+<div class="app-viewer bg-light app-filter" [class.app-viewer--opened]="isFilterOpen" [class.app-viewer--without-hidden]="!isFilterHideBtnVisible">
   <!-- Header -->
   <div class="app-viewer__header-wrapper">
     <div class="app-viewer__header">
-      <span>Filters {{filterSetCount ? '(' + filterSetCount + ' set)' : ''}}</span>
+      <span>{{locale?.filters}} {{filterSetCount ? '(' + filterSetCount + ' ' + locale?.set + ')' : ''}}</span>
     </div>
     <div *ngIf="isFilterHideBtnVisible" class="app-viewer__btn" (click)="onShowOrHide()">
       <span class="color-blue link">
@@ -20,7 +20,7 @@
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
     <div *ngIf="settings?.filterChain" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'All chains'"
+        [placeholder]="locale?.chains"
 
         [options]="chains"
         [selectedOptions]="selectedChains"
@@ -32,7 +32,7 @@
         [prefixIconClass]="'chain'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectChain($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedChains')">
       </app-multiselect>
@@ -40,11 +40,11 @@
 
     <div *ngIf="settings?.filterExtInt" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'Ext+Int'"
-  
+        [placeholder]="locale?.extint"
+
         [options]="extInt"
         [selectedOptions]="selectedExtInt"
-  
+
         [searchEnable]="true"
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
@@ -52,7 +52,7 @@
         [prefixIconClass]="'extint'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectExtint($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedExtInt')">
       </app-multiselect>
@@ -60,8 +60,8 @@
 
     <div *ngIf="settings?.filterByShard" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'All shards'"
-  
+        [placeholder]="locale?.shards"
+
         [options]="shards"
         [selectedOptions]="selectedShards"
 
@@ -72,7 +72,7 @@
         [prefixIconClass]="'shard'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectShard($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedShards')">
       </app-multiselect>
@@ -80,11 +80,11 @@
 
     <div *ngIf="settings?.filterByAbort" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'Aborted and not'"
-  
+        [placeholder]="locale?.abort"
+
         [options]="aborted"
         [selectedOptions]="selectedAborted"
-  
+
         [searchEnable]="true"
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
@@ -92,7 +92,7 @@
         [prefixIconClass]="'abort'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectAborted($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedAborted')">
       </app-multiselect>
@@ -100,11 +100,11 @@
 
     <div *ngIf="settings?.filterByDirection" class="app-viewer__body-item no-hover">
       <app-multiselect
-        [placeholder]="'Any direction'"
-  
+        [placeholder]="locale?.direstion"
+
         [options]="directions"
         [selectedOptions]="selectedDirections"
-  
+
         [searchEnable]="true"
         [panelClass]="'app-filters__multiselect-panel'"
         [styleClass]="'app-filters__multiselect'"
@@ -112,13 +112,13 @@
         [prefixIconClass]="'direction'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (optionSelected)="onSelectDirection($event)"
         (selectedOptionsChange)="updateSelectedItems($event, 'selectedDirections')">
       </app-multiselect>
     </div>
 
-    <!-- <div *ngIf="settings?.filterByDate" class="app-viewer__body-item no-hover">
+    <div *ngIf="settings?.filterByDate" class="app-viewer__body-item no-hover">
       <app-datepicker
         [placeholder]="datePlaceholder"
         [fromDate]="fromDate"
@@ -131,10 +131,10 @@
         [prefixIconClass]="'date'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (periodSelected)="onSelectDate($event)">
       </app-datepicker>
-    </div> -->
+    </div>
 
     <div *ngIf="settings?.filterByMinMax" class="app-viewer__body-item no-hover">
       <app-minmax
@@ -149,7 +149,7 @@
         [prefixIconClass]="'gem'"
 
         [singleSelectClearingEnable]="true"
-  
+
         (periodSelected)="onSelectMinMax($event)">
       </app-minmax>
     </div>
@@ -163,6 +163,6 @@
   <div *ngIf="isFilterFooterVisible" class="app-viewer__footer-wrapper">
     <div *ngIf="skeletalAnimation" class="app-viewer__body-item-block skeleton skeleton-filter-bg skeleton--block w-40"></div>
 
-    <button *ngIf="!skeletalAnimation" @smoothDisplayAnimation type="button" mat-stroked-button disableRipple (click)="onResetFilter()">Clear all</button>
+    <button *ngIf="!skeletalAnimation" @smoothDisplayAnimation type="button" mat-stroked-button disableRipple (click)="onResetFilter()">{{locale?.clearAll}}</button>
   </div>
 </div>

@@ -4,10 +4,13 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { ValidatorsService } from './validators.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BlockQueries } from 'src/app/api/queries';
-import { ValidatorSet, ViewerData, TabViewerData, BlockMasterConfig, Block, ItemList } from 'src/app/api';
+import { ValidatorSet, ViewerData, TabViewerData, BlockMasterConfig, Block, ItemList, ValidatorSetList } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
+import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
+const VALIDATOR_CSV_HEADER = 'public_key,adnl_addr,weight,__typename \n';
 @Component({
   selector: 'app-validators',
   templateUrl: './validators.component.html',
@@ -33,19 +36,24 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    */
   public aditionalSkeletonArrayForGeneralViewer: Array<number> = new Array(2);
 
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.validatorsPage,
+    general: LocaleText.general,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+    previous: LocaleText.previous,
+    current: LocaleText.current,
+    next: LocaleText.next,
+    validatorConfig: LocaleText.validatorConfig
+  };
+
   /**
    * Validators
    */
   public previosValidators: ValidatorSet;
   public currentValidators: ValidatorSet;
   public nextValidators: ValidatorSet;
-
-  /**
-   * Aditional Data for view
-   */
-  public p15ViewerData: Array<ViewerData>;
-  public p16ViewerData: Array<ViewerData>;
-  public p17ViewerData: Array<ViewerData>;
 
   /**
    * Data for table view
@@ -61,6 +69,11 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
   /**
    * Aditional Data for view
    */
+  public currentViewerData: Array<ViewerData>;
+
+  /**
+   * Aditional Data for view
+   */
   public nextViewerData: Array<ViewerData>;
 
   constructor(
@@ -68,6 +81,7 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
     protected _service: ValidatorsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private blockQueries: BlockQueries,
   ) {
     super(
@@ -75,6 +89,7 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -90,14 +105,11 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
     this.currentValidators = null;
     this.nextValidators = null;
 
-    this.p15ViewerData = null;
-    this.p16ViewerData = null;
-    this.p17ViewerData = null;
-
     this.tableViewerDataPrev = null;
     this.tableViewerDataNext = null;
 
     this.prevViewerData = null;
+    this.currentViewerData = null;
     this.nextViewerData = null;
   }
 
@@ -105,7 +117,31 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    * Export method
    */
   public onExport(): void {
-    // TODO
+    let csvContent = VALIDATOR_CSV_HEADER;
+
+    let dataString = '';
+
+    let _v = this.selectedTabIndex === 0
+      ? this.previosValidators
+      : this.selectedTabIndex === 1
+        ? this.currentValidators
+        : this.nextValidators;
+
+    let _data = _v != null ? _v.list : null;
+
+    if (_data) {
+
+      _data.forEach((item: ValidatorSetList, i: number) => {
+        dataString = `"${item.public_key ? item.public_key : 0}",`
+        +`"${item.adnl_addr ? item.adnl_addr : 0}",`
+        +`"${item.weight ? parseInt(item.weight, 16) : 0}",`
+        +`"${item.__typename}"`;
+  
+        csvContent += i < _data.length ? dataString + '\n' : dataString;
+      });
+   
+      this.onDownloadCsv(appRouteMap.validators, csvContent);
+    }
   }
 
   /**
@@ -131,58 +167,80 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
   protected mapDataForViews(_model: BlockMasterConfig, _data?: any): void {
 
     this.generalViewerData = [];
-    this.generalViewerData.push(new ViewerData({title: 'Number of current validators', value: _model.p34.total, isNumber: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Elections status', value: 'Closed'}));
-    this.generalViewerData.push(new ViewerData({title: 'Elections start', value: _model.p34.utime_since, isDate: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Next elections start',value: _model.p34.utime_until, isDate: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Elections end', value: _model.p34.utime_since, isDate: true}));
-    this.generalViewerData.push(new ViewerData({title: 'Next elections end', value: _model.p34.utime_until, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.numberOfCurrentValidators, value: _model.p34.total, isNumber: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.electionsStatus, value: 'Closed'}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.electionsStart, value: _model.p34.utime_since, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.nextElectionsStart,value: _model.p34.utime_until, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.electionsEnd, value: _model.p34.utime_since, isDate: true}));
+    this.generalViewerData.push(new ViewerData({title: LocaleText.nextElectionsEnd, value: _model.p34.utime_until, isDate: true}));
 
-    this.p15ViewerData = [];
-    this.p15ViewerData.push(new ViewerData({title: 'Validators elected for', value: _model.p15.validators_elected_for}));
-    this.p15ViewerData.push(new ViewerData({title: 'Elections start before', value: _model.p15.elections_start_before}));
-    this.p15ViewerData.push(new ViewerData({title: 'Elections end before', value: _model.p15.elections_end_before}));
-    this.p15ViewerData.push(new ViewerData({title: 'Stake held for', value: _model.p15.stake_held_for}));
+    this.aditionalViewerData = [];
+    // Подзаголовок - будет выделен
+    this.aditionalViewerData.push(new ViewerData({
+      title: LocaleText.electionParameters,
+      isHeader: true
+    }));
 
-    this.p16ViewerData = [];
-    this.p16ViewerData.push(new ViewerData({title: 'Max main validators', value: _model.p16.max_main_validators, isNumber: true}));
-    this.p16ViewerData.push(new ViewerData({title: 'Max validators', value: _model.p16.max_validators, isNumber: true}));
-    this.p16ViewerData.push(new ViewerData({title: 'Min validators', value: _model.p16.min_validators, isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.validatorsElectedFor, value: _model.p15.validators_elected_for != null ? _model.p15.validators_elected_for : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.electionsStartBefore, value: _model.p15.elections_start_before != null ? _model.p15.elections_start_before : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.electionsEndBefore, value: _model.p15.elections_end_before != null ? _model.p15.elections_end_before : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.stakeHeldFor, value: _model.p15.stake_held_for != null ? _model.p15.stake_held_for : '--'}));
 
-    this.p17ViewerData = [];
-    this.p17ViewerData.push(new ViewerData({title: 'Max stake', value: _model.p17.max_stake, isNumber: true}));
-    this.p17ViewerData.push(new ViewerData({title: 'Max stake factor', value: _model.p17.max_stake_factor, isNumber: true}));
-    this.p17ViewerData.push(new ViewerData({title: 'Min stake', value: _model.p17.min_stake, isNumber: true}));
-    this.p17ViewerData.push(new ViewerData({title: 'Min total stake', value: _model.p17.min_total_stake, isNumber: true}));
+    // Подзаголовок - будет выделен
+    this.aditionalViewerData.push(new ViewerData({
+      title: LocaleText.validatorsCount,
+      isHeader: true
+    }));
+
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxMainValidators, value: _model.p16.max_main_validators, isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxValidators, value: _model.p16.max_validators, isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minValidators, value: _model.p16.min_validators, isNumber: true}));
+
+    // Подзаголовок - будет выделен
+    this.aditionalViewerData.push(new ViewerData({
+      title: LocaleText.validatorStake,
+      isHeader: true
+    }));
+
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxStake, value: parseInt(_model.p17.max_stake, 16), isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.maxStakeFactor, value: _model.p17.max_stake_factor, isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minStake, value: parseInt(_model.p17.min_stake, 16), isNumber: true}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.minTotalStake, value: parseInt(_model.p17.min_total_stake, 16), isNumber: true}));
 
     this.prevViewerData = [];
     this.prevViewerData.push(new ViewerData({
-      title: 'Since', value: _model && _model.p32 && _model.p32.utime_since != null ? _model.p32.utime_since : '--',
-      isDate:  _model && _model.p32 && _model.p32.utime_since != null ? true : false
+      title: LocaleText.since,
+      value: _model && _model.p32 && _model.p32.utime_since != null ? _model.p32.utime_since : '--',
+      isDate:  _model && _model.p32 && _model.p32.utime_since != null
     }));
     this.prevViewerData.push(new ViewerData({
-      title: 'Until', value: _model && _model.p32 && _model.p32.utime_until != null ? _model.p32.utime_until : '--',
-      isDate: _model && _model.p32 && _model.p32.utime_until != null ? true : false
+      title: LocaleText.until,
+      value: _model && _model.p32 && _model.p32.utime_until != null ? _model.p32.utime_until : '--',
+      isDate: _model && _model.p32 && _model.p32.utime_until != null
     }));
 
-    this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new ViewerData({
-      title: 'Since', value: _model && _model.p34 && _model.p34.utime_since != null ? _model.p34.utime_since : '--',
-      isDate:  _model && _model.p34 && _model.p34.utime_since != null ? true : false
+    this.currentViewerData = [];
+    this.currentViewerData.push(new ViewerData({
+      title: LocaleText.since,
+      value: _model && _model.p34 && _model.p34.utime_since != null ? _model.p34.utime_since : '--',
+      isDate:  _model && _model.p34 && _model.p34.utime_since != null
     }));
-    this.aditionalViewerData.push(new ViewerData({
-      title: 'Until', value: _model && _model.p34 && _model.p34.utime_until != null ? _model.p34.utime_until : '--',
-      isDate: _model && _model.p34 && _model.p34.utime_until != null ? true : false
+    this.currentViewerData.push(new ViewerData({
+      title: LocaleText.until,
+      value: _model && _model.p34 && _model.p34.utime_until != null ? _model.p34.utime_until : '--',
+      isDate: _model && _model.p34 && _model.p34.utime_until != null
     }));
 
     this.nextViewerData = [];
     this.nextViewerData.push(new ViewerData({
-      title: 'Since', value: _model && _model.p36 && _model.p36.utime_since != null ? _model.p36.utime_since : '--',
-      isDate:  _model && _model.p36 && _model.p36.utime_since != null ? true : false
+      title: LocaleText.since,
+      value: _model && _model.p36 && _model.p36.utime_since != null ? _model.p36.utime_since : '--',
+      isDate:  _model && _model.p36 && _model.p36.utime_since != null
     }));
     this.nextViewerData.push(new ViewerData({
-      title: 'Until', value: _model && _model.p36 && _model.p36.utime_until != null ? _model.p36.utime_until : '--',
-      isDate: _model && _model.p36 && _model.p36.utime_until != null ? true : false
+      title: LocaleText.until,
+      value: _model && _model.p36 && _model.p36.utime_until != null ? _model.p36.utime_until : '--',
+      isDate: _model && _model.p36 && _model.p36.utime_until != null
     }));
 
   }
@@ -250,9 +308,9 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
 
         this.detectChanges();
 
-        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, 10, this.previosValidators.total_weight);
-        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, 10, this.currentValidators.total_weight);
-        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, 10, this.nextValidators.total_weight);
+        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, null, this.previosValidators.total_weight);
+        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, null, this.currentValidators.total_weight);
+        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, null, this.nextValidators.total_weight);
 
         this.tableViewersLoading = false;
 

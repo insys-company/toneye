@@ -5,6 +5,7 @@ import { ListItem, SimpleDataFilter, FilterSettings, Block, BlockMasterShardHash
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { LocaleText } from 'src/locale/locale';
 
 /**
  * This component displays filters on list pages.
@@ -17,6 +18,18 @@ import { takeUntil } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, OnDestroy {
+
+  /** Общие тексты для страниц */
+  public locale = {
+    filters: LocaleText.filters,
+    set: LocaleText.set,
+    chains: LocaleText.chainsFilterPlaceholder,
+    shards: LocaleText.shardsFilterPlaceholder,
+    extint: LocaleText.extIntFilterPlaceholder,
+    abort: LocaleText.abortFilterPlaceholder,
+    direstion: LocaleText.directionFilterPlaceholder,
+    clearAll: LocaleText.clearAll
+  };
   /**
    * For subscribers
    */
@@ -171,7 +184,7 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
    * For button in info
    */
   public get btnPlaceholder(): string {
-    return !this.isFilterOpen ? 'Show' : 'Hide';
+    return !this.isFilterOpen ? LocaleText.show : LocaleText.hide;
   }
 
   /**
@@ -233,7 +246,6 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
         this.getDate(this.params ? { from: this.params.fromDate, to: this.params.toDate } : { from: null, to: null})
       }
 
-      console.log(this.params);
       // this.detectChanges();
     }
   }
@@ -243,27 +255,13 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
    */
   public ngOnInit(): void {
     this.service.init();
-
-    console.log(this.params);
-
-    // this.route.queryParams
-    //   .pipe(takeUntil(this._unsubscribe))
-    //   .subscribe((queryParams: Params) => {
-
-    //     this.params = this.baseFunctionsService.getFilterParams(queryParams, this.params);
-
-    //     console.log(this.params);
-
-    //     this.detectChanges();
-
-    //   });
   }
 
   /**
    * After children check
    */
   public ngAfterViewChecked(): void {
-    console.log('f');
+    // console.log('filter');
     this.detectChanges();
   }
 
@@ -278,6 +276,7 @@ export class AppFilterComponent implements OnChanges, OnInit, AfterViewChecked, 
       this.service.destroy();
     }
 
+    this.locale = null;
     this.data = null;
     this.skeletalAnimation = null;
     this.skeletonArray = null;
