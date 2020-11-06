@@ -95,7 +95,7 @@
   <div class="account-page__content account-content page-list-content">
       <!-- animationDuration="0ms" -->
     <mat-tab-group dynamicHeight #tabs [(selectedIndex)]="selectedTabIndex">
-      <mat-tab label="{{locale?.previous}} ({{tableViewerDataPrev?.length ? tableViewerDataPrev?.length : 0}})">
+      <mat-tab label="{{locale?.previous}} ({{previosValidators?.list?.length ? previosValidators?.list?.length : 0}})">
 
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
@@ -116,7 +116,7 @@
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer1
                 [data]="tableViewerDataPrev"
-                [isFooterVisible]="false"
+                [isFooterVisible]="isFooterVisible"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
@@ -129,7 +129,7 @@
       </mat-tab>
 
 
-      <mat-tab label="{{locale?.current}} ({{tableViewerData?.length ? tableViewerData?.length : 0}})">
+      <mat-tab label="{{locale?.current}} ({{currentValidators?.list?.length ? currentValidators?.list?.length : 0}})">
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
             <!-- Sticky block for desctop -->
@@ -149,7 +149,7 @@
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer2
                 [data]="tableViewerData"
-                [isFooterVisible]="false"
+                [isFooterVisible]="isCurrentFooterVisible"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"
@@ -161,7 +161,7 @@
       </mat-tab>
 
 
-      <mat-tab label="{{locale?.next}} ({{tableViewerDataNext?.length ? tableViewerDataNext?.length : 0}})">
+      <mat-tab label="{{locale?.next}} ({{nextValidators?.list?.length ? nextValidators?.list?.length : 0}})">
         <div class="mat-tab-body-content__wrapper">
           <div class="page-list-content__filters tab-animation">
             <!-- Sticky block for desctop -->
@@ -181,7 +181,7 @@
             <div class="page-list-content__component-wrapper">
               <app-table-viewer #tableViewer3
                 [data]="tableViewerDataNext"
-                [isFooterVisible]="false"
+                [isFooterVisible]="isNextFooterVisible"
                 [footerPlaceholder]="locale?.loadMore"
                 [skeletalAnimation]="tableViewersLoading"
                 (exportEvent)="onExport()"

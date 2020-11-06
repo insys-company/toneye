@@ -76,6 +76,12 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    */
   public nextViewerData: Array<ViewerData>;
 
+  /**
+   * for load more btn
+   */
+  public isCurrentFooterVisible: boolean = true;
+  public isNextFooterVisible: boolean = true;
+
   constructor(
     protected changeDetection: ChangeDetectorRef,
     protected _service: ValidatorsService,
@@ -111,6 +117,9 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
     this.prevViewerData = null;
     this.currentViewerData = null;
     this.nextViewerData = null;
+
+    this.isCurrentFooterVisible = null;
+    this.isNextFooterVisible = null;
   }
 
   /**
@@ -149,7 +158,42 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // TODO
+    if (this.selectedTabIndex === 0 && this.previosValidators && this.previosValidators.list) {
+      let newData = this.previosValidators.list.slice(this.tableViewerDataPrev.length, this.tableViewerDataPrev.length + 25);
+      let newDataForView = this._service.mapDataForTable(newData, appRouteMap.validators, 25, this.previosValidators.total_weight);
+
+      this.tableViewerDataPrev = this.tableViewerDataPrev.concat(newDataForView);
+
+      let totalPrev = this.previosValidators && this.previosValidators.list ? this.previosValidators.list.length : 0;
+
+      if (this.tableViewerDataPrev.length >= totalPrev) {
+        this.isFooterVisible = false;
+      }
+    }
+    else if (this.selectedTabIndex === 1 && this.currentValidators && this.currentValidators.list) {
+      let newData = this.currentValidators.list.slice(this.tableViewerData.length, this.tableViewerData.length + 25);
+      let newDataForView = this._service.mapDataForTable(newData, appRouteMap.validators, 25, this.currentValidators.total_weight);
+
+      this.tableViewerData = this.tableViewerData.concat(newDataForView);
+
+      let totalCurrent = this.currentValidators && this.currentValidators.list ? this.currentValidators.list.length : 0;
+
+      if (this.tableViewerData.length >= totalCurrent) {
+        this.isCurrentFooterVisible = false;
+      }
+    }
+    else if (this.selectedTabIndex === 2 && this.nextValidators && this.nextValidators.list) {
+      let newData = this.nextValidators.list.slice(this.tableViewerDataNext.length, this.tableViewerDataNext.length + 25);
+      let newDataForView = this._service.mapDataForTable(newData, appRouteMap.validators, 25, this.nextValidators.total_weight);
+
+      this.tableViewerDataNext = this.tableViewerDataNext.concat(newDataForView);
+
+      let totalNext = this.nextValidators && this.nextValidators.list ? this.nextValidators.list.length : 0;
+
+      if (this.tableViewerDataNext.length >= totalNext) {
+        this.isNextFooterVisible = false;
+      }
+    }
   }
 
   /**
@@ -308,9 +352,25 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
 
         this.detectChanges();
 
-        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, null, this.previosValidators.total_weight);
-        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, null, this.currentValidators.total_weight);
-        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, null, this.nextValidators.total_weight);
+        this.tableViewerDataPrev = this._service.mapDataForTable(this.previosValidators.list ? this.previosValidators.list : [], appRouteMap.validators, 25, this.previosValidators.total_weight);
+        this.tableViewerData = this._service.mapDataForTable(this.currentValidators.list ? this.currentValidators.list : [], appRouteMap.validators, 25, this.currentValidators.total_weight);
+        this.tableViewerDataNext = this._service.mapDataForTable(this.nextValidators.list ? this.nextValidators.list : [], appRouteMap.validators, 25, this.nextValidators.total_weight);
+
+        let totalPrev = this.previosValidators && this.previosValidators.list ? this.previosValidators.list.length : 0;
+        let totalCurrent = this.currentValidators && this.currentValidators.list ? this.currentValidators.list.length : 0;
+        let totalNext = this.nextValidators && this.nextValidators.list ? this.nextValidators.list.length : 0;
+
+        if (this.tableViewerDataPrev.length >= totalPrev) {
+          this.isFooterVisible = false;
+        }
+
+        if (this.tableViewerData.length >= totalCurrent) {
+          this.isCurrentFooterVisible = false;
+        }
+
+        if (this.tableViewerDataNext.length >= totalNext) {
+          this.isNextFooterVisible = false;
+        }
 
         this.tableViewersLoading = false;
 
