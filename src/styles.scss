@@ -169,6 +169,9 @@ a {
 .mat-stroked-button {
   min-height: 40px;
   transition: all .3s ease;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .mat-stroked-button:not([disabled]) {

@@ -71,6 +71,14 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
    */
   public panelClass?: string;
 
+  /** Общие тексты для страниц */
+  public locale = {
+    save: LocaleText.save,
+    clearAll: LocaleText.clearAll,
+    from: LocaleText.from,
+    to: LocaleText.to
+  };
+
   /**
    * Устанавливает класс для стилизации кнопки крестика
    * @type {boolean}
@@ -179,6 +187,7 @@ export class AppDatepickerOverlayComponent implements OnInit, OnDestroy {
     this.toPlaceholder = null;
 
     this.panelClass = null;
+    this.locale = null;
   }
 
   /**
