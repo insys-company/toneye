@@ -5,6 +5,8 @@ services:
         build: 
             context: .
             dockerfile: Dockerfile
+            args:
+                - BUILD_CONFIG=prod-kor
         container_name: toneye
         restart: always
         ports:
@@ -13,14 +15,12 @@ services:
         logging:
             options:
                 max-size: 50m
-    "toneye-korean":
-        image: insyscompany/toneye:release-korean
+    "toneye-english":
+        image: insyscompany/toneye:release-english
         build: 
             context: .
             dockerfile: Dockerfile
-            args:
-                - BUILD_CONFIG=prod-kor
-        container_name: toneye-korean
+        container_name: toneye-english
         restart: always
         ports:
             - 8080:80

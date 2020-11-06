@@ -35,40 +35,40 @@ ng serve
 
 ### Requirements
 
- - Docker Engine 19.03.0 or higher
- - Docker Compose 1.25.5 or higer
+ - Docker Engine 19.03.0 or higher ([How to install Docker](https://docs.docker.com/engine/install/))
+ - Docker Compose 1.25.5 or higer ([How to install Docker Compose](https://docs.docker.com/compose/install/))
 
 ### Installation
 
-#### English version
+The release version of the Toneye language is Korean. Additional language is English.
 
-Docker CLI
+#### Docker CLI
 ```
 docker pull insyscompany/toneye:release && \
-docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye-korean insyscompany/toneye:release
 ```
 
-Docker Compose CLI
+#### Docker Compose CLI
 ```
 docker-compose up -d toneye
 ```
 
-#### Korean version
+#### English version
 
-Docker CLI
+##### Docker CLI
 ```
-docker pull insyscompany/toneye:release-korean && \
-docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye-korean insyscompany/toneye:release-korean
+docker pull insyscompany/toneye:release-english && \
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release-english
 ```
 
-Docker Compose CLI
+##### Docker Compose CLI
 ```
-docker-compose up -d toneye-korean
+docker-compose up -d toneye-english
 ```
 
 ### Build
 
-#### English version
+#### Korean version
 
 Docker CLI
 ```
@@ -80,14 +80,14 @@ Docker Compose CLI
 docker-compose build toneye
 ```
 
-#### Korean version
+#### English version
 
 Docker CLI
 ```
-docker build . -t insyscompany/toneye:release-korean
+docker build . -t insyscompany/toneye:release-english
 ```
 
 Docker Compose CLI
 ```
-docker-compose build toneye-korean
+docker-compose build toneye-english
 ```
