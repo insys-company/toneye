@@ -22,14 +22,30 @@ Supported languages:
 npm install
 ```
 2. Buld the application:
+
+Korean version:
 ```
-ng build
+ng build --configuration=dev-kor
+```
+
+English version:
+```
+ng build --configuration=dev
 ```
 3. Run dev server:
+
+Korean version:
 ```
-ng serve
+ng serve --configuration=dev-kor
+```
+
+English version:
+```
+ng server --configuration=dev
 ```
 4. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+Use `prod` (English version) and `prod-kor` (Korean version) configurations to build the application for production environment.
 
 ## Server Installation
 
