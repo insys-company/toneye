@@ -51,7 +51,7 @@ export class TransactionsService extends BaseService<Transaction> {
    * @param params Filter params
    * @pram isForAggregateData For agg data
    */
-  public getVariablesForTransactions(params: SimpleDataFilter, isForAggregateData: boolean = false, limit: number = null): object {
+  public getVariablesForTransactions(params: SimpleDataFilter, isForAggregateData: boolean = false, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance_delta = params.min != null || params.max != null
@@ -90,7 +90,7 @@ export class TransactionsService extends BaseService<Transaction> {
       orderBy: _orderBy,
       limit: isForAggregateData
         ? undefined
-        : limit != null ? limit : 50
+        : limit
     };
   }
 }

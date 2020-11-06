@@ -81,7 +81,7 @@ export class BlocksService extends BaseService<Block> {
    * Variables for blocks
    * @param params Filter params
    */
-  public getVariablesForBlocks(params: SimpleDataFilter, limit: number = null): object {
+  public getVariablesForBlocks(params: SimpleDataFilter, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _tr_count = params.min != null || params.max != null
@@ -114,7 +114,7 @@ export class BlocksService extends BaseService<Block> {
         tr_count: _tr_count
       },
       orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-      limit: limit != null ? limit : 50
+      limit: limit
     };
   }
 }

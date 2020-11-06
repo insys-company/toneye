@@ -50,7 +50,7 @@ export class ValidatorDetailsService extends BaseService<any> {
    * Get variables
    * @param node_id Id for query
    */
-  public getVariablesForAggregateBlockSignatures(node_id: string | number, data: string = null, limit: number = 50): object {
+  public getVariablesForBlockSignatures(node_id: string | number, data: number = null, limit: number = 50): object {
 
     let _gen_utime = data != null
       ? {
@@ -72,8 +72,20 @@ export class ValidatorDetailsService extends BaseService<any> {
    * Get variables
    * @param _id Id for query
    */
-  public getVariablesForBlocks(_id: string | number): object {
-    return {filter: {}, orderBy: [{path: 'gen_utime', direction: 'DESC'}], limit: 50};
+  public getVariablesForBlocks(_id: string | number, data: number = null, limit: number = 50): object {
+    let _gen_utime = data != null
+      ? {
+        le: data != null ? Number(data) : undefined
+      }
+      : undefined;
+
+    return {
+      filter: {
+        gen_utime: _gen_utime
+      },
+      orderBy: [{path: 'gen_utime', direction: 'DESC'}],
+      limit: limit
+    };
   }
 
   /**

@@ -68,7 +68,6 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    */
   public onLoadMore(index: number): void {
     this.tableViewersLoading = true;
-
     this.detectChanges();
 
     let date = this.data && this.data.data ? _.last(this.data.data).created_at : null;
@@ -87,15 +86,20 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
         .pipe(takeUntil(this._unsubscribe))
         .subscribe((res: Message[]) => {
   
-          this.data.data = this.data.data.concat(res ? res : []);
+          res = res ? res : [];
+
+          // hide load more btn
+          if (!res.length || res.length < 25) {
+            this.isFooterVisible = false;
+          }
+  
+          this.data.data = _.union(this.data.data, res);
+          this.data.data = _.uniq(this.data.data, 'id');
           this.data.total = this.data.data.length;
       
           this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages);
       
           this.tableViewersLoading = false;
-      
-          this.filterLoading = false;
-      
           this.detectChanges();
   
         }, (error: any) => {
@@ -130,15 +134,18 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
 
               res = (_.sortBy(res, 'created_at')).reverse();
 
-              this.data.data = this.data.data.concat(res = res ? res : []);
+              // hide load more btn
+              if (!res.length || res.length < 25) {
+                this.isFooterVisible = false;
+              }
+
+              this.data.data = _.union(this.data.data, res);
+              this.data.data = _.uniq(this.data.data, 'id');
               this.data.total = this.data.data.length;
           
-              this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages, 25);
+              this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages);
           
               this.tableViewersLoading = false;
-          
-              this.filterLoading = false;
-          
               this.detectChanges();
       
             }, (error: any) => {
@@ -203,7 +210,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     if (this.isSingleQuery) {
 
       this._service.getData(
-        this._service.getVariablesForMessages(this.params),
+        this._service.getVariablesForMessages(this.params, null, (this.initComplete ? 25 : 50)),
         this.messageQueries.getMessages
       )
         .pipe(takeUntil(this._unsubscribe))
@@ -216,6 +223,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
           }
           else {
             this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+            this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
   
             let uniqItems = [];
   
@@ -232,7 +240,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
   
             const mps = new ViewerData({
               title: LocaleText.mps,
-              value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'created_at') + '').replace('.', ','),
+              value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'created_at') + '').replace('.', ','),
               isNumber: false
             });
 
@@ -280,6 +288,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
               }
               else {
                 this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+                this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
       
                 let uniqItems = [];
       
@@ -296,10 +305,10 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
       
                 const mps = new ViewerData({
                   title: LocaleText.mps,
-                  value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'created_at') + '').replace('.', ','),
+                  value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'created_at') + '').replace('.', ','),
                   isNumber: false
                 });
-
+    
                 this.generalViewerData = this.generalViewerData.splice(0, 1);
             
                 this.generalViewerData.push(mps);
@@ -325,6 +334,14 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    */
   private processData(_data: Message[]): void {
 
+    this.newDataAfterUpdate = [];
+    this.newDataAfterUpdateForView = [];
+
+    // hide load more btn
+    if (!_data.length || _data.length <= 25) {
+      this.isFooterVisible = false;
+    }
+
     /** Messages */
     this.data = new ItemList({
       data: _data ? _data : [],
@@ -332,6 +349,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
       pageSize: 25,
       total: _data ? _data.length : 0
     });
+
+    this.data.data = _.first(this.data.data, 25);
 
     const mps = new ViewerData({
       title: LocaleText.mps,
@@ -352,6 +371,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     this.tableViewersLoading = false;
 
     this.filterLoading = false;
+
+    this.initComplete = true;
 
     this.detectChanges();
   }

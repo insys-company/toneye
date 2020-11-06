@@ -60,7 +60,6 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
    */
   public onLoadMore(index: number): void {
     this.tableViewersLoading = true;
-
     this.detectChanges();
 
     let date = this.data && this.data.data ? _.last(this.data.data).now : null;
@@ -76,15 +75,20 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Transaction[]) => {
 
-        this.data.data = this.data.data.concat(res ? res : []);
+        res = res ? res : [];
+
+        // hide load more btn
+        if (!res.length || res.length < 25) {
+          this.isFooterVisible = false;
+        }
+
+        this.data.data = _.union(this.data.data, res);
+        this.data.data = _.uniq(this.data.data, 'id');
         this.data.total = this.data.data.length;
 
         this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.transactions);
 
         this.tableViewersLoading = false;
-
-        this.filterLoading = false;
-
         this.detectChanges();
 
       }, (error: any) => {
@@ -140,7 +144,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
   private getTransactions(): void {
 
     this._service.getData(
-      this._service.getVariablesForTransactions(this.params),
+      this._service.getVariablesForTransactions(this.params, false, (this.initComplete ? 25 : 50)),
       this.transactionQueries.getTransactions
     )
       .pipe(takeUntil(this._unsubscribe))
@@ -153,6 +157,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
         }
         else {
           this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+          this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
 
           let uniqItems = [];
 
@@ -169,7 +174,7 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
 
           const tps = new ViewerData({
             title: LocaleText.tps,
-            value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'now') + '').replace('.', ','),
+            value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'now') + '').replace('.', ','),
             isNumber: false
           });
 
@@ -195,6 +200,11 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
     this.newDataAfterUpdate = [];
     this.newDataAfterUpdateForView = [];
 
+    // hide load more btn
+    if (!_data.length || _data.length <= 25) {
+      this.isFooterVisible = false;
+    }
+
     /** Transactions */
     this.data = new ItemList({
       data: _data ? _data : [],
@@ -202,6 +212,8 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
       pageSize: 25,
       total: _data ? _data.length : 0
     });
+
+    this.data.data = _.first(this.data.data, 25);
 
     const tps = new ViewerData({
       title: LocaleText.tps,
@@ -220,6 +232,8 @@ export class TransactionsComponent extends BaseComponent<Transaction> implements
     this.tableViewersLoading = false;
 
     this.filterLoading = false;
+
+    this.initComplete = true;
 
     this.detectChanges();
   }

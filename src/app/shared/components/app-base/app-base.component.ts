@@ -395,14 +395,17 @@ export class BaseComponent<TModel extends IModel> implements OnInit, AfterViewCh
     this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
 
     this.data.data = this.data.data ? this.data.data : [];
-    this.data.total = this.data.data.length;
     this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
 
     this.data.data = _.clone(this.newDataAfterUpdate.concat(this.data.data));
+
+    if (this.data.data.length > 25) {this.isFooterVisible = true;}
+
+    this.data.data = _.first(this.data.data, 25);
     this.data.total = this.data.data.length;
 
-    this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 10);
-    
+    this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 25);
+
     this.newDataAfterUpdate = [];
     this.newDataAfterUpdateForView = [];
 

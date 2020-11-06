@@ -42,7 +42,7 @@ export class AccountsService extends BaseService<Account> {
    * Variables for blocks
    * @param params Filter params
    */
-  public getVariablesForAccounts(params: SimpleDataFilter, isParse: boolean = true, limit: number = null): object {
+  public getVariablesForAccounts(params: SimpleDataFilter, isParse: boolean = true, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance = params.min != null || params.max != null
@@ -70,7 +70,7 @@ export class AccountsService extends BaseService<Account> {
         last_paid: _last_paid
       },
       orderBy: [{path: 'balance', direction: 'DESC'}],
-      limit: limit != null ? limit : 50
+      limit: limit
     };
   }
 }

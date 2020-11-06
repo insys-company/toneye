@@ -110,7 +110,6 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
    */
   public onLoadMore(index: number): void {
     this.tableViewersLoading = true;
-
     this.detectChanges();
 
     let date = this.data && this.data.data ? _.last(this.data.data).gen_utime : null;
@@ -127,15 +126,20 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Block[]) => {
 
-        this.data.data = this.data.data.concat(res ? res : []);
+        res = res ? res : [];
+
+        // hide load more btn
+        if (!res.length || res.length < 25) {
+          this.isFooterVisible = false;
+        }
+
+        this.data.data = _.union(this.data.data, res);
+        this.data.data = _.uniq(this.data.data, 'id');
         this.data.total = this.data.data.length;
 
         this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks);
 
         this.tableViewersLoading = false;
-
-        this.filterLoading = false;
-
         this.detectChanges();
 
       }, (error: any) => {
@@ -247,7 +251,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
    */
   private getBlocks(): void {
     this._service.getData(
-      this._service.getVariablesForBlocks(this.params),
+      this._service.getVariablesForBlocks(this.params, (this.initComplete ? 25 : 50)),
       this.blockQueries.getBlocks
     )
       .pipe(takeUntil(this._unsubscribe))
@@ -260,6 +264,7 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
         }
         else {
           this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+          this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
 
           let uniqItems = [];
 
@@ -293,6 +298,11 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
     this.newDataAfterUpdate = [];
     this.newDataAfterUpdateForView = [];
 
+    // hide load more btn
+    if (!_data.length || _data.length <= 25) {
+      this.isFooterVisible = false;
+    }
+
     /** Blocks */
     this.data = new ItemList({
       data: _data ? _data : [],
@@ -300,6 +310,8 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
       pageSize: 25,
       total: _data ? _data.length : 0
     });
+
+    this.data.data = _.first(this.data.data, 25);
 
     this.setChangeData();
 
@@ -336,13 +348,13 @@ export class BlocksComponent extends BaseComponent<Block> implements OnInit, Aft
 
     const headBlocks = new ViewerData({
       title: LocaleText.headBlocks,
-      value: this.data.data.length ? _.max(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), function(b){ return b.seq_no; })['seq_no'] : 0,
+      value: this.data.data.length ? _.max(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), function(b){ return b.seq_no; })['seq_no'] : 0,
       isNumber: true
     });
 
     const averageBlockTime = new ViewerData({
       title: LocaleText.averageBlockTime,
-      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 50), 'gen_utime') + ` ${LocaleText.sec}`).replace('.', ','),
+      value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'gen_utime') + ` ${LocaleText.sec}`).replace('.', ','),
       isNumber: false
     });
 

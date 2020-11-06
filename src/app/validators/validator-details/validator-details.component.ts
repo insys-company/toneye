@@ -14,8 +14,8 @@ import { ExportDialogomponent } from 'src/app/shared/components';
 import Buffer from 'buffer';
 import Sha256 from 'js-sha256';
 
-const VALIDATOR_PUBLIC_KEY="741a757e7022daba881b9eef83e757f6b2bc536d7f6756224b2c4629b2a99a15";
-const NODE_ID="c2f10df9df2a63744448347911b9e987b4b81e0a6155fd3de5d844e6066cab53";
+const VALIDATOR_PUBLIC_KEY="26da72ac2e7b1e29b25dae037154043c774f891fe67e5f9f452f2356f7e1cae1";
+const NODE_ID="b1fc03f1056ea04fde998a2bc1725c405f36b18361d9066b01181aad9bfed02f";
 @Component({
   selector: 'app-validator-details',
   templateUrl: './validator-details.component.html',
@@ -128,103 +128,82 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // this.tableViewersLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
 
-    // this.detectChanges();
+    let date = this.blocks && this.blocks.data ? _.last(this.blocks.data).gen_utime : null;
 
-    // let date = this.data && this.data.data ? _.last(this.data.data).gen_utime : null;
+    // Get signatures block list
+    this.service.getData(
+      this.service.getVariablesForBlockSignatures(this.nodeId, date, 25),
+      this.blockQueries.getBlocksSignatures,
+      appRouteMap.blocksSignatures
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((sb: Block[]) => {
 
+        sb = sb ? sb : [];
 
-    // // Get signatures block list
-    // this.service.getData(
-    //   this.service.getVariablesForAggregateBlockSignatures(this.nodeId, date, 25),
-    //   this.blockQueries.getBlocksSignatures,
-    //   appRouteMap.blocksSignatures
-    // )
-    //   .pipe(takeUntil(this._unsubscribe))
-    //   .subscribe((sb: Block[]) => {
+        // hide load more btn
+        if (!sb.length || sb.length < 25) {
+          this.isFooterVisible = false;
+        }
 
-    //     sb = sb ? sb : [];
+        let ids = [];
 
-    //     this.data.data = this.data.data.concat(sb);
-    //     this.data.total = this.data.data.length;
+        sb.forEach((b: Block) => {
+          ids.push(b.id);
+        });
 
+        if (!ids.length) {
 
+          this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+          this.tableViewersLoading = false;
+          this.detectChanges();
 
-    //     let ids = [];
+        }
+        else {
 
-    //     this.blocks.data.forEach((b: Block) => {
-    //       ids.push(b.id);
-    //     });
+          // Get blocks with tr_count (filter by signatures blocks)
+          this.service.getData(
+            this.service.getVariablesForFilterBlocks(ids),
+            this.blockQueries.getBlocks,
+            appRouteMap.blocks
+          )
+            .pipe(takeUntil(this._unsubscribe))
+            .subscribe((fb: Block[]) => {
 
-    //     if (!ids.length) {
+              fb = fb ? fb : [];
 
-    //       this.tableViewerData = [];
-    //       this.tableViewersLoading = false;
-    //       this.detectChanges();
+              sb.forEach((block: Block) => {
+                let _b = _.find(fb, (item) => { return item.id === block.id});
 
-    //     }
-    //     else {
+                block.seq_no = _b ? _b.seq_no : 0;
+                block.tr_count = _b ? _b.tr_count : 0;
+                block.workchain_id = _b ? _b.workchain_id : 0;
+                block.shard = _b ? _b.shard : '';
+              });
 
-    //       // Get blocks with tr_count (filter by signatures blocks)
-    //       this.service.getData(
-    //         this.service.getVariablesForFilterBlocks(ids),
-    //         this.blockQueries.getBlocks,
-    //         appRouteMap.blocks
-    //       )
-    //         .pipe(takeUntil(this._unsubscribe))
-    //         .subscribe((b: Block[]) => {
+              this.blocks.data = _.union(this.blocks.data, sb);
+              this.blocks.data = _.uniq(this.blocks.data, 'id');
+              this.blocks.total = this.blocks.data.length;
 
-    //           b = b ? b : [];
+              this.tableViewerData = [];
 
-    //           this.blocks.data.forEach((block: Block) => {
-    //             let _b = _.find(b, (item) => { return item.id === block.id});
+              this.tableViewerData = this._service.mapDataForTable(this.blocks.data, appRouteMap.blocks);
 
-    //             block.seq_no = _b ? _b.seq_no : 0;
-    //             block.tr_count = _b ? _b.tr_count : 0;
-    //             block.workchain_id = _b ? _b.workchain_id : 0;
-    //             block.shard = _b ? _b.shard : '';
-    //           });
+              this.tableViewersLoading = false;
+              this.detectChanges();
 
-    //           this.tableViewerData = this._service.mapDataForTable(this.blocks.data, appRouteMap.blocks, 25);
+            }, (error: any) => {
+              console.log(error);
+            });
 
-    //           this.tableViewersLoading = false;
+        }
 
-    //           this.detectChanges();
-
-    //         }, (error: any) => {
-    //           console.log(error);
-    //         });
-
-    //     }
-
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
-
-
-    // // Get blocks
-    // this._service.getData(
-    //   this._service.getVariablesForBlocks(this.params, 25),
-    //   this.blockQueries.getBlocks
-    // )
-    //   .pipe(takeUntil(this._unsubscribe))
-    //   .subscribe((res: Block[]) => {
-
-    //     this.data.data = this.data.data.concat(res ? res : []);
-    //     this.data.total = this.data.data.length;
-
-    //     this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.blocks);
-
-    //     this.tableViewersLoading = false;
-
-    //     this.filterLoading = false;
-
-    //     this.detectChanges();
-
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -270,7 +249,8 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
 
 
               if (!this.model) {
-
+                this.tableViewersLoading = false;
+                this.detectChanges();
               }
               else {
                 this.getAggregateData();
@@ -287,10 +267,6 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     });
 
     this.getBlocks();
-
-    console.log(parseInt("0xecc530e7d78c86", 16))
-
-    
   }
 
   /**
@@ -303,17 +279,13 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
     this.model = this.model ? this.model : new ValidatorSetList();
 
     this.validatorData = this.validatorData ? this.validatorData : new ValidatorSet();
-
-    // let _publicKeyBase64 = this.modelId;
-
-    // let _adnlAddressBase64 = this.model.adnl_addr != null ? this.model.adnl_addr : '--';
     
     let _publicKeyBase64 = Buffer.Buffer.from(this.modelId + '', 'hex').toString('base64');
 
     let _adnlAddressBase64 = this.model.adnl_addr != null ? Buffer.Buffer.from(this.model.adnl_addr, 'hex').toString('base64') : '--';
     
-    console.log(Sha256.sha256(Buffer.Buffer.from(this.modelId+'', 'hex')));
-    console.log(Sha256.sha256(this.modelId+''));
+    // console.log(Sha256.sha256(Buffer.Buffer.from(this.modelId+'', 'hex')));
+    // console.log(Sha256.sha256(this.modelId+''));
 
     this.model.weight = this.model.weight
       ? String(parseInt(this.model.weight, 16))
@@ -386,12 +358,17 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
   private getBlocks(): void {
     // Get signatures block list
     this.service.getData(
-      this.service.getVariablesForAggregateBlockSignatures(this.nodeId),
+      this.service.getVariablesForBlockSignatures(this.nodeId),
       this.blockQueries.getBlocksSignatures,
       appRouteMap.blocksSignatures
     )
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((sb: Block[]) => {
+
+        // hide load more btn
+        if (!sb.length || sb.length <= 25) {
+          this.isFooterVisible = false;
+        }
 
         this.blocks = new ItemList({
           data: sb ? sb : [],
@@ -417,19 +394,19 @@ export class ValidatorDetailsComponent extends BaseComponent<any> implements OnI
         }
         else {
 
-          // Get blocks with tr_count (filter by signatures blocks)
+          // Get simple blocks
           this.service.getData(
             this.service.getVariablesForFilterBlocks(ids),
             this.blockQueries.getBlocks,
             appRouteMap.blocks
           )
             .pipe(takeUntil(this._unsubscribe))
-            .subscribe((b: Block[]) => {
+            .subscribe((fb: Block[]) => {
 
-              b = b ? b : [];
+              fb = fb ? fb : [];
 
               this.blocks.data.forEach((block: Block) => {
-                let _b = _.find(b, (item) => { return item.id === block.id});
+                let _b = _.find(fb, (item) => { return item.id === block.id});
 
                 block.seq_no = _b ? _b.seq_no : 0;
                 block.tr_count = _b ? _b.tr_count : 0;

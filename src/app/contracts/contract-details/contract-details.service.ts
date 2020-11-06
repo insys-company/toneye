@@ -42,7 +42,7 @@ export class ContractDetailsService extends BaseService<Account> {
    * Get variables
    * @param hash for query
    */
-  public getVariablesForAggregateAccounts(params: SimpleDataFilter, hash: string, isBalance: boolean = false, isType: boolean = false, isOrderBy: boolean = false, limit: number = null): object {
+  public getVariablesForAggregateAccounts(params: SimpleDataFilter, hash: string, isBalance: boolean = false, isType: boolean = false, isOrderBy: boolean = false, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _acc_type = isType
@@ -88,7 +88,7 @@ export class ContractDetailsService extends BaseService<Account> {
         code_hash: {eq: hash}
       },
       orderBy: _orderBy,
-      limit: isOrderBy ? limit != null ? limit : 50 : undefined
+      limit: isOrderBy ? limit : undefined
     };
   }
 
