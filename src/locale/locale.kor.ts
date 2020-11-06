@@ -132,7 +132,7 @@ export class LocaleText {
   static extIntFilterPlaceholder = '외부+내부';
   static abortFilterPlaceholder = '실패 여부';
   static transactionDateFilterPlaceholder = '트랜잭션 날짜';
-  static directionFilterPlaceholder = 'Any direction';
+  static directionFilterPlaceholder = '모든 방향';
   static transactionCountFilterPlaceholder = '트랜잭션 개수';
   static tonCountFilterPlaceholder = '톤 개수';
 

@@ -35,6 +35,11 @@ export class ValidatorsComponent extends BaseComponent<any> implements OnInit, A
    * For skeleton animation
    */
   public aditionalSkeletonArrayForGeneralViewer: Array<number> = new Array(2);
+  /**
+   * Tab index
+   * (For styles and queries in parent component)
+   */
+  public selectedTabIndex: number = 1;
 
   /** Общие тексты для страниц */
   public locale = {

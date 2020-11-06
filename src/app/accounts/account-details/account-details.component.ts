@@ -47,6 +47,11 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   public messSkeletonArrayForFilter: Array<number> = new Array(5);
   /**
+   * Tab index
+   * (For styles and queries in parent component)
+   */
+  public selectedTabIndex: number = 1;
+  /**
    * Account's transactions
    */
   public transactions: Array<Transaction>;
