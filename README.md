@@ -58,12 +58,13 @@ Use `prod` (English version) and `prod-kor` (Korean version) configurations to b
 
 #### Docker CLI
 ```
-docker pull insyscompany/toneye:release && \
+docker pull insyscompany/toneye:release
 docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release
 ```
 
 #### Docker Compose CLI
 ```
+docker-compose pull toneye
 docker-compose up -d toneye
 ```
 
