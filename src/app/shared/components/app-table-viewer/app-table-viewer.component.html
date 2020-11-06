@@ -58,21 +58,60 @@
 
         <!-- With icon -->
         <div class="app-viewer__body-item-icon-wrapper app-viewer__body-item-icon-wrapper--right">
-          <p *ngIf="item.titleRight?.type === 'number'">{{item.titleRight?.text ? (item.titleRight?.text | thousandspipe) : ''}}</p>
-          <p *ngIf="item.titleRight?.type !== 'number'" class="{{item.titleRight?.textColorClass}}">{{item.titleRight?.text ? item.titleRight?.text : ''}}</p>
+
+          <p class="{{!item.titleRight?.isNumber ? item.titleRight?.textColorClass : ''}}">{{item.titleRight?.isNumber
+            ? (item.titleRight?.text ? (item.titleRight?.text | thousandspipe) : '')
+            : item.titleRight?.text}}</p>
+
+          <!-- <p *ngIf="item.titleRight?.type === 'number'">{{item.titleRight?.text ? (item.titleRight?.text | thousandspipe) : ''}}</p>
+          <p *ngIf="item.titleRight?.type !== 'number'" class="{{item.titleRight?.textColorClass}}">{{item.titleRight?.text ? item.titleRight?.text : ''}}</p> -->
           <!-- Icon -->
-          <div *ngIf="item.titleRight?.text && item.titleRight?.icon" class="icon {{item.titleRight?.iconClass}}"></div>
+          <div *ngIf="item.titleRight?.text && item.titleRight?.isIcon" class="icon {{item.titleRight?.iconClass}}"></div>
         </div>
 
       </div>
 
       <div class="app-viewer__body-item-row">
-        <p *ngIf="item.subtitleLeft?.type === 'date'">{{locale?.lastTx}}: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
-        <p *ngIf="item.subtitleLeft?.type !== 'date'">{{item.subtitleLeft?.text ? item.subtitleLeft?.text : ''}}</p>
+        <p *ngIf="!item.subtitleLeft?.isFromTran && !item.subtitleLeft?.isToTran">{{item.subtitleLeft?.isNumber
+            ? (item.subtitleLeft?.text ? (item.subtitleLeft?.text | thousandspipe) : '')
+            : item.subtitleLeft?.isPercent
+              ? item.subtitleLeft?.text + '%'
+              : item.subtitleLeft?.isDate
+                ? locale?.lastTx + ': ' + (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY')
+                : item.subtitleLeft?.isTime
+                  ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss')
+                  : item.subtitleLeft?.isBoolean
+                    ? (item.subtitleLeft?.text | booleanToWord)
+                    : item.subtitleLeft?.text}}</p>
 
-        <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>
+        <div *ngIf="item.subtitleLeft?.isFromTran || item.subtitleLeft?.isToTran" class="from-to {{item.subtitleLeft?.fromTranClass}}">
+          <p>{{getSrc(item.subtitleLeft?.text)}}</p>
+          <div class="icon">
+            <span class="arrow-body"></span>
+          </div>
+          <p>{{getDst(item.subtitleLeft?.text)}}</p>
+        </div>
+
+        <!-- <p *ngIf="item.subtitleLeft?.type === 'date'">{{locale?.lastTx}}: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
+        <p *ngIf="item.subtitleLeft?.type !== 'date'">{{item.subtitleLeft?.text ? item.subtitleLeft?.text : ''}}</p> -->
+
+
+        <p>{{item.subtitleRight?.isNumber
+            ? (item.subtitleRight?.text ? (item.subtitleRight?.text | thousandspipe) : '')
+            : item.subtitleRight?.isPercent
+              ? item.subtitleRight?.text + '%'
+              : item.subtitleRight?.isDate
+                ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY')
+                : item.subtitleRight?.isTime
+                  ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss')
+                  : item.subtitleRight?.isBoolean
+                    ? (item.subtitleRight?.text | booleanToWord)
+                    : item.subtitleRight?.text}}</p>
+
+
+        <!-- <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>
         <p *ngIf="item.subtitleRight?.type === 'percent'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | thousandspipe) : '0' }}%</p>
-        <p *ngIf="item.subtitleRight?.type === 'string'">{{item.subtitleRight?.text}}</p>
+        <p *ngIf="item.subtitleRight?.type === 'string'">{{item.subtitleRight?.text}}</p> -->
       </div>
     </a>
   </div>

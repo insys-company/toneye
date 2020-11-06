@@ -3,24 +3,53 @@ import { SimpleDataFilter, ItemList } from 'src/app/api/contracts';
 import { Apollo } from 'apollo-angular';
 import { DocumentNode } from 'graphql';
 import { Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { BaseFunctionsService } from '../../services';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExportDialogService {
+  /**
+   * For subscribers
+   */
+  protected _unsubscribe: Subject<void> = new Subject();
 
   /**
    * For query
    */
-    response: Subject<boolean> = new Subject<boolean>();
+  public response: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     protected apollo: Apollo,
     private baseFunctionsService: BaseFunctionsService,
   ) {
     // TODO
+  }
+
+  /**
+   * Initialization of the service
+   */
+  public init(): void {
+    this._unsubscribe = new Subject<void>();
+  }
+
+  /**
+   * Destruction of the service
+   */
+  public destroy(): void {
+    this.unsubscribe();
+    this._unsubscribe = null;
+  }
+
+  /**
+   * unsubscribe from qeries of the service
+   */
+  public unsubscribe(): void {
+    if (this._unsubscribe) {
+      this._unsubscribe.next();
+      this._unsubscribe.complete();
+    }
   }
 
   /**
@@ -36,7 +65,7 @@ export class ExportDialogService {
       errorPolicy: 'all'
     })
     .valueChanges
-    .pipe(map(res => arrayMapName != null ? res.data[arrayMapName] : res.data));
+    .pipe(takeUntil(this._unsubscribe), map(res => arrayMapName != null ? res.data[arrayMapName] : res.data));
   }
 
   /**
@@ -76,7 +105,7 @@ export class ExportDialogService {
         tr_count: _tr_count
       },
       orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-      limit: 50
+      limit: 10
     };
   }
 
@@ -157,7 +186,7 @@ export class ExportDialogService {
       orderBy: [
         {path: 'created_at', direction: 'DESC'}
       ],
-      limit: 50
+      limit: 10
     };
   }
 
@@ -235,7 +264,7 @@ export class ExportDialogService {
       orderBy: [
         {path: 'created_at', direction: 'DESC'}
       ],
-      limit: 50
+      limit: 10
     };
   }
 
@@ -279,7 +308,7 @@ export class ExportDialogService {
         now: _now,
       },
       orderBy: [{path: 'now', direction: 'DESC'},{path: 'account_addr', direction: 'DESC'},{path: 'lt', direction: 'DESC'}],
-      limit: 50
+      limit: 10
     };
   }
 
@@ -316,7 +345,7 @@ export class ExportDialogService {
         last_paid: _last_paid
       },
       orderBy: [{path: 'balance', direction: 'DESC'}],
-      limit: 50
+      limit: 10
     };
   }
 
@@ -324,11 +353,20 @@ export class ExportDialogService {
    * Get variables
    * @param node_id Id for query
    */
-  public getVariablesForBlockSignatures(node_id: string | number): object {
+  public getVariablesForBlockSignatures(node_id: string | number, data: number = null): object {
+    let _gen_utime = data != null
+      ? {
+        le: data != null ? Number(data) : undefined
+      }
+      : undefined;
+
     return {
-      filter: {signatures: {any: {node_id: {eq: node_id}}}},
+      filter: {
+        gen_utime: _gen_utime,
+        signatures: {any: {node_id: {eq: node_id}}}
+      },
       orderBy: [{path: 'gen_utime', direction: 'DESC'}],
-      limit: 50
+      limit: 10
     };
   }
 

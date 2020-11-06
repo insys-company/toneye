@@ -301,6 +301,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
           m = m ? m : [];
 
+          m.forEach((item: Message) => {
+            item.isFromTran = true;
+          });
+
           // hide load more btn
           if (!m.length || m.length < 25) {
             this.isMessFooterVisible = false;
@@ -309,7 +313,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
           this.messages = _.union(this.messages, m);
           this.messages = _.uniq(this.messages, 'id');
   
-          this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+          this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, null, true);
   
           this.messTableViewersLoading = false;
           this.detectChanges();
@@ -330,6 +334,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
           .subscribe((srcData: Message[]) => {
     
             srcData = srcData ? srcData : [];
+
+            srcData.forEach((item: Message) => {
+              item.isFromTran = true;
+            });
   
             this._service.getData(
               this.service.getVariablesForMessages(this.params, String(this.modelId), false, 25),
@@ -340,6 +348,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
               .subscribe((dstData: Message[]) => {
   
                 dstData = dstData ? dstData : [];
+
+                dstData.forEach((item: Message) => {
+                  item.isToTran = true;
+                });
   
                 // Объединение двух массивов и сортировка
                 let res = srcData.concat(dstData);
@@ -356,7 +368,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
                 this.messages = _.union(this.messages, res);
                 this.messages = _.uniq(this.messages, 'id');
         
-                this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+                this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, null, true);
         
                 this.messTableViewersLoading = false;
                 this.detectChanges();
@@ -632,6 +644,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
         res = res ? res : [];
 
+        res.forEach((item: Message) => {
+          item.isFromTran = true;
+        });
+
         if (!this.autoupdate) {
 
           this.newDataAfterUpdate = [];
@@ -644,7 +660,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
           this.messages = _.first(res, 25);
   
-          this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25);
+          this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25, true);
   
           this.messTableViewersLoading = false;
   
@@ -668,7 +684,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
           if (uniqItems.length) {
             this.messNewDataAfterUpdate = _.clone(uniqItems.concat(this.messNewDataAfterUpdate));
-            this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages);
+            this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages, null, true);
           }
 
           uniqItems = null;
@@ -693,6 +709,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   
           srcData = srcData ? srcData : [];
 
+          srcData.forEach((item: Message) => {
+            item.isFromTran = true;
+          });
+
           this._service.getData(
             this.service.getVariablesForMessages(this.params, String(this.modelId), false, (this.messInitComplete ? 25 : 50)),
             this.messageQueries.getMessages,
@@ -702,6 +722,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
             .subscribe((dstData: Message[]) => {
 
               dstData = dstData ? dstData : [];
+
+              dstData.forEach((item: Message) => {
+                item.isToTran = true;
+              });
 
               // Объединение двух массивов и сортировка
               let res = srcData.concat(dstData);
@@ -720,7 +744,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       
                 this.messages = _.first(res, 25);
         
-                this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25);
+                this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25, true);
         
                 this.messTableViewersLoading = false;
         
@@ -744,7 +768,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       
                 if (uniqItems.length) {
                   this.messNewDataAfterUpdate = _.clone(uniqItems.concat(this.messNewDataAfterUpdate));
-                  this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages);
+                  this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages, null, true);
                 }
 
                 uniqItems = null;

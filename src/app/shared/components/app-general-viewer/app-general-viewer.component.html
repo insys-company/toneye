@@ -27,11 +27,15 @@
         [class.pointer]="item?.link">
         <span>{{item?.isNumber
           ? (item?.value | thousandspipe)
-          : item?.isDate
-            ? (item?.value | unixdate: 'HH:mm:ss D MMM YYYY')
-            : item?.isBoolean
-              ? (item?.value | booleanToWord)
-              : item?.value}}</span>
+          : item?.isPercent
+            ? item?.value + '%'
+            : item?.isDate
+              ? (item?.value | unixdate: 'HH:mm:ss D MMM YYYY')
+              : item?.isTime
+                ? (item?.value | unixdate: 'HH:mm:ss')
+                : item?.isBoolean
+                  ? (item?.value | booleanToWord)
+                  : item?.value}}</span>
       </div>
     </div>
   </div>

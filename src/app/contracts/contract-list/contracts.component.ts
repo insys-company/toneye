@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import _ from 'underscore';
 
 // const CONTRACT_CSV_HEADER = 'name,code_hash,totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent,id,avatar \n';
-const CONTRACT_CSV_HEADER = 'name, code_hash, totalBalances,contractsCount / total,contractsCount / active,contractsCount / recent \n';
+const CONTRACT_CSV_HEADER = 'name, code_hash, totalBalances, contractsCount / total, contractsCount / active, contractsCount / recent \n';
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
@@ -198,18 +198,16 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
                 url: appRouteMap.contract,
                 titleLeft: item.code_hash,
                 subtitleLeft: new DataConfig({
-                  text: item.name,
-                  type: 'string'
+                  text: item.name
                 }),
                 titleRight: new DataConfig({
                   text: byBalance['aggregateAccounts'][0],
-                  icon: true,
+                  isIcon: true,
                   iconClass: 'icon-gem',
-                  type: 'number'
+                  isNumber: true
                 }),
                 subtitleRight: new DataConfig({
-                  text: `${LocaleText.contracts}: ${byHash['aggregateAccounts'][0]} | ${LocaleText.active}: ${byType['aggregateAccounts'][0]} | ${LocaleText.new}: ${mess['aggregateMessages'][0]}`,
-                  type: 'string'
+                  text: `${LocaleText.contracts}: ${byHash['aggregateAccounts'][0]} | ${LocaleText.active}: ${byType['aggregateAccounts'][0]} | ${LocaleText.new}: ${mess['aggregateMessages'][0]}`
                 })
               });
 

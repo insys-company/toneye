@@ -43,6 +43,7 @@
     <div class="page-list-content__tabs">
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
+          [header]="locale?.tabHeader"
           [data]="tableViewerData"
           [isFooterVisible]="isFooterVisible"
           [footerPlaceholder]="locale?.loadMore"

@@ -1,3 +1,4 @@
+@import './abstracts/animation.scss';
 @import './abstracts/colors.scss';
 @import './icon.scss';
 
@@ -38,6 +39,13 @@ app-export {
     padding: 0 0 0 20px;
   }
 
+  &__progress-bar {
+    width: 100%;
+    min-height: 2px;
+    height: 2px;
+    max-height: 2px;
+  }
+
   &__body {
     flex: 1;
     padding: 20px;
@@ -70,4 +78,54 @@ app-export {
       margin-left: 20px;
     }
   }
+}
+
+
+.progress-bar {
+  border-radius: 1px;
+  background-color: transparent;
+  transition: all .2s ease;
+  position: relative;
+  background-color: transparent;
+  overflow: hidden;
+
+  // &.error {
+  //   background-color: #FF617D;
+  // }
+
+  &.progress {
+    background-color: $explorer--base__green-dark;
+
+    -webkit-animation-name: smallProgressBar;
+    -moz-animation-name: smallProgressBar;
+    animation-name: smallProgressBar;
+
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    animation-duration: 2s;
+
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+
+    -webkit-transition-timing-function: linear;
+    -moz-transition-timing-function: linear;
+    transition-timing-function: linear;
+
+    -webkit-animation-iteration-count: infinite;
+    -moz-transition-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+
+    background-image: linear-gradient(to right, $explorer--base__green-dark 0%, $explorer--base__white 65%, $explorer--base__green-dark 0%, $explorer--base__green-dark 75%, $explorer--base__green-dark 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+
+  // &.warn {
+  //   background-color: #FFD26A;
+  // }
+
+  // &.success {
+  //   background-color: #61A8FF;
+  // }
 }

@@ -11,8 +11,8 @@ import { LocaleText } from 'src/locale/locale';
 import { MatDialog } from '@angular/material/dialog';
 import { ExportDialogomponent } from 'src/app/shared/components';
 
-const IN_MSG_CSV_HEADER = 'msg_type,msg_type_name,fwd_fee,transaction_id,__typename,in_msg / msg_id,in_msg / next_addr,in_msg / cur_addr,in_msg / fwd_fee_remaining,in_msg \n';
-const OUT_MSG_CSV_HEADER = 'msg_type,msg_type_name,fwd_fee,transaction_id,__typename,out_msg / msg_id,out_msg / next_addr,out_msg / cur_addr,out_msg / fwd_fee_remaining,out_msg \n';
+const IN_MSG_CSV_HEADER = 'msg_type, msg_type_name, fwd_fee, transaction_id, __typename, in_msg / msg_id, in_msg / next_addr, in_msg / cur_addr, in_msg / fwd_fee_remaining, in_msg \n';
+const OUT_MSG_CSV_HEADER = 'msg_type, msg_type_name, fwd_fee, transaction_id, __typename, out_msg / msg_id, out_msg / next_addr, out_msg / cur_addr, out_msg / fwd_fee_remaining, out_msg \n';
 @Component({
   selector: 'app-block-details',
   templateUrl: './block-details.component.html',
@@ -283,18 +283,18 @@ export class BlockDetailsComponent extends BaseComponent<Block> implements OnIni
         let msg = '';
 
         if (this.selectedTabIndex === 1) {
-          msg = (item.in_msg ? ',in_msg' : '')
-          + (item.in_msg ? ` / "${item.in_msg.msg_id ? parseInt(item.in_msg.msg_id, 16) : 0}"` : '')
-          + (item.in_msg ? ` / "${item.in_msg.next_addr ? item.in_msg.next_addr : 0}"` : '')
-          + (item.in_msg ? ` / "${item.in_msg.cur_addr ? item.in_msg.cur_addr : 0}"` : '')
-          + (item.in_msg ? ` / "${item.in_msg.fwd_fee_remaining ? parseInt(item.in_msg.fwd_fee_remaining, 16) : 0}"` : '')
+          msg = ''
+          + (item.in_msg ? `"${item.in_msg.msg_id ? parseInt(item.in_msg.msg_id, 16) : 0}",` : '0,')
+          + (item.in_msg ? `"${item.in_msg.next_addr ? item.in_msg.next_addr : 0}",` : '0,')
+          + (item.in_msg ? `"${item.in_msg.cur_addr ? item.in_msg.cur_addr : 0}",` : '0,')
+          + (item.in_msg ? `"${item.in_msg.fwd_fee_remaining ? parseInt(item.in_msg.fwd_fee_remaining, 16) : 0}"` : '0')
         }
         else {
-          msg = (item.out_msg ? ',out_msg' : '')
-          + (item.out_msg ? ` / "${item.out_msg.msg_id ? parseInt(item.out_msg.msg_id, 16) : 0}"` : '')
-          + (item.out_msg ? ` / "${item.out_msg.next_addr ? item.out_msg.next_addr : 0}"` : '')
-          + (item.out_msg ? ` / "${item.out_msg.cur_addr ? item.out_msg.cur_addr : 0}"` : '')
-          + (item.out_msg ? ` / "${item.out_msg.fwd_fee_remaining ? parseInt(item.out_msg.fwd_fee_remaining, 16) : 0}"` : '')
+          msg = ''
+          + (item.out_msg ? `"${item.out_msg.msg_id ? parseInt(item.out_msg.msg_id, 16) : 0}",` : '0,')
+          + (item.out_msg ? `"${item.out_msg.next_addr ? item.out_msg.next_addr : 0}",` : '0,')
+          + (item.out_msg ? `"${item.out_msg.cur_addr ? item.out_msg.cur_addr : 0}",` : '0,')
+          + (item.out_msg ? `"${item.out_msg.fwd_fee_remaining ? parseInt(item.out_msg.fwd_fee_remaining, 16) : 0}",` : '')
         }
 
         dataString += msg;

@@ -256,6 +256,26 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   /**
+   * Get src from string
+   * @param str String
+   */
+  public getSrc(str: string): string {
+    if (!str || str.length === 0) { return ''; }
+
+    return str.split('|')[0];
+  }
+
+  /**
+   * Get dst from string
+   * @param str String
+   */
+  public getDst(str: string): string {
+    if (!str || str.length === 0) { return ''; }
+
+    return str.split('|')[1];
+  }
+
+  /**
    * Detect Changes for optimization
    */
   private detectChanges(): void {

@@ -368,3 +368,85 @@
 .icon-gem {
   background: url($ico-gem);
 }
+
+.from-to {
+  display: flex;
+  align-items: center;
+  span, p {
+    overflow: visible;
+  }
+
+  .icon {
+    margin: 0 5px;
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    span.arrow-body {
+      width: 100%;
+      height: 1px;
+      background-color: $explorer--base__black;
+      border-radius: 2px;
+      top: 5px;
+      position: absolute;
+      right: 0;
+      left: 0;
+    }
+    &::after,
+    &::before {
+      content: '';
+      position: absolute;
+      border-radius: 2px;
+      background-color: $explorer--base__black;
+      height: 1px;
+      width: 4px;
+      // top: 5px;
+    }
+    &::before {
+      -moz-transform: rotate(-45deg);
+      -o-transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      transform: rotate(-45deg);
+    }
+    &::after {
+      -moz-transform: rotate(45deg);
+      -o-transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+    &::before,
+    &::after {
+      right: 1px;
+    }
+
+    &::before {
+      bottom: 5px;
+    }
+
+    &::after {
+      top: 4px;
+    }
+  }
+  &.green {
+    .icon {
+      span.arrow-body,
+      &::after,
+      &::before {
+        background-color: $explorer--base__green;
+        color: $explorer--base__green;
+      }
+    }
+
+  }
+  &.red {
+    .icon {
+      span.arrow-body,
+      &::after,
+      &::before  {
+        background-color: $explorer--base__red;
+        color: $explorer--base__red;
+      }
+    }
+
+  }
+}

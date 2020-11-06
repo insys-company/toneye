@@ -10,7 +10,7 @@ import { appRouteMap } from 'src/app/app-route-map';
 import { LocaleText } from 'src/locale/locale';
 import { MatDialog } from '@angular/material/dialog';
 
-const VALIDATOR_CSV_HEADER = 'public_key,adnl_addr,weight,__typename \n';
+const VALIDATOR_CSV_HEADER = 'public_key, adnl_addr, weight, __typename \n';
 @Component({
   selector: 'app-validators',
   templateUrl: './validators.component.html',
