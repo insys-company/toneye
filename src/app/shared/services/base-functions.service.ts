@@ -129,28 +129,27 @@ export class BaseFunctionsService {
       ? String(parseInt(_item.value, 16))
       : _item.value;
 
-    // let _text = '';
+    let _text = '';
 
-    // if (_item.isFromTran || _item.isToTran) {
+    if (fromToTranClassEnable && (_item.isFromTran || _item.isToTran)) {
 
-    //   _text = _item.isFromTran
-    //     ? `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`
-    //     : `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`;
-
-    // }
-    // else {
-
-    // }
+      _text = _item.isFromTran
+        ? `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`
+        : `${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)} | ${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)}`;
+    }
+    else {
+      _text = `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`;
+    }
 
     return new TabViewerData({
       id: _item.id,
       url: appRouteMap.message,
       titleLeft: _item.id,
       subtitleLeft: new DataConfig({
-        text: `${(!_item.src || _item.src == '') ? 'ext' : _item.src.substring(0, 6)} | ${(!_item.dst || _item.dst == '') ? 'ext' : _item.dst.substring(0, 6)}`,
+        text: _text,
         isFromTran: _item.isFromTran,
         isToTran: _item.isToTran,
-        fromTranClass: fromToTranClassEnable ? _item.isToTran ? 'green' : 'red' : ''
+        fromTranClass: fromToTranClassEnable ? _item.isFromTran ? 'red' : 'green' : ''
       }),
       titleRight: new DataConfig({
         text: _item.value,
