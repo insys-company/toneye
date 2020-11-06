@@ -3,6 +3,7 @@ import { smoothDisplayAfterSkeletonAnimation } from 'src/app/app-animations';
 import { TabViewerData } from 'src/app/api';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 /**
  * This component displays table information on list pages.
@@ -26,7 +27,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * Name of New Data
    */
-  @Input() public newDataName: string = 'items';
+  @Input() public newDataName: string = LocaleText.items;
   
   /**
    * For skeleton animation
@@ -47,15 +48,15 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * For tabs header (titles)
    */
-  @Input() public tabsTitles: Array<string> = [ '1', '2'];
+  @Input() public tabsTitles: Array<string> = [ 'List 1', 'List 2'];
   /**
    * Header for block
    */
-  @Input() public header: string = 'List';
+  @Input() public header: string = LocaleText.list;
   /**
    * For header button
    */
-  @Input() public btnPlaceholder: string = 'Export to csv';
+  @Input() public btnPlaceholder: string = LocaleText.exportTo;
   /**
    * For header button (icon in btn)
    */
@@ -63,7 +64,11 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   /**
    * For footer button
    */
-  @Input() public footerPlaceholder: string = 'See all';
+  @Input() public isFooterVisible: boolean = true;
+  /**
+   * For footer button
+   */
+  @Input() public footerPlaceholder: string = LocaleText.seeAll;
 
   /**
    * Click export button
@@ -81,6 +86,19 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Select item from tabs
    */
   @Output() selectItem: EventEmitter<any> = new EventEmitter<any>(null);
+  /**
+   * Click export button
+   */
+  @Output() showNewDataEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  /** Общие тексты для страниц */
+  public locale = {
+    list: LocaleText.list,
+    notFound: LocaleText.notFound,
+    show: LocaleText.show,
+    new: LocaleText.new,
+    lastTx: LocaleText.lastTx
+  };
 
   /**
    * Tab index
@@ -94,7 +112,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
   public get footerBtnPlaceholder(): string {
     if (!this.isTabsHeaderMode) { return this.footerPlaceholder };
 
-    return `See all ${this.selectedTabIndex == 0 ? appRouteMap.blocks : this.selectedTabIndex == 1 ? appRouteMap.transactions : appRouteMap.messages}`;
+    return `${this.selectedTabIndex == 0 ? LocaleText.seeAllBlocks.toLocaleLowerCase() : this.selectedTabIndex == 1 ? LocaleText.seeAllTransactions.toLocaleLowerCase() : LocaleText.seeAllMessages.toLocaleLowerCase()}`;
   }
 
   constructor(
@@ -139,6 +157,7 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Destruction of the component
    */
   ngOnDestroy(): void {
+    this.locale = null;
     this.data = null;
     this.newData = null;
     this.newDataName = null;
@@ -178,6 +197,8 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Export event
    */
   public onExport(): void {
+    if (!this.data || !this.data.length) { return; }
+
     this.exportEvent.next();
   }
 
@@ -218,17 +239,20 @@ export class AppTableViewerComponent implements OnChanges, OnInit, OnDestroy {
    * Show new data
    */
   public onShowNewData(): void {
-    this.skeletalAnimation = true;
+    this.showNewDataEvent.next();
+    // this.skeletalAnimation = true;
 
-    let _newData = _.clone(this.newData = this.newData ? this.newData : []);
-    this.newData = [];
+    // let _newData = _.clone(this.newData = this.newData ? this.newData : []);
+    // this.newData = [];
 
-    this.detectChanges();
+    // this.detectChanges();
 
-    // Объединение двух массивов и сортировка
-    this.data = _.clone(_.first(_newData.concat(this.data), 10));
+    // // Объединение двух массивов и сортировка
+    // this.data = _.clone(_.first(_newData.concat(this.data), 10));
 
-    this.detectChanges();
+    // this.skeletalAnimation = false;
+
+    // this.detectChanges();
   }
 
   /**

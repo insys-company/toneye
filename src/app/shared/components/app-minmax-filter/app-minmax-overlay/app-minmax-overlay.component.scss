@@ -24,7 +24,7 @@ app-minmax-overlay {
   &__select-all,
   &__option {
     padding-left: 24px;
-    padding-right: 24px; 
+    padding-right: 24px;
   }
 
   &__search {
@@ -50,7 +50,7 @@ app-minmax-overlay {
     &--focused {
 
     }
-  
+
   }
 
   &__icon-clear,
@@ -85,10 +85,10 @@ app-minmax-overlay {
   &__options {
 
     padding-top: 20px;
-    padding-bottom: 20px; 
+    padding-bottom: 20px;
 
     padding-left: 20px;
-    padding-right: 20px; 
+    padding-right: 20px;
 
     max-height: 300px;
     overflow: hidden !important;
@@ -102,7 +102,7 @@ app-minmax-overlay {
 
     }
     &--single {
-      
+
     }
   }
   &__option-fields {
@@ -110,7 +110,7 @@ app-minmax-overlay {
     flex-direction: column;
   }
   &__option-input {
-    max-width: 100%;
+    width: 100%;
   }
   &__option-field {
     margin-bottom: 20px;
@@ -123,7 +123,12 @@ app-minmax-overlay {
   &__option-btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
+
+    button:not(:first-child) {
+      margin-left: 20px;
+    }
+
   }
   &__option-single {
     width: 100%;
@@ -202,7 +207,7 @@ app-minmax-overlay {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
   .app-multiselect-panel__options {
     padding-top: 20px;
-    padding-bottom: 20px; 
+    padding-bottom: 20px;
 
     padding-left: 20px;
     padding-right: 20px;

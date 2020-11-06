@@ -4,10 +4,14 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { AccountDetailsService } from './account-details.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MessageQueries, TransactionQueries } from 'src/app/api/queries';
-import { Account, Message, ViewerData, Transaction, FilterSettings, TabViewerData } from 'src/app/api';
+import { Account, Message, ViewerData, Transaction, FilterSettings, TabViewerData, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
+import { ExportDialogomponent } from 'src/app/shared/components';
+import { Subject, timer } from 'rxjs';
 
 @Component({
   selector: 'app-account-details',
@@ -17,6 +21,23 @@ import _ from 'underscore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccountDetailsComponent extends BaseComponent<Account> implements OnInit, OnDestroy {
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.accountPage,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+    moreDetails: LocaleText.moreDetails,
+    general: LocaleText.general,
+    address: LocaleText.addressHex,
+    status: LocaleText.status,
+    balance: LocaleText.balance,
+    transactions: LocaleText.transactions,
+    messages: LocaleText.messages,
+  };
+
   /**
    * For skeleton animation
    */
@@ -60,7 +81,17 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   /**
    * Data for view
    */
-  public messNewDataAfterUpdate: Array<TabViewerData>;
+  public messNewDataAfterUpdateForView: Array<TabViewerData>;
+  /**
+   * Array of ...
+   * After update data
+   */
+  public messNewDataAfterUpdate: Message[];
+  /**
+   * Array of ...
+   * After update data
+   */
+  public newDataAfterUpdate: Transaction[];
 
   /**
    * Single request for messages by params
@@ -74,6 +105,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
     protected service: AccountDetailsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private messageQueries: MessageQueries,
     private transactionQueries: TransactionQueries,
   ) {
@@ -82,6 +114,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
       service,
       route,
       router,
+      dialog
     );
 
     this.messFilterLoading = true;
@@ -159,6 +192,7 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
 
     this.messFilterLoading = null;
     this.messTableViewersLoading = null;
+    this.messNewDataAfterUpdateForView = null;
     this.messNewDataAfterUpdate = null;
   }
 
@@ -184,10 +218,23 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   }
 
   /**
-   * Export event
+   * Export method
    */
   public onExport(): void {
-    // TODO
+    const dialogRef = this.dialog.open(ExportDialogomponent, this.getCommonDialogOption());
+    dialogRef.componentInstance.params = this.params ? _.clone(this.params) : new SimpleDataFilter();
+    dialogRef.componentInstance.accId = this.modelId + '';
+    if (this.selectedTabIndex === 0) {
+   
+      dialogRef.componentInstance.data = this.transactions ? _.first(this.transactions, 1) : [];
+      dialogRef.componentInstance.listName = appRouteMap.transactions;
+    }
+    else if (this.selectedTabIndex === 1) {
+
+      dialogRef.componentInstance.data = this.messages ? _.first(this.messages, 1) : [];
+      dialogRef.componentInstance.listName = appRouteMap.messages;
+    }
+
   }
 
   /**
@@ -195,7 +242,214 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // TODO
+
+    this.tableViewersLoading = true;
+
+    this.detectChanges();
+
+    let date: number;
+
+    let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
+
+    _p.toDate = date + '';
+
+    if (this.selectedTabIndex === 0) {
+      date = this.transactions && this.transactions.length ? _.last(this.transactions).now : null;
+      _p.toDate = date + '';
+
+      this.service.getData(
+        this.service.getVariablesForTransactions(_p, String(this.modelId), 25),
+        this.transactionQueries.getTransactions
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((res: Transaction[]) => {
+  
+          this.transactions = this.transactions.concat(res = res ? res : []);
+  
+          this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
+  
+          this.tableViewersLoading = false;
+  
+          this.filterLoading = false;
+  
+          this.detectChanges();
+  
+        }, (error: any) => {
+          console.log(error);
+        });
+
+    }
+    else {
+      date = this.messages && this.messages.length ? _.last(this.messages).created_at : null;
+      _p.toDate = date + '';
+
+      if (this.isSingleQuery) {
+
+        // Get messages
+        this.service.getData(
+          this.service.getVariablesForMessages(this.params, String(this.modelId), null, 25),
+          this.messageQueries.getMessages,
+          appRouteMap.messages
+        )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((m: Message[]) => {
+
+          this.messages = this.messages.concat(m ? m : []);
+  
+          this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+  
+          this.messTableViewersLoading = false;
+  
+          this.messFilterLoading = false;
+  
+          this.detectChanges();
+
+        }, (error: any) => {
+          console.log(error);
+        });
+  
+      }
+      else {
+  
+        this._service.getData(
+          this.service.getVariablesForMessages(this.params, String(this.modelId), true, 25),
+          this.messageQueries.getMessages,
+          appRouteMap.messages
+        )
+          .pipe(takeUntil(this._unsubscribe))
+          .subscribe((srcData: Message[]) => {
+    
+            srcData = srcData ? srcData : [];
+  
+            this._service.getData(
+              this.service.getVariablesForMessages(this.params, String(this.modelId), false, 25),
+              this.messageQueries.getMessages,
+              appRouteMap.messages
+            )
+              .pipe(takeUntil(this._unsubscribe))
+              .subscribe((dstData: Message[]) => {
+  
+                dstData = dstData ? dstData : [];
+  
+                // Объединение двух массивов и сортировка
+                let res = srcData.concat(dstData);
+
+                res = (_.sortBy(res, 'created_at')).reverse();
+
+                this.messages = this.messages.concat(res ? res : []);
+
+                this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
+
+                this.messTableViewersLoading = false;
+
+                this.messFilterLoading = false;
+
+                this.detectChanges();
+        
+              }, (error: any) => {
+                console.log(error);
+              });
+    
+          }, (error: any) => {
+            console.log(error);
+          });
+  
+      }
+  
+    }
+  }
+
+  /**
+   * Show new data
+   */
+  public onShowNewData(): void {
+
+    if (this.selectedTabIndex === 0) {
+      this.viewersLoading = true;
+      this.tableViewersLoading = true;
+      this.detectChanges();
+  
+      this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+      this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+  
+      this.transactions = this.transactions ? this.transactions : [];
+      this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+  
+      this.transactions = _.clone(this.newDataAfterUpdate.concat(this.transactions));
+  
+      this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 25);
+      
+      this.newDataAfterUpdate = [];
+      this.newDataAfterUpdateForView = [];
+  
+      this.viewersLoading = false;
+      this.tableViewersLoading = false;
+      this.detectChanges();
+    }
+    else {
+      this.messTableViewersLoading = true;
+      this.detectChanges();
+  
+      this.messNewDataAfterUpdate = this.messNewDataAfterUpdate ? this.messNewDataAfterUpdate : [];
+      this.messNewDataAfterUpdateForView = this.messNewDataAfterUpdateForView ? this.messNewDataAfterUpdateForView : [];
+  
+      this.messages = this.messages ? this.messages : [];
+      this.aditionalTableViewerData = this.aditionalTableViewerData ? this.aditionalTableViewerData : [];
+  
+      this.messages= _.clone(this.messNewDataAfterUpdate.concat(this.messages));
+  
+      this.aditionalTableViewerData = _.first(_.clone(this.messNewDataAfterUpdateForView.concat(this.aditionalTableViewerData)), 25);
+      
+      this.messNewDataAfterUpdate = [];
+      this.messNewDataAfterUpdateForView = [];
+  
+      this.messTableViewersLoading = false;
+      this.detectChanges();
+    }
+
+  }
+
+  /**
+   * Show new data
+   */
+  public onShowAllNewData(): void {
+
+    this.viewersLoading = true;
+    this.tableViewersLoading = true;
+    this.messTableViewersLoading = true;
+    this.detectChanges();
+
+    this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+    this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+
+    this.messNewDataAfterUpdate = this.messNewDataAfterUpdate ? this.messNewDataAfterUpdate : [];
+    this.messNewDataAfterUpdateForView = this.messNewDataAfterUpdateForView ? this.messNewDataAfterUpdateForView : [];
+
+    this.transactions = this.transactions ? this.transactions : [];
+    this.tableViewerData = this.tableViewerData ? this.tableViewerData : [];
+
+    this.messages = this.messages ? this.messages : [];
+    this.aditionalTableViewerData = this.aditionalTableViewerData ? this.aditionalTableViewerData : [];
+
+    this.transactions = _.clone(this.newDataAfterUpdate.concat(this.transactions));
+
+    this.messages= _.clone(this.messNewDataAfterUpdate.concat(this.messages));
+
+    this.tableViewerData = _.first(_.clone(this.newDataAfterUpdateForView.concat(this.tableViewerData)), 25);
+
+    this.aditionalTableViewerData = _.first(_.clone(this.messNewDataAfterUpdateForView.concat(this.aditionalTableViewerData)), 25);
+    
+    this.newDataAfterUpdate = [];
+    this.newDataAfterUpdateForView = [];
+
+    this.messNewDataAfterUpdate = [];
+    this.messNewDataAfterUpdateForView = [];
+
+    this.viewersLoading = false;
+    this.tableViewersLoading = false;
+    this.messTableViewersLoading = false;
+    this.detectChanges();
+
   }
 
   /**
@@ -205,16 +459,16 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   public updateChange(check: boolean) {
     this.autoupdate = check;
 
-    // this.detectChanges();
+    this.updateUnsubscribe();
 
-    // if (this.autoupdate) {
-    //   this.subscribeData();
-    // }
-    // else {
-    //   this.autoupdateSubscribe = false;
-    //   this._unsubscribe.next();
-    //   this._unsubscribe.complete();
-    // }
+    if (!this.autoupdate) {
+      this.onShowAllNewData();
+    }
+    else {
+      this.subscribeOnUpdate();
+    }
+
+    this.detectChanges();
   }
 
   /**
@@ -222,6 +476,8 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   protected subscribeData(): void {
     this.getTransactions();
+
+    this.getMessages();
   }
 
   /**
@@ -261,41 +517,51 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   private getTransactions(): void {
 
-    // if (!this.autoupdate) {
-    //   this.tableViewersLoading = true;
-    //   this.detectChanges();
-    // }
-
-    // if (this.autoupdate && this.autoupdateSubscribe) {
-    //   return;
-    // }
-
-    // if (this.autoupdate) {
-    //   this.autoupdateSubscribe = true;
-    // }
+    if (!this.autoupdate) {
+      this.tableViewersLoading = true;
+      this.detectChanges();
+    }
 
     // Get transactions
     this.service.getData(
       this.service.getVariablesForTransactions(this.params, String(this.modelId)),
-      // (!this.autoupdate ? this.transactionQueries.getTransactions : this.transactionQueries.getTransactionsSub),
       this.transactionQueries.getTransactions,
       appRouteMap.transactions
     )
       .pipe(takeUntil(this._unsubscribe))
-      .subscribe((t: Transaction[]) => {
+      .subscribe((res: Transaction[]) => {
 
-        // if (!this.autoupdate) {
-          this.transactions = t ? t : [];
-          this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions);
+        if (!this.autoupdate) {
+          this.transactions = res ? res : [];
+  
+          this.tableViewerData = this._service.mapDataForTable(this.transactions, appRouteMap.transactions, 25);
+  
           this.tableViewersLoading = false;
+  
           this.filterLoading = false;
+  
           this.initComplete = true;
+  
           this.detectChanges();
-        // }
-        // else {
-        //   this.newDataAfterUpdate = this.newDataAfterUpdate.concat(this._service.mapDataForTable(t ? t : [], appRouteMap.transactions));
-        //   this.detectChanges();
-        // }
+        }
+        else {
+          this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+
+          let uniqItems = [];
+
+          res.forEach((item: Transaction) => {
+            let filterItem = _.findWhere(this.transactions, {id: item.id});
+            let filterNewItem = _.findWhere(this.newDataAfterUpdate, {id: item.id});
+            if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+          });
+
+          if (uniqItems.length) {
+            this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
+            this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.transactions);
+          }
+
+          this.detectChanges();
+        }
 
     }, (error: any) => {
       console.log(error);
@@ -307,8 +573,10 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
    */
   private getMessages(): void {
 
-    this.messTableViewersLoading = true;
-    this.detectChanges();
+    if (!this.autoupdate) {
+      this.messTableViewersLoading = true;
+      this.detectChanges();
+    }
 
     if (this.isSingleQuery) {
 
@@ -319,14 +587,39 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
         appRouteMap.messages
       )
       .pipe(takeUntil(this._unsubscribe))
-      .subscribe((m: Message[]) => {
-        
-        this.messages = m ? m : [];
-        this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-        this.messTableViewersLoading = false;
-        this.messFilterLoading = false;
-        this.initComplete = true;
-        this.detectChanges();
+      .subscribe((res: Message[]) => {
+
+        if (!this.autoupdate) {
+          this.messages = res ? res : [];
+  
+          this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25);
+  
+          this.messTableViewersLoading = false;
+  
+          this.messFilterLoading = false;
+  
+          this.initComplete = true;
+  
+          this.detectChanges();
+        }
+        else {
+          this.messNewDataAfterUpdate = this.messNewDataAfterUpdate ? this.messNewDataAfterUpdate : [];
+  
+          let uniqItems = [];
+
+          res.forEach((item: Message) => {
+            let filterItem = _.findWhere(this.messages, {id: item.id});
+            let filterNewItem = _.findWhere(this.messNewDataAfterUpdate, {id: item.id});
+            if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+          });
+
+          if (uniqItems.length) {
+            this.messNewDataAfterUpdate = _.clone(uniqItems.concat(this.messNewDataAfterUpdate));
+            this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages);
+          }
+
+          this.detectChanges();
+        }
 
       }, (error: any) => {
         console.log(error);
@@ -356,17 +649,41 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
               dstData = dstData ? dstData : [];
 
               // Объединение двух массивов и сортировка
-              let _data = srcData.concat(dstData);
+              let res = srcData.concat(dstData);
 
-              _data = (_.sortBy(_data, 'created_at')).reverse();
+              res = (_.sortBy(res, 'created_at')).reverse();
 
-              this.messages = _data ? _data : [];
-              console.log(_data);
-              this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages);
-              this.messTableViewersLoading = false;
-              this.messFilterLoading = false;
-              this.initComplete = true;
-              this.detectChanges();
+              if (!this.autoupdate) {
+                this.messages = res ? res : [];
+        
+                this.aditionalTableViewerData = this._service.mapDataForTable(this.messages, appRouteMap.messages, 25);
+        
+                this.messTableViewersLoading = false;
+        
+                this.messFilterLoading = false;
+        
+                this.initComplete = true;
+        
+                this.detectChanges();
+              }
+              else {
+                this.messNewDataAfterUpdate = this.messNewDataAfterUpdate ? this.messNewDataAfterUpdate : [];
+        
+                let uniqItems = [];
+      
+                res.forEach((item: Message) => {
+                  let filterItem = _.findWhere(this.messages, {id: item.id});
+                  let filterNewItem = _.findWhere(this.messNewDataAfterUpdate, {id: item.id});
+                  if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+                });
+      
+                if (uniqItems.length) {
+                  this.messNewDataAfterUpdate = _.clone(uniqItems.concat(this.messNewDataAfterUpdate));
+                  this.messNewDataAfterUpdateForView = this._service.mapDataForTable(this.messNewDataAfterUpdate, appRouteMap.messages);
+                }
+      
+                this.detectChanges();
+              }
       
             }, (error: any) => {
               console.log(error);
@@ -388,12 +705,32 @@ export class AccountDetailsComponent extends BaseComponent<Account> implements O
   protected mapDataForViews(_model: Account): void {
     // Details
     this.aditionalViewerData = [];
-    this.aditionalViewerData.push(new ViewerData({title: 'Due payment', value: _model.due_payment}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Last transaction lt', value: Number(_model.last_trans_lt), isDate: true}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Code', value: _model.code}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Code hash', value: _model.code_hash}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Data', value: _model.data ? _model.data : ''}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Data hash', value: _model.data_hash ? _model.data_hash : ''}));
-    this.aditionalViewerData.push(new ViewerData({title: 'Boc', value: _model.boc}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.duePayment, value: _model.due_payment != null ? _model.due_payment : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.lastTransactionLt, value: Number(_model.last_trans_lt)}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.code, value: _model.code != null ? _model.code : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.codeHash, value: _model.code_hash != null ? _model.code_hash : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.data, value: _model.data != null ? _model.data : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.dataHash, value: _model.data_hash != null ? _model.data_hash : '--'}));
+    this.aditionalViewerData.push(new ViewerData({title: LocaleText.boc, value: _model.boc != null ? _model.boc : '--'}));
+  }
+
+  /**
+   *  For update
+   */
+  protected subscribeOnUpdate(): void {
+    this._updateUnsubscribe = new Subject<void>();
+    /**Отправляем на сервер каждын 2 секунда запрос  */
+    const _timer = timer(Infinity, 2000);
+
+    _timer
+      .pipe(takeUntil(this._updateUnsubscribe))
+      .subscribe(() => {
+
+        this.refreshData();
+        // this.subscribeData();
+
+      }, error => {
+        this.updateUnsubscribe();
+      });
   }
 }

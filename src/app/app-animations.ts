@@ -151,6 +151,19 @@ export const smoothSearchPanelAnimation =
         ])
     ]);
 
+// Search panel
+export const smoothDialogElementAnimation = 
+    trigger('dialogElementAnimation', [
+        transition(':enter', [
+            style({ 'opacity': '0', 'max-height': '0' }),
+            animate('.6s ease', style({ 'opacity': '1', 'max-height': '40.47px' }))
+        ]),
+        transition(':leave', [
+            style({ 'opacity': '1', 'max-height': '40.47px' }),
+            animate('.3s ease', style({ 'opacity': '0', 'max-height': '0' }))
+        ])
+    ]);
+
 // // Search panel
 // export const smoothSearchPanelContentAnimation = 
 //     trigger('searchPanelContentAnimation', [

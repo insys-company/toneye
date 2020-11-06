@@ -1,4 +1,5 @@
 export class Account {
+  name?: string;
   acc_type: number;
   balance: string;
   balance_other: {}; //?
@@ -17,6 +18,11 @@ export class Account {
   tick: string; //?
   tock: string; //?
   __typename: string;
+
+  aggregateByBalance: string;
+  aggregateByHash: string;
+  aggregateByType: string;
+  aggregateByMess: string;
 
   constructor(data?: any) {
     if (data) {

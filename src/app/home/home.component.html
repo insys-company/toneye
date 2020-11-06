@@ -1,44 +1,14 @@
 <div class="home-page page">
-  <!-- Info -->
-  <div class="home-page__network-info network-info" [class.network-info--opened]="isGeneralInfoOpen">
-    <div class="network-info__header-wrapper">
-      <div class="network-info__header">
-        <h1>TON Labs Dev Network</h1>
-      </div>
-      <div class="network-info__btn" (click)="onShowOrHideGeneralInfo()">
-        <span class="color-blue link">
-          {{generalInfoBtnPlaceholder}}
-        </span>
-      </div>
-    </div>
-    <div class="network-info__body-wrapper">
-      <div class="network-info__body-item">
-        <span>TON Labs Developer Network runs the latest stable version of TON Blockchain.</span>
-      </div>
-      <div class="network-info__body-item">
-        <span>The goal of TON Labs Dev Net is to provide stable development environment for application developers. It is optimized to connect with TON Labs’ SDK. Read more here:</span><br>
-        <span class="color-blue link">https://docs.ton.dev</span>
-      </div>
-      <div class="network-info__body-item">
-        <span>You can receive  currency using our giver or by installing one of our wallets.</span>
-      </div>
-      <div class="network-info__body-item">
-        <span>If you are interested in running a validator Node, please contact us at</span>
-      </div>
-      <div class="network-info__body-item">
-        <span class="color-blue link">support@tonlabs.io</span>
-      </div>
-    </div>
-  </div>
   <!-- Page header -->
   <div class="home-page__page-header page-header">
     <div class="page-header__header">
-      <h1>Network Status</h1>
+      <h1>{{locale?.homeTitle}}</h1>
     </div>
     <div class="page-header__slide-toggle">
       <mat-slide-toggle
         [checked]="autoupdate"
-        (change)="updateChange($event.checked)">Autoupdate
+        [disabled]="!initComplete"
+        (change)="updateChange($event.checked)">{{locale?.autoupdate}}
       </mat-slide-toggle>
     </div>
   </div>
@@ -58,8 +28,8 @@
         </div>
         <div class="page-list-content__component-wrapper">
           <app-filter #filter class="page-list-content__component"
-            [minMaxPlaceholder]="'With any tons number'"
-            [datePlaceholder]="'All time'"
+            [minMaxPlaceholder]="locale?.tons"
+            [datePlaceholder]="locale?.date"
             [isFilterOpen]="isAditionalInfoOpen"
             [settings]="filterSettings"
             [skeletonArray]="skeletonArrayForFilter"
@@ -75,12 +45,15 @@
       <div class="page-list-content__component-wrapper">
         <app-table-viewer #tableViewer
           [data]="tableViewerData"
+          [newData]="newDataAfterUpdateForView"
+          [newDataName]="selectedTabIndex == 0 ? locale?.blocks : selectedTabIndex == 1 ? locale?.transactions : locale?.messages"
           [skeletalAnimation]="tableViewersLoading"
           [isTabsHeaderMode]="true"
           [tabsTitles]="tabsTitles"
           (exportEvent)="onExport()"
           (moreEvent)="onLoadMore($event)"
-          (tabChange)="onSelectTab($event)">
+          (tabChange)="onSelectTab($event)"
+          (showNewDataEvent)="onShowNewData()">
         </app-table-viewer>
       </div>
     </div>

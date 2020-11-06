@@ -1,4 +1,5 @@
 @import './../../../scss/abstracts/colors';
+@import './../../../scss/abstracts/variables';
 
 .contract-page-viewer {
   transition: all .3s ease;
@@ -15,6 +16,8 @@
   &__general-wrapper {
     padding: 20px;
     flex: 1 1;
+    max-width: calc(720px - 260px);
+    box-sizing: border-box;
   }
 
   &__header-wrapper {
@@ -50,7 +53,14 @@
   }
 
   &__content-subitem {
-
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &__filters-wrapper {
@@ -92,6 +102,7 @@
 
 .page-header__header {
   margin-bottom: 0 !important;
+  margin-top: 20px;
 }
 
 .page-list-content__tabs {
@@ -99,10 +110,21 @@
   max-width: 100%;
 }
 
+@media screen and (min-width: $explorer--base__viewer_change_point_basic) {
+  .contract-page-viewer__filters-wrapper {
+    height: 278px;
+    border-radius: 0 4px 4px 0;
+    border: 1px solid #ddd;
+    position: relative;
+    right: 2px;
+    background-color: #F1F6F8;
+  }
+}
 
-@media screen and (max-width: 959px) {
+@media screen and (max-width: $explorer--base__viewer_change_point_basic - 1px) {
+
   .contract-page-viewer {
-    flex-direction: column;
+    flex-direction: column !important;
   }
 
   .contract-page-viewer__filters-wrapper {

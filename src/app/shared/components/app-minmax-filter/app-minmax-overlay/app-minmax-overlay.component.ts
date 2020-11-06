@@ -3,10 +3,9 @@ import { AppMinmaxOverlayService } from './app-minmax-overlay.service';
 import { Subscription, Subject } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 export const MINMAX_PANEL_DATA = new InjectionToken<{}>('MINMAX_PANEL_DATA');
-export const MIN = 'Min';
-export const MAX = 'Max';
 @Component({
   selector: 'app-minmax-overlay',
   templateUrl: './app-minmax-overlay.component.html',
@@ -14,6 +13,13 @@ export const MAX = 'Max';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppMinmaxOverlayComponent implements OnInit, AfterViewInit, OnDestroy {
+  /** Общие тексты для страниц */
+  public locale = {
+    save: LocaleText.save,
+    clearAll: LocaleText.clearAll,
+    from: LocaleText.from,
+    to: LocaleText.to
+  };
   /**
    * Для отписок на запросы
    * @type {Subject<void>}
@@ -105,11 +111,11 @@ export class AppMinmaxOverlayComponent implements OnInit, AfterViewInit, OnDestr
 
     this.minPlaceholder = this.minPlaceholder
       ? this.minPlaceholder
-      : MIN;
+      : this.locale.from;
 
     this.maxPlaceholder = this.maxPlaceholder
       ? this.maxPlaceholder
-      : MAX;
+      : this.locale.to;
 
     this.panelClass = this.data.data.panelClass;
   }
@@ -133,6 +139,7 @@ export class AppMinmaxOverlayComponent implements OnInit, AfterViewInit, OnDestr
       this.overlaySub = null;
     }
 
+    this.locale = null;
     this.min = null;
     this.max = null;
     this.minPlaceholder = null;

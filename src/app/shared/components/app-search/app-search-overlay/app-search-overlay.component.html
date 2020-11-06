@@ -14,7 +14,7 @@
 
       <div *ngIf="blocks?.length" class="app-search-panel__option">
         <div class="app-search-panel__option-header">
-          <span class="strong">Blocks</span> <span class="color-gray">that contain that message</span> <span class="color-gray">that contain that transaction</span>
+          <span class="strong">{{locale?.blocksTitle}}</span> <span class="color-gray">{{locale?.searchMessage}}</span> <span class="color-gray">{{locale?.searchTransaction}}</span>
         </div>
         <div *ngFor="let option of blocks;" class="app-search-panel__option-body" (click)="onSelectOption('blocks', option)">
           <span class="color-blue link">{{option?.id}}</span>
@@ -23,7 +23,7 @@
 
       <div *ngIf="transactions?.length" class="app-search-panel__option">
         <div class="app-search-panel__option-header">
-          <span class="strong">Transactions</span> <span class="color-gray">that contain that message</span>
+          <span class="strong">{{locale?.transactionsTitle}}</span> <span class="color-gray">{{locale?.searchMessage}}</span>
         </div>
         <div *ngFor="let option of transactions;" class="app-search-panel__option-body" (click)="onSelectOption('transactions', option)">
           <span class="color-blue link">{{option?.id}}</span>
@@ -32,7 +32,7 @@
 
       <div *ngIf="messages?.length" class="app-search-panel__option">
         <div class="app-search-panel__option-header">
-          <span class="strong">Messages</span> <span class="color-gray">that contain that transaction</span>
+          <span class="strong">{{locale?.messagesTitle}}</span> <span class="color-gray">{{locale?.searchTransaction}}</span>
         </div>
         <div *ngFor="let option of messages;" class="app-search-panel__option-body" (click)="onSelectOption('messages', option)">
           <span class="color-blue link">{{option?.id}}</span>
@@ -41,7 +41,7 @@
 
       <div *ngIf="accounts?.length" class="app-search-panel__option">
         <div class="app-search-panel__option-header">
-          <span class="strong">Account</span> <span class="color-gray">that contain that transaction</span> <span class="color-gray">that contain that message</span>
+          <span class="strong">{{locale?.accountsTitle}}</span> <span class="color-gray">{{locale?.searchTransaction}}</span> <span class="color-gray">{{locale?.searchMessage}}</span>
         </div>
         <div *ngFor="let option of accounts;" class="app-search-panel__option-body" (click)="onSelectOption('accounts', option)">
           <span class="color-blue link">{{option?.id}}</span>
@@ -50,7 +50,7 @@
 
       <div *ngIf="validators?.length" class="app-search-panel__option">
         <div class="app-search-panel__option-header">
-          <span class="strong">Validators</span> <span class="color-gray">that signed that block</span>
+          <span class="strong">{{locale?.validatorsTitle}}</span> <span class="color-gray">{{locale?.searchBlock}}</span>
         </div>
         <div *ngFor="let option of validators;" class="app-search-panel__option-body" (click)="onSelectOption('validators', option)">
           <span class="color-blue link">{{option?.id}}</span>

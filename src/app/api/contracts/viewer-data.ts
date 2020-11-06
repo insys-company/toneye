@@ -2,12 +2,12 @@ export class ViewerData {
   title: string;
   value: string;
   link?: string;
-  dinamic?: boolean;
   isHeader: boolean; // header
   isNumber?: boolean; // for number pipe
   isPercent?: boolean; // for percent
   isDate?: boolean; // for date pipe
   isTime?: boolean; // for time pipe
+  isBoolean?: boolean; // for bool
   iconClass?: string; // for icon
 
   constructor(data?: any) {
@@ -25,7 +25,6 @@ export class ViewerData {
       title: this.title,
       value: this.value,
       link: this.link,
-      dinamic: this.dinamic,
       isNumber: this.isNumber,
       isPercent: this.isPercent,
       isDate: this.isDate,

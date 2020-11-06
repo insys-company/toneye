@@ -3,10 +3,12 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { MessagesService } from './messages.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonQueries, MessageQueries } from 'src/app/api/queries';
-import { ViewerData, TabViewerData, ItemList, Message } from 'src/app/api';
+import { ViewerData, TabViewerData, ItemList, Message, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-messages',
@@ -24,6 +26,17 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
 
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.messagesPage,
+    date: LocaleText.timeFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+    items: LocaleText.messages
+  };
+
   /**
    * Single request for messages by params
    */
@@ -36,6 +49,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     protected _service: MessagesService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private messageQueries: MessageQueries,
   ) {
@@ -44,14 +58,8 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
       _service,
       route,
       router,
+      dialog
     );
-  }
-
-  /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
   }
 
   /**
@@ -59,35 +67,96 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
-    // // this.tableViewerLoading = true;
+    this.tableViewersLoading = true;
+    this.detectChanges();
 
-    // // this.detectChanges();
+    let date = this.data && this.data.data ? _.last(this.data.data).created_at : null;
 
-    // let date = this.data[this.data.length - 1].created_at;
+    let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
 
-    // const _variables = {
-    //   filter: {created_at: {le: date}},
-    //   orderBy: [{path: 'created_at', direction: 'DESC'}],
-    //   limit: 25,
-    // }
+    _p.toDate = date + '';
 
-    // // Get messages
-    // this.messagesService.getMessages(_variables)
-    //   .pipe(takeUntil(this.unsubscribe))
-    //   .subscribe((res: Message[]) => {
+    // Одиночный вызов сообщений
+    if (this.isSingleQuery) {
 
-    //     let newData = this.mapData(res);
-    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-    //     // this.tableViewerLoading = false;
+      this._service.getData(
+        this._service.getVariablesForMessages(_p, null, 25),
+        this.messageQueries.getMessages
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((res: Message[]) => {
+  
+          res = res ? res : [];
 
-    //     this.detectChanges();
-
-    //     // Scroll to bottom
-    //     // window.scrollTo(0, document.body.scrollHeight);
+          // hide load more btn
+          if (!res.length || res.length < 25) {
+            this.isFooterVisible = false;
+          }
+  
+          this.data.data = _.union(this.data.data, res);
+          this.data.data = _.uniq(this.data.data, 'id');
+          this.data.total = this.data.data.length;
       
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
+          this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages);
+      
+          this.tableViewersLoading = false;
+          this.detectChanges();
+  
+        }, (error: any) => {
+          console.log(error);
+        });
+
+    }
+
+    // Запросы на сообщения по источникам и получателям
+    else {
+
+      this._service.getData(
+        this._service.getVariablesForMessages(this.params, true, 25),
+        this.messageQueries.getMessages
+      )
+        .pipe(takeUntil(this._unsubscribe))
+        .subscribe((srcData: Message[]) => {
+  
+          srcData = srcData ? srcData : [];
+
+          this._service.getData(
+            this._service.getVariablesForMessages(this.params, false, 25),
+            this.messageQueries.getMessages
+          )
+            .pipe(takeUntil(this._unsubscribe))
+            .subscribe((dstData: Message[]) => {
+
+              dstData = dstData ? dstData : [];
+
+              // Объединение двух массивов и сортировка
+              let res = srcData.concat(dstData);
+
+              res = (_.sortBy(res, 'created_at')).reverse();
+
+              // hide load more btn
+              if (!res.length || res.length < 25) {
+                this.isFooterVisible = false;
+              }
+
+              this.data.data = _.union(this.data.data, res);
+              this.data.data = _.uniq(this.data.data, 'id');
+              this.data.total = this.data.data.length;
+          
+              this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages);
+          
+              this.tableViewersLoading = false;
+              this.detectChanges();
+      
+            }, (error: any) => {
+              console.log(error);
+            });
+  
+        }, (error: any) => {
+          console.log(error);
+        });
+
+    }
   }
 
   /**
@@ -102,9 +171,11 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    */
   private getAggregateData(): void {
 
-    this.viewersLoading = true;
-    this.tableViewersLoading = true;
-    this.detectChanges();
+    if (!this.autoupdate) {
+      this.viewersLoading = true;
+      this.tableViewersLoading = true;
+      this.detectChanges();
+    }
 
     this._service.getAggregateData(
       this._service.getVariablesForAggregateData(this.params),
@@ -116,7 +187,7 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
         this.generalViewerData = [];
 
         const aggregateMessages = new ViewerData({
-          title: 'Message count',
+          title: LocaleText.messageCount,
           value: generalData.aggregateMessages[0] ? generalData.aggregateMessages[0] : 0,
           isNumber: true
         });
@@ -139,13 +210,46 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
     if (this.isSingleQuery) {
 
       this._service.getData(
-        this._service.getVariablesForMessages(this.params),
+        this._service.getVariablesForMessages(this.params, null, (this.initComplete ? 25 : 50)),
         this.messageQueries.getMessages
       )
         .pipe(takeUntil(this._unsubscribe))
         .subscribe((res: Message[]) => {
   
-          this.processData(res);
+          res = res ? res : [];
+
+          if (!this.autoupdate) {
+            this.processData(res);
+          }
+          else {
+            this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+            this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+  
+            let uniqItems = [];
+  
+            res.forEach((item: Message) => {
+              let filterItem = _.findWhere(this.data.data, {id: item.id});
+              let filterNewItem = _.findWhere(this.newDataAfterUpdate, {id: item.id});
+              if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+            });
+  
+            if (uniqItems.length) {
+              this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
+              this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.messages);
+            }
+  
+            const mps = new ViewerData({
+              title: LocaleText.mps,
+              value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'created_at') + '').replace('.', ','),
+              isNumber: false
+            });
+
+            this.generalViewerData = this.generalViewerData.splice(0, 1);
+        
+            this.generalViewerData.push(mps);
+  
+            this.detectChanges();
+          }
   
         }, (error: any) => {
           console.log(error);
@@ -175,11 +279,42 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
               dstData = dstData ? dstData : [];
 
               // Объединение двух массивов и сортировка
-              let _data = srcData.concat(dstData);
+              let res = srcData.concat(dstData);
 
-              _data = (_.sortBy(_data, 'created_at')).reverse();
+              res = (_.sortBy(res, 'created_at')).reverse();
 
-              this.processData(_data);
+              if (!this.autoupdate) {
+                this.processData(res);
+              }
+              else {
+                this.newDataAfterUpdate = this.newDataAfterUpdate ? this.newDataAfterUpdate : [];
+                this.newDataAfterUpdateForView = this.newDataAfterUpdateForView ? this.newDataAfterUpdateForView : [];
+      
+                let uniqItems = [];
+      
+                res.forEach((item: Message) => {
+                  let filterItem = _.findWhere(this.data.data, {id: item.id});
+                  let filterNewItem = _.findWhere(this.newDataAfterUpdate, {id: item.id});
+                  if (!filterItem && !filterNewItem) { uniqItems.push(item); }
+                });
+      
+                if (uniqItems.length) {
+                  this.newDataAfterUpdate = _.clone(uniqItems.concat(this.newDataAfterUpdate));
+                  this.newDataAfterUpdateForView = this._service.mapDataForTable(this.newDataAfterUpdate, appRouteMap.messages);
+                }
+      
+                const mps = new ViewerData({
+                  title: LocaleText.mps,
+                  value: (this._service.baseFunctionsService.getAverageTime(_.first(_.clone(this.newDataAfterUpdate.concat(this.data.data)), 25), 'created_at') + '').replace('.', ','),
+                  isNumber: false
+                });
+    
+                this.generalViewerData = this.generalViewerData.splice(0, 1);
+            
+                this.generalViewerData.push(mps);
+      
+                this.detectChanges();
+              }
       
             }, (error: any) => {
               console.log(error);
@@ -199,6 +334,14 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
    */
   private processData(_data: Message[]): void {
 
+    this.newDataAfterUpdate = [];
+    this.newDataAfterUpdateForView = [];
+
+    // hide load more btn
+    if (!_data.length || _data.length <= 25) {
+      this.isFooterVisible = false;
+    }
+
     /** Messages */
     this.data = new ItemList({
       data: _data ? _data : [],
@@ -207,12 +350,15 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
       total: _data ? _data.length : 0
     });
 
+    this.data.data = _.first(this.data.data, 25);
+
     const mps = new ViewerData({
-      title: 'MPS',
-      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'created_at') + ' sec').replace('.', ','),
-      isNumber: false,
-      dinamic: true
+      title: LocaleText.mps,
+      value: (this._service.baseFunctionsService.getAverageTime(this.data.data, 'created_at') + '').replace('.', ','),
+      isNumber: false
     });
+
+    this.generalViewerData = this.generalViewerData.splice(0, 1);
 
     this.generalViewerData.push(mps);
 
@@ -220,11 +366,13 @@ export class MessagesComponent extends BaseComponent<Message> implements OnInit,
 
     this.detectChanges();
 
-    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages, 10);
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.messages, 25);
 
     this.tableViewersLoading = false;
 
     this.filterLoading = false;
+
+    this.initComplete = true;
 
     this.detectChanges();
   }
