@@ -3,10 +3,12 @@ import { BaseComponent } from 'src/app/shared/components/app-base/app-base.compo
 import { AccountsService } from './accounts.service';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonQueries, MessageQueries, AccountQueries } from 'src/app/api/queries';
-import { ViewerData, TabViewerData, ItemList, Account } from 'src/app/api';
+import { ViewerData, TabViewerData, ItemList, Account, SimpleDataFilter } from 'src/app/api';
 import { takeUntil } from 'rxjs/operators';
 import { appRouteMap } from 'src/app/app-route-map';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-accounts',
@@ -23,6 +25,19 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
    * For skeleton animation
    */
   public skeletonArrayForGeneralViewer: Array<number> = new Array(2);
+  /**
+   * For skeleton animation
+   */
+  public skeletonArrayForFilter: Array<number> = new Array(3);
+
+  /** Общие тексты для страниц */
+  public locale = {
+    title: LocaleText.accountsPage,
+    date: LocaleText.transactionDateFilterPlaceholder,
+    tons: LocaleText.tonCountFilterPlaceholder,
+    loadMore: LocaleText.loadMore,
+    autoupdate: LocaleText.autoupdate,
+  };
 
   /**
    * Balance
@@ -34,6 +49,7 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
     protected _service: AccountsService,
     protected route: ActivatedRoute,
     protected router: Router,
+    protected dialog: MatDialog,
     private commonQueries: CommonQueries,
     private accountQueries: AccountQueries,
   ) {
@@ -42,6 +58,7 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
       _service,
       route,
       router,
+      dialog
     );
   }
 
@@ -76,51 +93,48 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
     this.totalBalance = null;
   }
 
-
-  /**
-   * Export method
-   */
-  public onExport(): void {
-    // TODO
-  }
-
   /**
    * Load more data
    * @param index Index of selected tab
    */
   public onLoadMore(index: number): void {
+    this.tableViewersLoading = true;
+    this.detectChanges();
 
-    // // this.tableViewerLoading = true;
+    let balance = this.data && this.data.data ? _.last(this.data.data).balance : null;
 
-    // // this.detectChanges();
+    let _p = this.params ?  _.clone(this.params) : new SimpleDataFilter();
 
-    // let balance = this.data[this.data.length - 1].balance;
+    _p.max = balance ? balance : null;
 
-    // balance = balance && balance.match('x') ? String(parseInt(balance, 16)) : balance;
+    this._service.getData(
+      this._service.getVariablesForAccounts(_p, false, 25),
+      this.accountQueries.getAccounts
+    )
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((res: Account[]) => {
 
-    // const _variables = {
-    //   filter: {balance: {le: balance}},
-    //   orderBy: [{path: 'balance', direction: 'DESC'}],
-    //   limit: 25,
-    // }
+        res = res ? res : [];
 
-    // // Get accounts
-    // this.accountsService.getAccounts(_variables)
-    //   .pipe(takeUntil(this.unsubscribe))
-    //   .subscribe((res: Account[]) => {
+        // hide load more btn
+        if (!res.length || res.length < 25) {
+          this.isFooterVisible = false;
+        }
 
-    //     let newData = this.mapData(res);
-    //     this.tableViewerData = _.clone(this.tableViewerData.concat(newData));
-    //     // this.tableViewerLoading = false;
+        this.data.data = _.union(this.data.data, res);
+        this.data.data = _.uniq(this.data.data, 'id');
+        this.data.total = this.data.data.length;
 
-    //     this.detectChanges();
+        this.tableViewerData = [];
 
-    //     // Scroll to bottom
-    //     // window.scrollTo(0, document.body.scrollHeight);
-      
-    //   }, (error: any) => {
-    //     console.log(error);
-    //   });
+        this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, null);
+
+        this.tableViewersLoading = false;
+        this.detectChanges();
+
+      }, (error: any) => {
+        console.log(error);
+      });
   }
 
   /**
@@ -151,13 +165,13 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
         this.generalViewerData = [];
 
         const getAccountsCount = new ViewerData({
-          title: 'Accounts',
+          title: LocaleText.accounts,
           value: generalData && generalData.getAccountsCount ? generalData.getAccountsCount : 0,
           isNumber: true
         });
 
         const getAccountsTotalBalance = new ViewerData({
-          title: 'Coins',
+          title: LocaleText.coins,
           value: generalData && generalData.getAccountsTotalBalance ? generalData.getAccountsTotalBalance : 0,
           isNumber: true
         });
@@ -195,7 +209,9 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((res: Account[]) => {
 
-        this.processData(res ? res : []);
+        res = res ? res : [];
+
+        this.processData(res);
 
       }, (error: any) => {
         console.log(error);
@@ -208,6 +224,11 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
    */
   private processData(_data: Account[]): void {
 
+    // hide load more btn
+    if (!_data.length || _data.length <= 25) {
+      this.isFooterVisible = false;
+    }
+
     /** Accounts */
     this.data = new ItemList({
       data: _data ? _data : [],
@@ -216,7 +237,9 @@ export class AccountsComponent extends BaseComponent<Account> implements OnInit,
       total: _data ? _data.length : 0
     });
 
-    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 10, this.totalBalance);
+    this.data.data = _.first(this.data.data, 25);
+
+    this.tableViewerData = this._service.mapDataForTable(this.data.data, appRouteMap.accounts, 25, this.totalBalance);
 
     this.tableViewersLoading = false;
 

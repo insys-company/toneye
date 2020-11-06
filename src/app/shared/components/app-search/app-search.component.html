@@ -8,7 +8,7 @@
       floatLabel="never" (click)="onOpenPanel()">
   
       <input matInput type="text" class="app-search__input"
-        placeholder="Type id of block, transaction, message, account or validator for search them" [(ngModel)]="search"
+        [placeholder]="locale?.placeholder" [(ngModel)]="search"
         tabindex="0" (keyup.enter)="onOpenPanel()" (keyup.space)="onOpenPanel()" #searchInput
         (focus)="focused=true;isResetClick = false;" (blur)="focused=false;closePanelWithDelay();" (ngModelChange)="onSearch(search)" autocomplete="off">
   

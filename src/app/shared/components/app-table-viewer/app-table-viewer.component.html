@@ -12,11 +12,11 @@
   </div>
 
   <div *ngIf="isHeaderVisible && isTabsHeaderMode" class="app-viewer__tabs-header-wrapper">
-    <div *ngFor="let item of tabsTitles;let index = index;trackBy:identifyTabs;"
+    <div *ngFor="let tabName of tabsTitles;let index = index;trackBy:identifyTabs;"
       class="app-viewer__tab-header" [class.app-viewer__tab-header--active]="index === selectedTabIndex"
       (click)="onChangeTab(index)">
 
-      <span class="color-gray" [class.color-blue]="index === selectedTabIndex">List {{item}}</span>
+      <span class="color-gray" [class.color-blue]="index === selectedTabIndex">{{tabName}}</span>
     </div>
   </div>
 
@@ -37,24 +37,24 @@
 
   <!-- Data -->
   <div *ngIf="!skeletalAnimation" @smoothDisplayAnimation class="app-viewer__body-wrapper">
-  
+
     <div class="app-viewer__body-new-items-wrapper" [class.app-viewer__body-new-items-wrapper--show]="newData?.length">
       <div class="app-viewer__body-new-items">
         <div class="app-viewer__header">
-          <span>{{newData?.length}} new {{newDataName}}</span>
+          <span>{{newData?.length}} {{locale?.new}} {{newDataName}}</span>
         </div>
-        <div class="app-viewer__btn" (click)="onShowNewData()">
-          <span class="color-blue">Show</span>
+        <div class="app-viewer__btn not-icon" (click)="onShowNewData()">
+          <span class="color-blue">{{locale?.show}}</span>
         </div>
       </div>
     </div>
 
     <div *ngIf="!data?.length" class="app-viewer__body-not-found">
-      <span class="color-gray">Not Found</span>
+      <span class="color-gray">{{locale?.notFound}}</span>
     </div>
     <a *ngFor="let item of data;trackBy:identifyData;" routerLink="/{{item?.url}}/{{item?.id}}" class="app-viewer__body-item border-bottom-light" [class.pointer]="item?.url && item?.id" [class.no-link]="!item?.url || !item?.id" (click)="onSelectItem(item)">
       <div class="app-viewer__body-item-row">
-        <span class="color-blue link no-pointer">{{item.titleLeft}}</span>
+        <span class="color-blue link">{{item.titleLeft}}</span>
 
         <!-- With icon -->
         <div class="app-viewer__body-item-icon-wrapper app-viewer__body-item-icon-wrapper--right">
@@ -67,7 +67,7 @@
       </div>
 
       <div class="app-viewer__body-item-row">
-        <p *ngIf="item.subtitleLeft?.type === 'date'">Last Tx: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
+        <p *ngIf="item.subtitleLeft?.type === 'date'">{{locale?.lastTx}}: {{item.subtitleLeft?.text ? (item.subtitleLeft?.text | unixdate: 'HH:mm:ss D MMM YYYY') : ''}}</p>
         <p *ngIf="item.subtitleLeft?.type !== 'date'">{{item.subtitleLeft?.text ? item.subtitleLeft?.text : ''}}</p>
 
         <p *ngIf="item.subtitleRight?.type === 'date'">{{item.subtitleRight?.text ? (item.subtitleRight?.text | unixdate: 'HH:mm:ss D MMM YYYY') : '' }}</p>
@@ -78,7 +78,7 @@
   </div>
 
   <!-- Footer -->
-  <div *ngIf="skeletalAnimation || (!skeletalAnimation && data?.length)" class="app-viewer__table-footer-wrapper">
+  <div *ngIf="skeletalAnimation || (!skeletalAnimation && data?.length && isFooterVisible)" class="app-viewer__table-footer-wrapper">
     <!-- Skeleton -->
     <div *ngIf="skeletalAnimation" class="app-viewer__body-item-subheader skeleton skeleton--normal-text w-25"></div>
     <!-- Button -->

@@ -53,7 +53,10 @@ export class BlockDetailsService extends BaseService<Block> {
       : undefined;
 
     let _now = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let _workchain_id = params.chain != null

@@ -1,5 +1,13 @@
 @import './../../../scss/abstracts/colors';
 
+.validators-page {
+
+  .page-header__header {
+    margin-bottom: 0;
+  }
+
+}
+
 .app-viewer__body-wrapper {
   transition: all .3s ease;
 }
@@ -32,14 +40,14 @@
       height: 0px;
       width: 0px;
       background-color: $explorer--base__black;
-      right: 40px;
+      right: 20px;
       border-radius: 4px 0 0 4px;
       transition: all .3s ease;
       opacity: 0;
     }
 
     &::before {
-      top: 18.5px;
+      top: 22px;
       -moz-transform: rotate(-45deg);
       -o-transform: rotate(-45deg);
       -webkit-transform: rotate(-45deg);
@@ -47,7 +55,7 @@
     }
 
     &::after {
-      bottom: 18.5px;
+      bottom: 21px;
       -moz-transform: rotate(45deg);
       -o-transform: rotate(45deg);
       -webkit-transform: rotate(45deg);
@@ -91,7 +99,7 @@
           margin-right: 0 !important;
           margin-bottom: 20px;
         }
-  
+
         &:first-child {
           border-right: none;
         }

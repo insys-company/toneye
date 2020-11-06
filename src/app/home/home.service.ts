@@ -52,7 +52,10 @@ export class HomeService extends BaseService<any> {
       : undefined;
 
     let _now = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let _workchain_id = params.chain != null
@@ -176,7 +179,10 @@ export class HomeService extends BaseService<any> {
       : undefined;
 
     let _created_at = params.fromDate != null || params.toDate != null
-      ? { ge: params.fromDate, le: params.toDate }
+      ? {
+        ge: params.fromDate != null ? Number(params.fromDate) : undefined,
+        le: params.toDate != null ? Number(params.toDate) : undefined
+      }
       : undefined;
 
     let _msg_type = params.ext_int == 'int'

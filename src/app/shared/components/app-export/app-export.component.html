@@ -1,0 +1,28 @@
+<div class="app-dialog app-dialog-export">
+  <div class="app-dialog__header">
+    <div class="app-dialog__title">
+      <span>{{locale?.title}}</span>
+    </div>
+
+  </div>
+
+  <div class="app-dialog__body">
+
+    <div *ngIf="isShowCountFiled" @dialogElementAnimation class="app-multiselect-panel__option-field app-dialog__element">
+      <mat-form-field appearance="outline" class="app-multiselect-panel__option-input" floatLabel="never">
+        <input matInput type="text" #countInput class="" [placeholder]="locale?.inputPlaceholder" [disabled]="disabled"
+          [(ngModel)]="total" (keyup.enter)="onExport()" tabindex="0" autocomplete="off" (ngModelChange)="numberValidator($event)">
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="!isShowCountFiled" @dialogElementAnimation class="app-dialog__body-info app-dialog__element">
+      <span>{{locale?.exported}} {{loadCount | thousandspipe}}/{{total | thousandspipe}} {{locale?.rows}}</span>
+    </div>
+
+  </div>
+
+  <div class="app-dialog__footer">
+    <button type="button" mat-stroked-button disableRipple [disabled]="(disabled || !total || total === '' || total === '0')" (click)="isShowCountFiled ? onExport() : onEnough()">{{isShowCountFiled ? locale?.title : locale?.enough}}</button>
+    <button type="button" mat-stroked-button disableRipple (click)="onCancel()">{{locale?.cancel}}</button>
+  </div>
+</div>

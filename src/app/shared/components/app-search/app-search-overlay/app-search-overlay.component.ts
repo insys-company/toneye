@@ -2,6 +2,7 @@ import { Component, InjectionToken, Inject, OnDestroy, OnInit } from '@angular/c
 import { AppSearchOverlayService } from './app-search-overlay.service';
 import { Block, Message, Transaction, Validator } from 'src/app/api/contracts';
 import { smoothSearchPanelAnimation } from 'src/app/app-animations';
+import { LocaleText } from 'src/locale/locale';
 
 export const SEARCH_PANEL_DATA = new InjectionToken<{}>('SEARCH_PANEL_DATA');
 export const NOT_FOUND = 'Not found';
@@ -13,6 +14,19 @@ export const NOT_FOUND = 'Not found';
   animations: [ smoothSearchPanelAnimation ],
 })
 export class AppSearchOverlayComponent implements OnInit, OnDestroy {
+  /** Общие тексты для страниц */
+  public locale = {
+    blocksTitle: LocaleText.blocks,
+    transactionsTitle: LocaleText.transactions,
+    messagesTitle: LocaleText.messages,
+    accountsTitle: LocaleText.accounts,
+    validatorsTitle: LocaleText.validators,
+    searchMessage: LocaleText.searchMessage,
+    searchTransaction: LocaleText.searchTransaction,
+    searchBlock: LocaleText.searchBlock,
+    notFound: LocaleText.notFound,
+  };
+
   /**
    * Список элементов для выбора
    */
@@ -71,13 +85,14 @@ export class AppSearchOverlayComponent implements OnInit, OnDestroy {
 
     this.notFoundTitle = this.notFoundTitle
       ? this.notFoundTitle
-      : NOT_FOUND;
+      : this.locale.notFound;
   }
 
   /**
    * Уничтожение компонента
    */
   public ngOnDestroy(): void {
+    this.locale = null;
     this.blocks = null;
     this.messages = null;
     this.transactions = null;

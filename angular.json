@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1, 
+  "version": 1,
   "newProjectRoot": "projects",
   "projects": {
     "tonexplorer": {
@@ -24,8 +24,8 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/icons"
             ],
             "styles": [
               "src/styles.scss"
@@ -38,6 +38,38 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.dev.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "15mb",
+                  "maximumError": "20mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "800kb",
+                  "maximumError": "1mb"
+                }
+              ]
+            },
+            "dev-kor": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                },
+                {
+                  "replace": "src/locale/locale.ts",
+                  "with": "src/locale/locale.kor.ts"
                 }
               ],
               "optimization": true,
@@ -89,11 +121,75 @@
                 }
               ]
             },
+            "test-kor": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                },
+                {
+                  "replace": "src/locale/locale.ts",
+                  "with": "src/locale/locale.kor.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "15mb",
+                  "maximumError": "20mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "800kb",
+                  "maximumError": "1mb"
+                }
+              ]
+            },
             "stage": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.stage.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "15mb",
+                  "maximumError": "20mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "800kb",
+                  "maximumError": "1mb"
+                }
+              ]
+            },
+            "stage-kor": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.stage.ts"
+                },
+                {
+                  "replace": "src/locale/locale.ts",
+                  "with": "src/locale/locale.kor.ts"
                 }
               ],
               "optimization": true,
@@ -144,6 +240,38 @@
                   "maximumError": "1mb"
                 }
               ]
+            },
+            "prod-kor": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "src/locale/locale.ts",
+                  "with": "src/locale/locale.kor.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "15mb",
+                  "maximumError": "20mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "800kb",
+                  "maximumError": "1mb"
+                }
+              ]
             }
           }
         },
@@ -156,14 +284,26 @@
             "dev": {
               "browserTarget": "tonexplorer:build:dev"
             },
+            "dev-kor": {
+              "browserTarget": "tonexplorer:build:dev-kor"
+            },
             "test": {
               "browserTarget": "tonexplorer:build:test"
+            },
+            "test-kor": {
+              "browserTarget": "tonexplorer:build:test-kor"
             },
             "stage": {
               "browserTarget": "tonexplorer:build:stage"
             },
+            "stage-kor": {
+              "browserTarget": "tonexplorer:build:stage-kor"
+            },
             "prod": {
               "browserTarget": "tonexplorer:build:prod"
+            },
+            "prod-kor": {
+              "browserTarget": "tonexplorer:build:prod-kor"
             }
           }
         },
@@ -213,14 +353,26 @@
             "dev": {
               "devServerTarget": "tonexplorer:serve:dev"
             },
+            "dev-kor": {
+              "devServerTarget": "tonexplorer:serve:dev-kor"
+            },
             "test": {
               "devServerTarget": "tonexplorer:serve:test"
+            },
+            "test-kor": {
+              "devServerTarget": "tonexplorer:serve:test-kor"
             },
             "stage": {
               "devServerTarget": "tonexplorer:serve:stage"
             },
+            "stage-kor": {
+              "devServerTarget": "tonexplorer:serve:stage-kor"
+            },
             "prod": {
               "devServerTarget": "tonexplorer:serve:prod"
+            },
+            "prod-kor": {
+              "devServerTarget": "tonexplorer:serve:prod-kor"
             }
           }
         }

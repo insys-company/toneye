@@ -6,6 +6,7 @@ import { MIN, MAX } from './app-datepicker-overlay/app-datepicker-overlay.compon
 import { Subscription } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 export type MaterialType = 'legacy' | 'standard' | 'fill' | 'outline';
 
@@ -289,8 +290,8 @@ export class AppDatepickerComponent implements OnInit, OnDestroy {
     this.fromDate = this.fromDate != null ? this.fromDate : null;
     this.toDate = this.toDate != null ? this.toDate : null;
     this.panelClass = this.panelClass != null ? this.panelClass : null;
-    this.fromPlaceholder = this.fromPlaceholder != null ? this.fromPlaceholder : MIN;
-    this.toPlaceholder = this.toPlaceholder != null ? this.toPlaceholder : MAX;
+    this.fromPlaceholder = this.fromPlaceholder != null ? this.fromPlaceholder : LocaleText.from;
+    this.toPlaceholder = this.toPlaceholder != null ? this.toPlaceholder : LocaleText.to;
   }
 
   /**

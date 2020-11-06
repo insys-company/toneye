@@ -42,13 +42,13 @@ export class AccountsService extends BaseService<Account> {
    * Variables for blocks
    * @param params Filter params
    */
-  public getVariablesForAccounts(params: SimpleDataFilter): object {
+  public getVariablesForAccounts(params: SimpleDataFilter, isParse: boolean = true, limit: number = 50): object {
     params = params ? params : new SimpleDataFilter({});
 
     let _balance = params.min != null || params.max != null
       ? {
-        ge: params.min != null ? this.baseFunctionsService.decimalToHex(params.min) : undefined,
-        le: params.max != null ? this.baseFunctionsService.decimalToHex(params.max) : undefined
+        ge: params.min != null ? isParse ? this.baseFunctionsService.decimalToHex(params.min) : params.min : undefined,
+        le: params.max != null ? isParse ?  this.baseFunctionsService.decimalToHex(params.max) : params.max : undefined
       }
       : undefined;
 
@@ -70,58 +70,7 @@ export class AccountsService extends BaseService<Account> {
         last_paid: _last_paid
       },
       orderBy: [{path: 'balance', direction: 'DESC'}],
-      limit: 50
+      limit: limit
     };
   }
-
-  // constructor(
-  //   private apollo: Apollo,
-  //   private accountQueries: AccountQueries,
-  //   private commonQueries: CommonQueries,
-  // ) {
-  //   // TODO
-  // }
-
-  // ngUnsubscribe(): void {
-  //   this._unsubscribe.next();
-  //   this._unsubscribe.complete();
-  // }
-
-  // /**
-  //  * Get general information
-  //  *
-  //  * queries:
-  //  * getAccountsCount
-  //  * getAccountsTotalBalance
-  //  */
-  // getGeneralData(): Observable<any>{
-  //   return this.apollo.watchQuery<any>({
-  //     query: this.commonQueries.getGeneralAccountData,
-  //     variables: {},
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data))
-  // }
-
-  // /**
-  //  * Get accounts list
-  //  * @param params Variables by filters for query
-  //  */
-  // getAccounts(params?: any): Observable<Account[]> {
-
-  //   const _variables = {
-  //     filter: {},
-  //     limit: 50,
-  //     orderBy:  [{path: "balance", direction: "DESC"}],
-  //   }
-
-  //   return this.apollo.watchQuery<Transaction[]>({
-  //     query: this.accountQueries.getAccounts,
-  //     variables: params ? params : _variables,
-  //     errorPolicy: 'all'
-  //   })
-  //   .valueChanges
-  //   .pipe(takeUntil(this._unsubscribe), map(res => res.data[appRouteMap.accounts]))
-  // }
 }

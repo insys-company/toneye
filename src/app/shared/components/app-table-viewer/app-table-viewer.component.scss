@@ -5,7 +5,7 @@
   transition: all .3s ease;
 }
 
-.app-viewer__btn {
+.app-viewer__btn:not(.not-icon) {
   background-image: url($ico-download);
   background-repeat: no-repeat;
   background-position-y: center;

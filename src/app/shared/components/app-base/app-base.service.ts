@@ -77,7 +77,7 @@ export class BaseService<TModel extends IModel> {
    * @param arrayLength Length of mapped array
    * @param _data Aditional data
    */
-  public mapDataForTable(_list: any[], type: string, arrayLength: number = 10, _data?: any): TabViewerData[] {
+  public mapDataForTable(_list: any[], type: string, arrayLength: number = null, _data?: any): TabViewerData[] {
     if (!_list || !_list.length) { return []; }
 
     let data = [];
@@ -111,7 +111,7 @@ export class BaseService<TModel extends IModel> {
 
     data = _.without(data, null);
 
-    data = _.clone(_.first(data, arrayLength));
+    data = arrayLength != null ? _.clone(_.first(data, arrayLength)) : _.clone(data);
 
     return data;
   }
@@ -177,6 +177,7 @@ export class BaseService<TModel extends IModel> {
     return this.apollo.watchQuery<ItemList<any>>({
       query: _graphQ,
       variables: _variables,
+      fetchPolicy: 'network-only',
       errorPolicy: 'all'
     })
     .valueChanges
@@ -208,6 +209,7 @@ export class BaseService<TModel extends IModel> {
     return this.apollo.watchQuery<ItemList<any>>({
       query: _graphQ,
       variables: _variables,
+      fetchPolicy: 'network-only',
       errorPolicy: 'all'
     })
     .valueChanges

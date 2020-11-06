@@ -1,0 +1,22 @@
+@mixin explorer--base_shadow_as_border($color) {
+  box-shadow: 0 0 0 1px $color inset;
+  border-radius: $explorer--base__border-radius;
+}
+
+@mixin explorer--base_border_inset_basic {
+  @include explorer--base_shadow_as_border($explorer--base__gray-light);
+}
+
+@mixin explorer--base_border_inset_aqua {
+  @include explorer--base_shadow_as_border($explorer--base__search-border);
+}
+
+@mixin explorer--base_border_outset_basic {
+  border: 1px solid $explorer--base__search-border;
+  border-radius: $explorer--base__border-radius;
+}
+
+@mixin explorer--base_border_outset_aqua {
+ border: 1px solid $explorer--base__search-border;
+  border-radius: $explorer--base__border-radius;
+}

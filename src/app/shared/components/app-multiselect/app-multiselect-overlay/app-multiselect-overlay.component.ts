@@ -2,16 +2,14 @@ import { Component, ViewChild, InjectionToken, Inject, OnDestroy, OnInit, HostLi
 import { MatFormField } from '@angular/material/form-field';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { AppMultiselectOverlayService } from './app-multiselect-overlay.service';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { ItemList, SimpleDataFilter } from 'src/app/api/contracts';
+import { distinctUntilChanged } from 'rxjs/operators';
+import { SimpleDataFilter } from 'src/app/api/contracts';
 import { Subscription, Subject } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
 import _ from 'underscore';
+import { LocaleText } from 'src/locale/locale';
 
 export const MULTISELECT_PANEL_DATA = new InjectionToken<{}>('MULTISELECT_PANEL_DATA');
-const SEARCH_PLACEHOLDER = 'Search...';
-const NOT_FOUND = 'Not found';
-const SELECT_ALL = 'Select All';
 @Component({
   selector: 'app-multiselect-overlay',
   templateUrl: './app-multiselect-overlay.component.html',
@@ -19,6 +17,12 @@ const SELECT_ALL = 'Select All';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, AfterContentInit, OnDestroy {
+  /** Общие тексты для страниц */
+  private locale = {
+    selectAll: LocaleText.selectAll,
+    searchPlaceholder: LocaleText.search,
+    notFound: LocaleText.notFound,
+  };
   /**
    * Для отписок на запросы
    * @type {Subject<void>}
@@ -318,13 +322,13 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
 
     this.selectAllPlaceholder = this.selectAllPlaceholder
       ? this.selectAllPlaceholder
-      : SELECT_ALL;
+      : this.locale.selectAll;
 
     this.panelClass = this.data.data.panelClass;
 
     this.searchPlaceholder = this.searchPlaceholder
       ? this.searchPlaceholder
-      : SEARCH_PLACEHOLDER;
+      : `${this.locale.searchPlaceholder}...`;
 
     if (!this.multiple) {
       this.optionsLimitEnable = false;
@@ -333,7 +337,7 @@ export class AppMultiselectOverlayComponent implements OnInit, AfterViewInit, Af
 
     this.notFoundTitle = this.notFoundTitle
       ? this.notFoundTitle
-      : NOT_FOUND;
+      : this.locale.notFound;
 
     if (this.optionsLimitEnable && !this.optionsLimit) {
       this.optionsLimit = 10;
