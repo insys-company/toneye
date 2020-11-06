@@ -208,7 +208,7 @@ export class ContractsComponent extends BaseComponent<any> implements OnInit, On
                   type: 'number'
                 }),
                 subtitleRight: new DataConfig({
-                  text: `Contracts: ${byHash['aggregateAccounts'][0]} | Active: ${byType['aggregateAccounts'][0]} | New: ${mess['aggregateMessages'][0]}`,
+                  text: `${LocaleText.contracts}: ${byHash['aggregateAccounts'][0]} | ${LocaleText.active}: ${byType['aggregateAccounts'][0]} | ${LocaleText.new}: ${mess['aggregateMessages'][0]}`,
                   type: 'string'
                 })
               });
