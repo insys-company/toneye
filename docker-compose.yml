@@ -15,16 +15,3 @@ services:
         logging:
             options:
                 max-size: 50m
-    "toneye-english":
-        image: insyscompany/toneye:release-english
-        build: 
-            context: .
-            dockerfile: Dockerfile
-        container_name: toneye-english
-        restart: always
-        ports:
-            - 8080:80
-            - 8443:443
-        logging:
-            options:
-                max-size: 50m

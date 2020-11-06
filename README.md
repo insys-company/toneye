@@ -56,12 +56,10 @@ Use `prod` (English version) and `prod-kor` (Korean version) configurations to b
 
 ### Installation
 
-The release version of the Toneye language is Korean. Additional language is English.
-
 #### Docker CLI
 ```
 docker pull insyscompany/toneye:release && \
-docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye-korean insyscompany/toneye:release
+docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release
 ```
 
 #### Docker Compose CLI
@@ -69,22 +67,7 @@ docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-si
 docker-compose up -d toneye
 ```
 
-#### English version
-
-##### Docker CLI
-```
-docker pull insyscompany/toneye:release-english && \
-docker run -it -p 8080:80 -p 8443:443 --detach --restart always --log-opt max-size=50m --name toneye insyscompany/toneye:release-english
-```
-
-##### Docker Compose CLI
-```
-docker-compose up -d toneye-english
-```
-
 ### Build
-
-#### Korean version
 
 Docker CLI
 ```
@@ -94,16 +77,4 @@ docker build . -t insyscompany/toneye:release
 Docker Compose CLI
 ```
 docker-compose build toneye
-```
-
-#### English version
-
-Docker CLI
-```
-docker build . -t insyscompany/toneye:release-english
-```
-
-Docker Compose CLI
-```
-docker-compose build toneye-english
 ```
